@@ -53,7 +53,9 @@ namespace DGJv3
         public BlackListItem[] Blacklist { get; set; } = new BlackListItem[0];
 
         [JsonProperty("sbtp")]
-        public string ScribanTemplate { get; set; } = "播放进度 {{当前播放时间}}/{{当前总时间}}\n" +
+        public string ScribanTemplate { get; set; } = "正在播放：{{ 当前播放 }}-{{ 当前歌手 }}-{{ 当前点歌用户 }}-{{ 当前模块 }}\n" +
+            "正在播放：{{ 下一首播放 }}-{{ 下一首歌手 }}-{{ 下一首点歌用户 }}-{{ 下一首模块 }}\n" +
+            "播放进度 {{当前播放时间}}/{{当前总时间}}\n" +
             "当前列表中有 {{ 歌曲数量 }} 首歌\n还可以再点 {{ 总共最大点歌数量 - 歌曲数量 }} 首歌\n" +
             "每个人可以点 {{ 单人最大点歌数量 }} 首歌\n\n歌名 - 点歌人 - 歌手 - 歌曲平台\n" +
             "{{~ for 歌曲 in 播放列表 ~}}\n" +

@@ -97,6 +97,10 @@ namespace DGJv3
                 歌曲id = x.Id,
                 搜索模块 = x.Module.ModuleName,
             });
+
+            var playingSong = Songs?.Where(o => o.Status == SongStatus.Playing).FirstOrDefault();
+            var waitPlaySong = Songs?.Where(o => o.Status == SongStatus.WaitingPlay).FirstOrDefault();
+
             var localresult = template?.Render(new
             {
                 播放列表 = localsongs,
@@ -106,6 +110,16 @@ namespace DGJv3
                 当前总时间 = Player.TotalTimeString,
                 总共最大点歌数量 = DanmuHandler.MaxTotalSongNum,
                 单人最大点歌数量 = DanmuHandler.MaxPersonSongNum,
+
+                当前播放 = playingSong == null?"無歌曲": playingSong.SongName,
+                当前歌手 = playingSong == null?"": playingSong.Singers==null?"":string.Join("/",playingSong.Singers),
+                当前点歌用户 = playingSong == null?"": playingSong.UserName,
+                当前模块 = playingSong == null?"": playingSong.Module?.ModuleName,
+
+                下一首播放 = waitPlaySong == null ? "無歌曲" : waitPlaySong.SongName,
+                下一首歌手 = waitPlaySong == null ? "" : waitPlaySong.Singers == null ? "" : string.Join("/", waitPlaySong.Singers),
+                下一首点歌用户 = waitPlaySong == null ? "" : waitPlaySong.UserName,
+                下一首模块 = waitPlaySong == null ? "" : waitPlaySong.Module?.ModuleName,
             }) ?? string.Empty;
 
             if (localresult != string.Empty)

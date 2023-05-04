@@ -37,6 +37,8 @@ namespace DGJv3
         public UniversalCommand PlayPauseCommand { get; private set; }
         public UniversalCommand NextCommand { get; private set; }
 
+        public UniversalCommand ChangePlayModeCommand { get; private set; }
+
         /// <summary>
         /// 播放器类型
         /// </summary>
@@ -131,6 +133,15 @@ namespace DGJv3
         }
 
         /// <summary>
+        /// 播放模式
+        /// </summary>
+        public PlayMode CurrentPlayMode
+        {
+            get;
+            set;
+        } = PlayMode.LooptListPlay;
+
+        /// <summary>
         /// 当前歌曲播放状态
         /// </summary>
         public PlayerStatus Status
@@ -214,6 +225,19 @@ namespace DGJv3
             PropertyChanged += This_PropertyChanged;
             PlayPauseCommand = new UniversalCommand((obj) => { IsPlaying ^= true; });
             NextCommand = new UniversalCommand((obj) => { Next(); });
+
+            ChangePlayModeCommand = new UniversalCommand((obj) => {
+                if (Convert.ToInt32(CurrentPlayMode) >= 3)
+                {
+                    CurrentPlayMode = 0;
+                }
+                else
+                {
+                    CurrentPlayMode = CurrentPlayMode + 1;
+                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPlayMode)));
+
+            });
         }
 
         private void This_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -288,17 +312,73 @@ namespace DGJv3
                 int time = 0;
                 do
                 {
-                    index = random.Next(0, Playlist.Count);
+                    //顺序播放
+                    index = 0;
+                    if (CurrentPlayMode!=PlayMode.ShufflePlay)
+                    {
+                    
+                        //默认第一首
+                        if (!string.IsNullOrEmpty(currentSong?.SongId))
+                        {
+                            //如果当前有播放的歌曲，则根据ID推算下一首歌曲
+                            for (int i = 0; i < Playlist.Count; i++)
+                            {
+                                
+                                if (Playlist[i].Id == currentSong?.SongId)
+                                {
+                                    if (CurrentPlayMode == PlayMode.LoopOnetPlay)
+                                    {
+                                        //单曲循环
+                                        index = i;
+                                    }
+                                    else if(CurrentPlayMode==  PlayMode.LooptListPlay)
+                                    {
+                                        //列表循环
+                                        if (i < Playlist.Count - 1)
+                                        {
+                                            index = i + 1;
+                                        }
+                                        else
+                                        {
+                                            index = 0;
+                                        }
+                                    }
+                                    else if(CurrentPlayMode== PlayMode.ListPlay)
+                                    {
+                                        //列表顺序播放
+                                        if (i < Playlist.Count - 1)
+                                        {
+                                            index = i + 1;
+                                        }
+                                        else
+                                        {
+                                            index = -1;
+                                            
+                                        }
+                                    }
+
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //随机播放
+                        index = random.Next(0, Playlist.Count);
+                    }
                     time++;
-                } while (Songs.Any(ele => Playlist[index].Id == ele.SongId) && time < 3);
+                } while (index > -1 && Songs.Any(ele => Playlist[index].Id == ele.SongId) && time < 3);
 
-
-                SongInfo info = Playlist[index];
-                if (info.Lyric == null)
+                if (index > -1)
                 {
-                    info.Lyric = info.Module.SafeGetLyricById(info.Id);
+                    SongInfo info = Playlist[index];
+                    if (info.Lyric == null)
+                    {
+                        info.Lyric = info.Module.SafeGetLyricById(info.Id);
+                    }
+                    Songs.Add(new SongItem(info, Utilities.SparePlaylistUser));
                 }
-                Songs.Add(new SongItem(info, Utilities.SparePlaylistUser));
             }
         }
 

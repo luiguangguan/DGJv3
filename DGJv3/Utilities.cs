@@ -47,5 +47,17 @@ namespace DGJv3
 
         internal static readonly string SparePlaylistUser = "空闲歌单";
 
+        //当前信息
+        internal static readonly string CurrentSong = Path.Combine(DataDirectoryPath, "正在播放曲目.txt");
+
+        internal static readonly string CurrentTime = Path.Combine(DataDirectoryPath, "正在播放的时间.txt");
+
+        internal static readonly string CurrentTotalTime = Path.Combine(DataDirectoryPath, "正在播放总时长.txt");
+
+        internal static readonly string CurrentArtist = Path.Combine(DataDirectoryPath, "正在播放艺术家.txt");
+
+        internal static readonly string CurrentBiliUser= Path.Combine(DataDirectoryPath, "正在播放B站用户.txt");
+
+
     }
 }

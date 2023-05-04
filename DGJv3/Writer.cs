@@ -101,25 +101,43 @@ namespace DGJv3
             var playingSong = Songs?.Where(o => o.Status == SongStatus.Playing).FirstOrDefault();
             var waitPlaySong = Songs?.Where(o => o.Status == SongStatus.WaitingPlay).FirstOrDefault();
 
+            var 播放列表 = localsongs;
+            var 空闲歌单 = localplaylist;
+            int 歌曲数量 = Songs.Count;
+            string 当前播放时间 = Player.CurrentTimeString;
+            string 当前总时间 = Player.TotalTimeString;
+            var 总共最大点歌数量 = DanmuHandler.MaxTotalSongNum;
+            var 单人最大点歌数量 = DanmuHandler.MaxPersonSongNum;
+
+            string 当前播放 = playingSong == null ? "無歌曲" : playingSong.SongName;
+            string 当前歌手 = playingSong == null ? "" : playingSong.Singers == null ? "" : string.Join("/", playingSong.Singers);
+            string 当前点歌用户 = playingSong == null ? "" : playingSong.UserName;
+            string 当前模块 = playingSong == null ? "" : playingSong.Module?.ModuleName;
+
+            string 下一首播放 = waitPlaySong == null ? "無歌曲" : waitPlaySong.SongName;
+            string 下一首歌手 = waitPlaySong == null ? "" : waitPlaySong.Singers == null ? "" : string.Join("/", waitPlaySong.Singers);
+            string 下一首点歌用户 = waitPlaySong == null ? "" : waitPlaySong.UserName;
+            string 下一首模块 = waitPlaySong == null ? "" : waitPlaySong.Module?.ModuleName;
+
             var localresult = template?.Render(new
             {
-                播放列表 = localsongs,
-                空闲歌单 = localplaylist,
-                歌曲数量 = Songs.Count,
-                当前播放时间 = Player.CurrentTimeString,
-                当前总时间 = Player.TotalTimeString,
-                总共最大点歌数量 = DanmuHandler.MaxTotalSongNum,
-                单人最大点歌数量 = DanmuHandler.MaxPersonSongNum,
+                播放列表,
+                空闲歌单,
+                歌曲数量,
+                当前播放时间,
+                当前总时间,
+                总共最大点歌数量,
+                单人最大点歌数量,
 
-                当前播放 = playingSong == null?"無歌曲": playingSong.SongName,
-                当前歌手 = playingSong == null?"": playingSong.Singers==null?"":string.Join("/",playingSong.Singers),
-                当前点歌用户 = playingSong == null?"": playingSong.UserName,
-                当前模块 = playingSong == null?"": playingSong.Module?.ModuleName,
+                当前播放,
+                当前歌手,
+                当前点歌用户,
+                当前模块,
 
-                下一首播放 = waitPlaySong == null ? "無歌曲" : waitPlaySong.SongName,
-                下一首歌手 = waitPlaySong == null ? "" : waitPlaySong.Singers == null ? "" : string.Join("/", waitPlaySong.Singers),
-                下一首点歌用户 = waitPlaySong == null ? "" : waitPlaySong.UserName,
-                下一首模块 = waitPlaySong == null ? "" : waitPlaySong.Module?.ModuleName,
+                下一首播放,
+                下一首歌手,
+                下一首点歌用户,
+                下一首模块
             }) ?? string.Empty;
 
             if (localresult != string.Empty)
@@ -129,6 +147,12 @@ namespace DGJv3
                 try
                 {
                     File.WriteAllText(Utilities.ScribanOutputFilePath, Result);
+
+                    File.WriteAllText(Utilities.CurrentArtist, 当前歌手);
+                    File.WriteAllText(Utilities.CurrentBiliUser, 当前点歌用户);
+                    File.WriteAllText(Utilities.CurrentSong, 当前播放);
+                    File.WriteAllText(Utilities.CurrentTime, 当前播放时间);
+                    File.WriteAllText(Utilities.CurrentTotalTime, 当前总时间);
                 }
                 catch (Exception) { }
             }
@@ -140,6 +164,12 @@ namespace DGJv3
                     {
                         Result = "模板有错误" + Environment.NewLine + string.Join(Environment.NewLine, template.Messages);
                         File.WriteAllText(Utilities.ScribanOutputFilePath, Result);
+
+                        File.WriteAllText(Utilities.CurrentArtist, "");
+                        File.WriteAllText(Utilities.CurrentBiliUser, "");
+                        File.WriteAllText(Utilities.CurrentSong, "");
+                        File.WriteAllText(Utilities.CurrentTime, "");
+                        File.WriteAllText(Utilities.CurrentTotalTime, "");
                     }
                     catch (Exception) { }
                 }

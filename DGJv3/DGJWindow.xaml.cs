@@ -197,6 +197,8 @@ namespace DGJv3
             IsLogRedirectDanmaku = config.IsLogRedirectDanmaku;
             LogDanmakuLengthLimit = config.LogDanmakuLengthLimit;
 
+            Player.CurrentPlayMode= config.CurrentPlayMode;
+
             LogRedirectToggleButton.IsEnabled = LoginCenterAPIWarpper.CheckLoginCenter();
             if (LogRedirectToggleButton.IsEnabled && IsLogRedirectDanmaku)
             {
@@ -249,6 +251,7 @@ namespace DGJv3
             Blacklist = Blacklist.ToArray(),
             IsLogRedirectDanmaku = IsLogRedirectDanmaku,
             LogDanmakuLengthLimit = LogDanmakuLengthLimit,
+            CurrentPlayMode=Player.CurrentPlayMode,
         };
 
         /// <summary>

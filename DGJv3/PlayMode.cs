@@ -10,20 +10,22 @@ namespace DGJv3
 {
     public enum PlayMode
     {
-        /// <summary>
-        /// 列表播放
-        /// </summary>
-        ListPlay=0,
+       
         /// <summary>
         /// 列表循环
         /// </summary>
-        LooptListPlay = 1,
+        LooptListPlay = 0,
         //单曲循环
-        LoopOnetPlay = 2,
+        LoopOnetPlay = 1,
         /// <summary>
         /// 随机播放
         /// </summary>
-        ShufflePlay = 3,
+        ShufflePlay = 2,
+
+        /// <summary>
+        /// 列表播放
+        /// </summary>
+        //ListPlay = 3,
     }
 
     //class PlayModeConverter : IValueConverter

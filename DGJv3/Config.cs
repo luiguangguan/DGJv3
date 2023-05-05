@@ -51,6 +51,8 @@ namespace DGJv3
 
         [JsonProperty("blst")]
         public BlackListItem[] Blacklist { get; set; } = new BlackListItem[0];
+        [JsonProperty("cpm")]
+        public PlayMode CurrentPlayMode { get; set; } = PlayMode.LooptListPlay;
 
         [JsonProperty("sbtp")]
         public string ScribanTemplate { get; set; } = "正在播放：{{ 当前播放 }}-{{ 当前歌手 }}-{{ 当前点歌用户 }}-{{ 当前模块 }}\n" +
@@ -89,7 +91,7 @@ namespace DGJv3
         {
             try
             {
-                File.WriteAllText(Utilities.ConfigFilePath, JsonConvert.SerializeObject(config), Encoding.UTF8);
+                File.WriteAllText(Utilities.ConfigFilePath, JsonConvert.SerializeObject(config,Formatting.Indented), Encoding.UTF8);
             }
             catch (Exception ex)
             {

@@ -227,17 +227,28 @@ namespace DGJv3
             NextCommand = new UniversalCommand((obj) => { Next(); });
 
             ChangePlayModeCommand = new UniversalCommand((obj) => {
-                if (Convert.ToInt32(CurrentPlayMode) >= 3)
-                {
-                    CurrentPlayMode = 0;
-                }
-                else
-                {
-                    CurrentPlayMode = CurrentPlayMode + 1;
-                }
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPlayMode)));
-
+                TogglePlayMode(true);
             });
+        }
+
+        /// <summary>
+        /// 播放模式切换
+        /// <paramref name="tr_event">触发属性改变事件</paramref>
+        /// </summary>
+        public void TogglePlayMode(bool tr_event=false)
+        {
+            if (Convert.ToInt32(CurrentPlayMode) >= 2)
+            {
+                CurrentPlayMode = 0;
+            }
+            else
+            {
+                CurrentPlayMode = CurrentPlayMode + 1;
+            }
+            if (tr_event)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPlayMode)));
+            }
         }
 
         private void This_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -343,19 +354,19 @@ namespace DGJv3
                                             index = 0;
                                         }
                                     }
-                                    else if(CurrentPlayMode== PlayMode.ListPlay)
-                                    {
-                                        //列表顺序播放
-                                        if (i < Playlist.Count - 1)
-                                        {
-                                            index = i + 1;
-                                        }
-                                        else
-                                        {
-                                            index = -1;
+                                    //else if(CurrentPlayMode== PlayMode.ListPlay)
+                                    //{
+                                    //    //列表顺序播放
+                                    //    if (i < Playlist.Count - 1)
+                                    //    {
+                                    //        index = i + 1;
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        index = -1;
                                             
-                                        }
-                                    }
+                                    //    }
+                                    //}
 
                                         break;
                                 }

@@ -306,21 +306,18 @@
                             <StackPanel Margin="5,0" Orientation="Vertical" Grid.Row="1">
                                 <StackPanel Margin="5" Orientation="Horizontal">
                                     <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Player.IsPlaylistEnabled}"/>
-                                    <TextBlock TextAlignment="Center" VerticalAlignment="Center">没有点歌时从列表随机播放</TextBlock>
+                                    <TextBlock TextAlignment="Center" VerticalAlignment="Center">没有点歌时从列表[随机]播放</TextBlock>
                                 </StackPanel>
                                 <StackPanel Margin="5" Orientation="Horizontal">
-                                    <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Command="{Binding Player.ChangePlayModeCommand}">
+                                    <Button Style="{StaticResource MaterialDesignToolButton}" Visibility="{Binding Player.IsPlaylistEnabled,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource True}}" Command="{Binding Player.ChangePlayModeCommand}">
                                         <Grid>
-                                            
-                                            <!--<materialDesign:PackIcon Width="24" Height="24" Kind="Shuffle"
-                                                 Visibility="{Binding Player.IsPlaying,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource False}}"/>-->
-
+                                            <!--MaterialDesignFloatingActionMiniButton-->
                                             <materialDesign:PackIcon Width="24" Height="24" Kind="ShuffleVariant"
                                                  Visibility="{Binding Player.CurrentPlayMode,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayMode.ShufflePlay}}"/>
                                             <materialDesign:PackIcon Width="24" Height="24" Kind="Repeat"
                                                  Visibility="{Binding Player.CurrentPlayMode,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayMode.LooptListPlay}}"/>
-                                            <materialDesign:PackIcon Width="24" Height="24" Kind="PlaylistPlay"
-                                                 Visibility="{Binding Player.CurrentPlayMode,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayMode.ListPlay}}"/>
+                                            <!--<materialDesign:PackIcon Width="24" Height="24" Kind="PlaylistPlay"
+                                                 Visibility="{Binding Player.CurrentPlayMode,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayMode.ListPlay}}"/>-->
                                             <materialDesign:PackIcon Width="24" Height="24" Kind="RepeatOnce"
                                                  Visibility="{Binding Player.CurrentPlayMode,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayMode.LoopOnetPlay}}"/>
                                         </Grid>

@@ -56,7 +56,7 @@ namespace DGJv3
                 string output = "";
                 foreach (string str in Singers)
                     output += str + ";";
-                return output;
+                return output?.TrimEnd(';');
             }
         }
 

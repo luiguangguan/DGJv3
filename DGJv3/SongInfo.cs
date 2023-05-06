@@ -20,7 +20,7 @@ namespace DGJv3
         [JsonProperty("sing")]
         public string[] Singers { get; set; }
         [JsonIgnore]
-        public string SingersText { get => string.Join(";", Singers).TrimEnd(';'); }
+        public string SingersText { get => string.Join(";", Singers); }
 
         /// <summary>
         /// Lyric存储的是这个歌曲的歌词文件，为null时，会认为是延迟获取，在下载歌曲时再通过接口尝试获取lrc

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DGJv3
 {
@@ -68,11 +69,18 @@ namespace DGJv3
 
         public override void Admin()
         {
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.Show();
             window.Activate();
+            
         }
 
         public override void DeInit() => window.DeInit();
+
+        public override void Inited()
+        {
+            window.SetMusicModule();
+        }
 
         private static Assembly OnResolveAssembly(object sender, ResolveEventArgs args)
         {

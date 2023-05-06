@@ -46,13 +46,16 @@ namespace DGJv3
         [JsonProperty("ldll")]
         public int LogDanmakuLengthLimit { get; set; } = 20;
 
-        [JsonProperty("plst")]
-        public SongInfo[] Playlist { get; set; } = new SongInfo[0];
-
         [JsonProperty("blst")]
         public BlackListItem[] Blacklist { get; set; } = new BlackListItem[0];
         [JsonProperty("cpm")]
         public PlayMode CurrentPlayMode { get; set; } = PlayMode.LooptListPlay;
+
+        [JsonProperty("lsid")]
+        public string LastSongId { get; set; }
+
+        [JsonProperty("plst")]
+        public SongInfo[] Playlist { get; set; } = new SongInfo[0];
 
         [JsonProperty("sbtp")]
         public string ScribanTemplate { get; set; } = "正在播放：{{ 当前播放 }}-{{ 当前歌手 }}-{{ 当前点歌用户 }}-{{ 当前模块 }}\n" +

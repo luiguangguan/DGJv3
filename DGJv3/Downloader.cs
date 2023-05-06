@@ -195,7 +195,10 @@ namespace DGJv3
             }
             else
             {
-                    currentSong.Module.SongDownloadFail(currentSong.SongId,e.Error);
+                if((e.Error as System.Net.WebException)?.Status != WebExceptionStatus.Success)
+                {
+                    //告知音乐搜索模块下载文件失败
+                    currentSong.Module.SongDownloadFail(currentSong.SongId, e.Error);
                 }
                 dispatcher.Invoke(() => Songs.Remove(currentSong));
                 Log("下载错误 " + currentSong.SongName, e.Error);

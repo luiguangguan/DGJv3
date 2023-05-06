@@ -255,6 +255,12 @@ namespace DGJv3
             { Name = "ModuleSafeSetting", IsBackground = true }.Start();
         }
 
+        /// <summary>
+        /// 歌曲下载失败了
+        /// </summary>
+        /// <param name="song"></param>
+        public abstract void SongDownloadFail(string song,Exception ex);
+
         /*
         /// <summary>
         /// 设置插件本体

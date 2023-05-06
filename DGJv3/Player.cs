@@ -39,6 +39,8 @@ namespace DGJv3
 
         public UniversalCommand ChangePlayModeCommand { get; private set; }
 
+        public string LastSongId { get; set; }
+
         /// <summary>
         /// 播放器类型
         /// </summary>
@@ -323,60 +325,79 @@ namespace DGJv3
                 int time = 0;
                 do
                 {
-                    //顺序播放
+                    //默认第一首
                     index = 0;
-                    if (CurrentPlayMode!=PlayMode.ShufflePlay)
+                    var currentSongId = currentSong?.SongId;
+                    if (string.IsNullOrEmpty(currentSongId) && !string.IsNullOrEmpty(LastSongId))
                     {
-                    
-                        //默认第一首
-                        if (!string.IsNullOrEmpty(currentSong?.SongId))
-                        {
-                            //如果当前有播放的歌曲，则根据ID推算下一首歌曲
-                            for (int i = 0; i < Playlist.Count; i++)
-                            {
-                                
-                                if (Playlist[i].Id == currentSong?.SongId)
-                                {
-                                    if (CurrentPlayMode == PlayMode.LoopOnetPlay)
-                                    {
-                                        //单曲循环
-                                        index = i;
-                                    }
-                                    else if(CurrentPlayMode==  PlayMode.LooptListPlay)
-                                    {
-                                        //列表循环
-                                        if (i < Playlist.Count - 1)
-                                        {
-                                            index = i + 1;
-                                        }
-                                        else
-                                        {
-                                            index = 0;
-                                        }
-                                    }
-                                    //else if(CurrentPlayMode== PlayMode.ListPlay)
-                                    //{
-                                    //    //列表顺序播放
-                                    //    if (i < Playlist.Count - 1)
-                                    //    {
-                                    //        index = i + 1;
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        index = -1;
-                                            
-                                    //    }
-                                    //}
+                        currentSongId = LastSongId;
+                    }
+                    else if (string.IsNullOrEmpty(currentSongId) && Songs?.Count > 0)
+                    {
+                        currentSongId = Songs[0].SongId;
+                    }
 
-                                        break;
+
+                    if (!string.IsNullOrEmpty(currentSongId))
+                    {
+                        //如果当前有播放的歌曲，则根据ID推算下一首歌曲
+                        for (int i = 0; i < Playlist.Count; i++)
+                        {
+
+
+                            if (Playlist[i].Id == currentSongId)
+                            {
+                                if(Songs.Count==0&& !string.IsNullOrEmpty(LastSongId))
+                                {
+                                    //当前曲目为空且最后一次
+                                    index = i;
+                                    break;
                                 }
+                                //第一次播放
+                                if (CurrentPlayMode == PlayMode.LoopOnetPlay)
+                                {
+                                    //单曲循环
+                                    index = i;
+                                }
+                                else if (CurrentPlayMode == PlayMode.LooptListPlay)
+                                {
+                                    //列表循环
+                                    if (i < Playlist.Count - 1)
+                                    {
+                                        index = i + 1;
+                                    }
+                                    else
+                                    {
+                                        index = 0;
+                                    }
+                                }
+                                else if (CurrentPlayMode == PlayMode.ShufflePlay)
+                                {
+                                    //随机播放
+                                    int cy = 100;//重复执行次数
+                                    do
+                                    {
+                                        index = random.Next(0, Playlist.Count);
+                                        cy--;
+                                    } while (index == i && Playlist.Count > 1 && cy > 1);
+                                }
+                                //else if(CurrentPlayMode== PlayMode.ListPlay)
+                                //{
+                                //    //列表顺序播放
+                                //    if (i < Playlist.Count - 1)
+                                //    {
+                                //        index = i + 1;
+                                //    }
+                                //    else
+                                //    {
+                                //        index = -1;
+
+                                //    }
+                                //}
+
+                                break;
                             }
                         }
-                    }
-                    else
-                    {
-                        //随机播放
-                        index = random.Next(0, Playlist.Count);
                     }
                     time++;
                 } while (index > -1 && Songs.Any(ele => Playlist[index].Id == ele.SongId) && time < 3);
@@ -418,6 +439,12 @@ namespace DGJv3
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TotalTime)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentTime)));
+
+            if (songItem.UserName == "空闲歌单")
+            {
+
+                LastSongId = songItem.SongId;
+            }
         }
 
         /// <summary>

@@ -457,6 +457,13 @@
                         </Grid>
                     </materialDesign:PopupBox>
                     <!-- 文本输出结束 -->
+
+                    <!--<Button Style="{StaticResource MaterialDesignRaisedLightButton}" Command="{Binding RefreshConfigCommand}">
+                        <Grid>
+                            <materialDesign:PackIcon Width="24" Height="24" Kind="Refresh"/>
+                        </Grid>
+                    </Button>-->
+
                 </StackPanel>
 
                 <!-- 播放器进度条 -->

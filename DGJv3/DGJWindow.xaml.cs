@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -46,6 +47,7 @@ namespace DGJv3
         public UniversalCommand RemoveBlacklistInfoCommmand { get; set; }
 
         public UniversalCommand ClearBlacklistCommand { get; set; }
+        //public UniversalCommand RefreshConfigCommand { get; set; }
 
         public bool IsLogRedirectDanmaku { get; set; }
 
@@ -168,6 +170,11 @@ namespace DGJv3
                 Blacklist.Clear();
             });
 
+            //RefreshConfigCommand = new UniversalCommand((x) =>
+            //{
+            //    ApplyConfig(Config.Load());
+            //});
+
             InitializeComponent();
 
             ApplyConfig(Config.Load());
@@ -175,7 +182,22 @@ namespace DGJv3
             PluginMain.ReceivedDanmaku += (sender, e) => { DanmuHandler.ProcessDanmu(e.Danmaku); };
             PluginMain.Connected += (sender, e) => { LwlApiBaseModule.RoomId = e.roomid; };
             PluginMain.Disconnected += (sender, e) => { LwlApiBaseModule.RoomId = 0; };
+
+            //Task.Run(() => {
+            //    //延迟100毫秒重新应用配置，解决外部音乐模块自动选择问题（暂时不知道在哪里加载了外部音乐模块）
+            //    Thread.Sleep(100);
+            //    this.Dispatcher.Invoke(() => {
+            //        //var a = SearchModules.Modules;
+            //        ApplyConfig(Config.Load());
+            //    });
+            //});
         }
+
+        public void SetMusicModule()
+        {
+            ApplyConfig(Config.Load());
+        }
+
 
         /// <summary>
         /// 应用设置
@@ -198,6 +220,7 @@ namespace DGJv3
             LogDanmakuLengthLimit = config.LogDanmakuLengthLimit;
 
             Player.CurrentPlayMode= config.CurrentPlayMode;
+            Player.LastSongId = config.LastSongId;
 
             LogRedirectToggleButton.IsEnabled = LoginCenterAPIWarpper.CheckLoginCenter();
             if (LogRedirectToggleButton.IsEnabled && IsLogRedirectDanmaku)
@@ -252,6 +275,7 @@ namespace DGJv3
             IsLogRedirectDanmaku = IsLogRedirectDanmaku,
             LogDanmakuLengthLimit = LogDanmakuLengthLimit,
             CurrentPlayMode=Player.CurrentPlayMode,
+            LastSongId= Player.LastSongId,
         };
 
         /// <summary>

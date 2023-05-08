@@ -199,6 +199,17 @@ namespace DGJv3
                 {
                     //告知音乐搜索模块下载文件失败
                     currentSong.Module.SongDownloadFail(currentSong.SongId, e.Error);
+                    if(File.Exists(currentSong.FilePath))
+                    {
+                        try
+                        {
+                            File.Delete(currentSong.FilePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log("下载歌曲失败，删除空白文件时出错:" + currentSong.FilePath + ",ex:" + ex.ToString());
+                        }
+                    }
                 }
                 dispatcher.Invoke(() => Songs.Remove(currentSong));
                 Log("下载错误 " + currentSong.SongName, e.Error);

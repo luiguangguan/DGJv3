@@ -107,7 +107,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <GroupBox Header="空闲歌单">
-                    <ListView ItemsSource="{Binding Playlist}" Margin="-5">
+                    <ListView Name="Songlist_listView" ItemsSource="{Binding Playlist}" Margin="-5">
                         <ListView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="移除" Command="{Binding RemovePlaylistInfoCommmand}"

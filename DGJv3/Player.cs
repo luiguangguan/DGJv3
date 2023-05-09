@@ -6,8 +6,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Threading;
 
 namespace DGJv3
@@ -440,7 +442,7 @@ namespace DGJv3
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TotalTime)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentTime)));
 
-            if (songItem.UserName == "空闲歌单")
+            if (songItem.UserName == Utilities.SparePlaylistUser)
             {
 
                 LastSongId = songItem.SongId;
@@ -477,6 +479,7 @@ namespace DGJv3
             }
 
             dispatcher.Invoke(() => Songs.Remove(currentSong));
+            SongsListChanged.Invoke(Songs, new PropertyChangedEventArgs(nameof(Songs)));//调用事件
 
             currentSong = null;
 
@@ -562,6 +565,8 @@ namespace DGJv3
                 wavePlayer.Stop();
             }
         }
+
+        public event PropertyChangedEventHandler SongsListChanged;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")

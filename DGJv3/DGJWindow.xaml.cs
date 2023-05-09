@@ -232,6 +232,15 @@ namespace DGJv3
             //        ApplyConfig(Config.Load());
             //    });
             //});
+
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly assembly in assemblies)
+            {
+                if(assembly.GetName().Name=="NAudio")
+                {
+                    Log("当前" + assembly.GetName().Name + "版本是" + assembly.GetName().Version.ToString() + ",文件位置：" + assembly.Location);
+                }
+            }
         }
 
         public void SetMusicModule()

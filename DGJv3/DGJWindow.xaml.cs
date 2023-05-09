@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace DGJv3
 {
@@ -126,35 +127,41 @@ namespace DGJv3
             Player.LogEvent += (sender, e) => { Log("播放:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Player.SongsListChanged += (sender, e) => {
                 var songs = sender as ObservableCollection<SongItem>;
-                if(songs==null)
+                if (songs == null)
                 {
                     Log("songs是null");
                 }
-                int index = 0;
+                int index = -1;
                 if (Playlist?.Count > 0 && songs[0].UserName == Utilities.SparePlaylistUser)
                 {
                     for (int i = 0; i < Playlist.Count; i++)
                     {
-                        if (songs[0].SongId== Playlist[i].Id)
+                        if (songs[0].SongId == Playlist[i].Id)
                         {
                             index = i;
-                            break;
+                        }
+                        else
+                        {
+                            if (Playlist[i].IsPlaying != false)
+                                Playlist[i].IsPlaying = false;
                         }
                     }
                 }
-               // index = 10;
-                ListViewItem item = Songlist_listView.ItemContainerGenerator.ContainerFromIndex(index) as ListViewItem;
+                if (index > -1)
+                {
+                    Songlist_listView.ScrollIntoView(Songlist_listView.Items[index]);
+                    Playlist[index].IsPlaying = true;
+                    Songlist_listView.UpdateLayout();
+                }
+                else
+                {
+                    for (int i = 0; i < Playlist.Count; i++)
+                    {
+                        if (Playlist[i].IsPlaying != false)
+                            Playlist[i].IsPlaying = false;
+                    }
+                }
 
-                if (item == null)
-                {
-                    Log("item是null,"+ Songlist_listView.ItemContainerGenerator.Items.Count+","+ index+","+ Songlist_listView.ItemContainerGenerator.ContainerFromIndex(index)?.GetType());
-                }
-                if (item != null)
-                {
-                    item.Focus();
-                    Songlist_listView.ScrollIntoView(item);
-                    Log("出发了Songs事件" + songs?[0].SongName);
-                }
             };
             Downloader.LogEvent += (sender, e) => { Log("下载:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Writer.LogEvent += (sender, e) => { Log("文本:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };

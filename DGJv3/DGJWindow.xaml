@@ -117,6 +117,14 @@
                         </ListView.ContextMenu>
                         <ListView.View>
                             <GridView AllowsColumnReorder="False">
+                                <GridViewColumn Header="状态">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:PackIcon Width="24" Height="24" Kind="Play"
+                                                 Visibility="{Binding IsPlaying,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn Header="歌名" DisplayMemberBinding="{Binding Name, Mode=OneTime}"/>
                                 <GridViewColumn Header="歌手" DisplayMemberBinding="{Binding SingersText, Mode=OneTime}"/>
                             </GridView>

@@ -233,6 +233,9 @@ namespace DGJv3
             ChangePlayModeCommand = new UniversalCommand((obj) => {
                 TogglePlayMode(true);
             });
+            Songs.CollectionChanged += (sender,e)=> {
+                SongsListChanged.Invoke(sender, new PropertyChangedEventArgs(nameof(sender)));//调用事件
+            };
         }
 
         /// <summary>
@@ -479,7 +482,6 @@ namespace DGJv3
             }
 
             dispatcher.Invoke(() => Songs.Remove(currentSong));
-            SongsListChanged.Invoke(Songs, new PropertyChangedEventArgs(nameof(Songs)));//调用事件
 
             currentSong = null;
 

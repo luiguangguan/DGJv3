@@ -22,6 +22,15 @@ namespace DGJv3
         [JsonIgnore]
         public string SingersText { get => string.Join(";", Singers); }
 
+        private bool _isPlaying=false;
+        [JsonIgnore]
+        public bool IsPlaying { get {
+                return _isPlaying;
+            } set {
+                _isPlaying=value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.IsPlaying)));
+            } }
+
         /// <summary>
         /// Lyric存储的是这个歌曲的歌词文件，为null时，会认为是延迟获取，在下载歌曲时再通过接口尝试获取lrc
         /// </summary>

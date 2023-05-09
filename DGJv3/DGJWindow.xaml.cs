@@ -7,9 +7,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace DGJv3
 {
@@ -122,6 +124,38 @@ namespace DGJv3
             Writer = new Writer(Songs, Playlist, Player, DanmuHandler);
 
             Player.LogEvent += (sender, e) => { Log("播放:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
+            Player.SongsListChanged += (sender, e) => {
+                var songs = sender as ObservableCollection<SongItem>;
+                if(songs==null)
+                {
+                    Log("songs是null");
+                }
+                int index = 0;
+                if (Playlist?.Count > 0 && songs[0].UserName == Utilities.SparePlaylistUser)
+                {
+                    for (int i = 0; i < Playlist.Count; i++)
+                    {
+                        if (songs[0].SongId== Playlist[i].Id)
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                }
+               // index = 10;
+                ListViewItem item = Songlist_listView.ItemContainerGenerator.ContainerFromIndex(index) as ListViewItem;
+
+                if (item == null)
+                {
+                    Log("item是null,"+ Songlist_listView.ItemContainerGenerator.Items.Count+","+ index+","+ Songlist_listView.ItemContainerGenerator.ContainerFromIndex(index)?.GetType());
+                }
+                if (item != null)
+                {
+                    item.Focus();
+                    Songlist_listView.ScrollIntoView(item);
+                    Log("出发了Songs事件" + songs?[0].SongName);
+                }
+            };
             Downloader.LogEvent += (sender, e) => { Log("下载:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Writer.LogEvent += (sender, e) => { Log("文本:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             SearchModules.LogEvent += (sender, e) => { Log("搜索:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };

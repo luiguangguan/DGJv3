@@ -18,6 +18,8 @@ namespace DGJv3
 
         private ObservableCollection<SongItem> Songs;
 
+        private ObservableCollection<SongItem> SkipSong;
+
         private DispatcherTimer newSongTimer = new DispatcherTimer(DispatcherPriority.Normal)
         {
             Interval = TimeSpan.FromSeconds(1),
@@ -50,7 +52,7 @@ namespace DGJv3
 
         private TimeSpan timeout = TimeSpan.FromSeconds(5);
 
-        public Downloader(ObservableCollection<SongItem> songs)
+        public Downloader(ObservableCollection<SongItem> songs, ObservableCollection<SongItem> skipSong)
         {
             Songs = songs;
             newSongTimer.Tick += NewSongTimer_Tick;
@@ -58,6 +60,7 @@ namespace DGJv3
             dispatcher = Dispatcher.CurrentDispatcher;
 
             PropertyChanged += Downloader_PropertyChanged;
+            SkipSong = skipSong;
         }
 
         private void DownloadTimeoutTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -150,6 +153,10 @@ namespace DGJv3
                     }
                     else
                     {
+                        if (SkipSong.Any(p => p.SongId == currentSong.SongId && p.SongName == currentSong.SongName && p.ModuleName == currentSong.ModuleName && p.Note == currentSong.Note&& p.UserName== currentSong.UserName) == false)
+                        {
+                            SkipSong.Add(currentSong);
+                        }
                         dispatcher.Invoke(() => Songs.Remove(currentSong));
                         currentSong = null;
                     }

@@ -24,6 +24,8 @@ namespace DGJv3
 
         private Dispatcher dispatcher;
 
+        private ObservableCollection<SongItem> SkipSong;
+
         private DispatcherTimer newSongTimer = new DispatcherTimer(DispatcherPriority.Normal)
         {
             Interval = TimeSpan.FromSeconds(1),
@@ -219,10 +221,11 @@ namespace DGJv3
 
         private int currentLyricIndex = -1;
 
-        public Player(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist)
+        public Player(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist,ObservableCollection<SongItem> skipSongs)
         {
             Songs = songs;
             Playlist = playlist;
+            SkipSong = skipSongs;
             dispatcher = Dispatcher.CurrentDispatcher;
             newSongTimer.Tick += NewSongTimer_Tick;
             updateTimeTimer.Tick += UpdateTimeTimer_Tick;
@@ -234,7 +237,7 @@ namespace DGJv3
                 TogglePlayMode(true);
             });
             Songs.CollectionChanged += (sender,e)=> {
-                SongsListChanged.Invoke(sender, new PropertyChangedEventArgs(nameof(sender)));//调用事件
+                    SongsListChanged.Invoke(sender, new PropertyChangedEventArgs(nameof(sender)));//调用事件
             };
         }
 
@@ -342,70 +345,97 @@ namespace DGJv3
                         currentSongId = Songs[0].SongId;
                     }
 
-
-                    if (!string.IsNullOrEmpty(currentSongId))
+                    if(Songs?.Count<=0&&Playlist.Any(p=>p.IsPlaying==true))
                     {
-                        //如果当前有播放的歌曲，则根据ID推算下一首歌曲
-                        for (int i = 0; i < Playlist.Count; i++)
+                        index=Playlist.IndexOf(Playlist.FirstOrDefault(p => p.IsPlaying == true));
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(currentSongId))
                         {
-
-
-                            if (Playlist[i].Id == currentSongId)
+                            //如果当前有播放的歌曲，则根据ID推算下一首歌曲
+                            for (int i = 0; i < Playlist.Count; i++)
                             {
-                                if(Songs.Count==0&& !string.IsNullOrEmpty(LastSongId))
+
+
+                                if (Playlist[i].Id == currentSongId)
                                 {
-                                    //当前曲目为空且最后一次
-                                    index = i;
+                                    if (Songs.Count == 0 && !string.IsNullOrEmpty(LastSongId))
+                                    {
+                                        //当前曲目为空且最后一次
+                                        index = i;
+                                        break;
+                                    }
+                                    //第一次播放
+                                    if (CurrentPlayMode == PlayMode.LoopOnetPlay)
+                                    {
+                                        //单曲循环
+                                        index = i;
+                                    }
+                                    else if (CurrentPlayMode == PlayMode.LooptListPlay)
+                                    {
+                                        //列表循环
+                                        if (i < Playlist.Count - 1)
+                                        {
+                                            index = i + 1;
+                                        }
+                                        else
+                                        {
+                                            index = 0;
+                                        }
+                                    }
+                                    else if (CurrentPlayMode == PlayMode.ShufflePlay)
+                                    {
+                                        //随机播放
+                                        int cy = 100;//重复执行次数
+                                        do
+                                        {
+                                            index = random.Next(0, Playlist.Count);
+                                            cy--;
+                                        } while (index == i && Playlist.Count > 1 && cy > 1);
+                                    }
+                                    //else if(CurrentPlayMode== PlayMode.ListPlay)
+                                    //{
+                                    //    //列表顺序播放
+                                    //    if (i < Playlist.Count - 1)
+                                    //    {
+                                    //        index = i + 1;
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        index = -1;
+
+                                    //    }
+                                    //}
+
                                     break;
                                 }
-                                //第一次播放
-                                if (CurrentPlayMode == PlayMode.LoopOnetPlay)
-                                {
-                                    //单曲循环
-                                    index = i;
-                                }
-                                else if (CurrentPlayMode == PlayMode.LooptListPlay)
-                                {
-                                    //列表循环
-                                    if (i < Playlist.Count - 1)
-                                    {
-                                        index = i + 1;
-                                    }
-                                    else
-                                    {
-                                        index = 0;
-                                    }
-                                }
-                                else if (CurrentPlayMode == PlayMode.ShufflePlay)
-                                {
-                                    //随机播放
-                                    int cy = 100;//重复执行次数
-                                    do
-                                    {
-                                        index = random.Next(0, Playlist.Count);
-                                        cy--;
-                                    } while (index == i && Playlist.Count > 1 && cy > 1);
-                                }
-                                //else if(CurrentPlayMode== PlayMode.ListPlay)
-                                //{
-                                //    //列表顺序播放
-                                //    if (i < Playlist.Count - 1)
-                                //    {
-                                //        index = i + 1;
-                                //    }
-                                //    else
-                                //    {
-                                //        index = -1;
-
-                                //    }
-                                //}
-
-                                break;
                             }
                         }
                     }
                     time++;
                 } while (index > -1 && Songs.Any(ele => Playlist[index].Id == ele.SongId) && time < 3);
+
+                //跳过不可用的歌曲
+                if (SkipSong?.Count > 0)
+                {
+                    int cIndex = index;
+                    do
+                    {
+                        var song = new SongItem(Playlist[index], Utilities.SparePlaylistUser);
+                        if (SkipSong.Any(p => p.SongId == song.SongId && p.SongName == song.SongName && p.ModuleName == song.ModuleName && p.Note == song.Note && p.UserName == song.UserName) == false)
+                            break;
+                        if (index < Playlist.Count - 1)
+                        {
+                            index++;
+                        }
+                        else
+                        {
+                            index = 0;
+                        }
+                        SkipSong.Remove(SkipSong.FirstOrDefault(p => p.SongId == song.SongId && p.SongName == song.SongName && p.ModuleName == song.ModuleName && p.Note == song.Note && p.UserName == song.UserName));
+                    } while (cIndex != index);
+                }
 
                 if (index > -1)
                 {

@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Caching;
 using System.Windows;
 using System.Windows.Controls;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
@@ -45,6 +47,8 @@ namespace DGJv3
 
         public UniversalCommand RemovePlaylistInfoCommmand { get; set; }
 
+        public UniversalCommand PlaySongInPlaylistCommmand { get; set; }
+
         public UniversalCommand ClearPlaylistCommand { get; set; }
 
         public UniversalCommand RemoveBlacklistInfoCommmand { get; set; }
@@ -52,9 +56,18 @@ namespace DGJv3
         public UniversalCommand ClearBlacklistCommand { get; set; }
         //public UniversalCommand RefreshConfigCommand { get; set; }
 
+        public UniversalCommand NavigatePlayingSongInPlaylistCommand { get; set; }
+
         public bool IsLogRedirectDanmaku { get; set; }
 
         public int LogDanmakuLengthLimit { get; set; }
+
+        private ObservableCollection<SongItem> SkipSong;
+
+        //在空闲歌单中搜索
+        public UniversalCommand SearchInPlayListCommand { get; private set; }
+
+        private string SearchInPlayListKeyWord = "";
 
         public void Log(string text)
         {
@@ -98,6 +111,23 @@ namespace DGJv3
             }
         }
 
+
+        private void SetPlayingInList(int index)
+        {
+            for (int i = 0; i < Playlist.Count; i++)
+            {
+                if (i == index)
+                {
+                    Playlist[i].IsPlaying = true;
+                }
+                else
+                {
+                    if (Playlist[i].IsPlaying != false)
+                        Playlist[i].IsPlaying = false;
+                }
+            }
+        }
+
         public DGJWindow(DGJMain dGJMain)
         {
             void addResource(string uri)
@@ -117,9 +147,10 @@ namespace DGJv3
             Songs = new ObservableCollection<SongItem>();
             Playlist = new ObservableCollection<SongInfo>();
             Blacklist = new ObservableCollection<BlackListItem>();
+            SkipSong = new ObservableCollection<SongItem>();
 
-            Player = new Player(Songs, Playlist);
-            Downloader = new Downloader(Songs);
+            Player = new Player(Songs, Playlist, SkipSong);
+            Downloader = new Downloader(Songs, SkipSong);
             SearchModules = new SearchModules();
             DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist);
             Writer = new Writer(Songs, Playlist, Player, DanmuHandler);
@@ -132,7 +163,7 @@ namespace DGJv3
                     Log("songs是null");
                 }
                 int index = -1;
-                if (Playlist?.Count > 0 && songs[0].UserName == Utilities.SparePlaylistUser)
+                if (Playlist?.Count > 0 && songs?.Count > 0 && songs?[0].UserName == Utilities.SparePlaylistUser)
                 {
                     for (int i = 0; i < Playlist.Count; i++)
                     {
@@ -140,34 +171,24 @@ namespace DGJv3
                         {
                             index = i;
                         }
-                        else
-                        {
-                            if (Playlist[i].IsPlaying != false)
-                                Playlist[i].IsPlaying = false;
-                        }
+                        //else
+                        //{
+                        //    if (Playlist[i].IsPlaying != false)
+                        //        Playlist[i].IsPlaying = false;
+                        //}
                     }
                 }
-                if (index > -1)
-                {
-                    Songlist_listView.ScrollIntoView(Songlist_listView.Items[index]);
-                    Playlist[index].IsPlaying = true;
-                    Songlist_listView.UpdateLayout();
-                }
-                else
-                {
-                    for (int i = 0; i < Playlist.Count; i++)
-                    {
-                        if (Playlist[i].IsPlaying != false)
-                            Playlist[i].IsPlaying = false;
-                    }
-                }
+                NavigateSongInPlaylist(index);
+                SetPlayingInList(index);//没有正在播放的曲目
+
 
             };
             Downloader.LogEvent += (sender, e) => { Log("下载:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Writer.LogEvent += (sender, e) => { Log("文本:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             SearchModules.LogEvent += (sender, e) => { Log("搜索:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             DanmuHandler.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
-
+            IsVisibleChanged += DGJWindow_IsVisibleChanged;
+            
             RemoveSongCommmand = new UniversalCommand((songobj) =>
             {
                 if (songobj != null && songobj is SongItem songItem)
@@ -182,6 +203,19 @@ namespace DGJv3
                 {
                     songItem.Remove(Songs, Downloader, Player);
                     Blacklist.Add(new BlackListItem(BlackListType.Id, songItem.SongId));
+                }
+            });
+
+
+            PlaySongInPlaylistCommmand= new UniversalCommand((songobj) =>
+            {
+                if (songobj != null && songobj is SongInfo songInfo)
+                {
+                    Songs.Clear();
+                    Player.Next();
+                    //SetPlayingInList(-1);
+                    songInfo.IsPlaying = true;
+
                 }
             });
 
@@ -211,6 +245,41 @@ namespace DGJv3
                 Blacklist.Clear();
             });
 
+            
+            SearchInPlayListCommand = new UniversalCommand((x) =>
+            {
+                
+                if(string.IsNullOrEmpty(SearchBox.Text)==false)
+                {
+                    if (SearchBox.Text != SearchInPlayListKeyWord)
+                    {
+                        SearchInPlayListKeyWord = SearchBox.Text;
+                    }
+                    int cycle = 0;
+                    int index = 0;
+                    index = Songlist_listView.SelectedIndex > -1 ? Songlist_listView.SelectedIndex : 0;
+                    while (cycle < 2)
+                    {
+
+                        for (int i = index; i < Playlist.Count; i++)
+                        {
+                            if ((Playlist[i].Name.IndexOf(SearchInPlayListKeyWord) > -1 || Playlist[i].SingersText.IndexOf(SearchInPlayListKeyWord) > -1) && Songlist_listView.SelectedIndex != i)
+                            {
+                                NavigateSongInPlaylist(i);
+                                return;
+                            }
+                        }
+                        index = 0;
+                        cycle++;
+                    }
+                }
+            });
+
+            //定位到正在播放的歌曲
+            NavigatePlayingSongInPlaylistCommand = new UniversalCommand((x) =>
+            {
+                NavigatePlayingSongInPlaylist();
+            });
             //RefreshConfigCommand = new UniversalCommand((x) =>
             //{
             //    ApplyConfig(Config.Load());
@@ -241,6 +310,30 @@ namespace DGJv3
                     Log("当前" + assembly.GetName().Name + "版本是" + assembly.GetName().Version.ToString() + ",文件位置：" + assembly.Location);
                 }
             }
+        }
+
+        private void DGJWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            //throw new NotImplementedException();
+            if (e.NewValue != e.OldValue && (bool)e.NewValue == true)
+            {
+                NavigatePlayingSongInPlaylist();
+            }
+        }
+
+        private void NavigatePlayingSongInPlaylist()
+        {
+            int index = Playlist.IndexOf(Playlist.FirstOrDefault(p => p.IsPlaying == true));
+            NavigateSongInPlaylist(index);
+        }
+
+        private void NavigateSongInPlaylist(int index)
+        {
+            if (index < 0 || index > Songlist_listView?.Items.Count - 1)
+                return;
+            Songlist_listView.ScrollIntoView(Songlist_listView.Items[index]);
+            Songlist_listView.SelectedItem = Songlist_listView.Items[index];
+            Songlist_listView.UpdateLayout();
         }
 
         public void SetMusicModule()

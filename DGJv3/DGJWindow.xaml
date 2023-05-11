@@ -62,9 +62,17 @@
                     <ListView.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="移除" Command="{Binding RemoveSongCommmand}"
-                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="Eraser"></materialDesign:PackIcon>
+                                </MenuItem.Icon>
+                            </MenuItem>
                             <MenuItem Header="移除并将歌曲ID加入黑名单" Command="{Binding RemoveAndBlacklistSongCommand}"
-                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="BlockHelper"></materialDesign:PackIcon>
+                                </MenuItem.Icon>
+                            </MenuItem>
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.View>
@@ -106,31 +114,72 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <GroupBox Header="空闲歌单">
-                    <ListView Name="Songlist_listView" ItemsSource="{Binding Playlist}" Margin="-5">
-                        <ListView.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="移除" Command="{Binding RemovePlaylistInfoCommmand}"
-                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}"/>
-                                <MenuItem Header="清空全部" Command="{Binding ClearPlaylistCommand}"/>
-                            </ContextMenu>
-                        </ListView.ContextMenu>
-                        <ListView.View>
-                            <GridView AllowsColumnReorder="False">
-                                <GridViewColumn Header="状态">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <materialDesign:PackIcon Width="24" Height="24" Kind="Play"
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="空闲歌单">
+                        <ListView Name="Songlist_listView" ItemsSource="{Binding Playlist}" Margin="-5" Grid.Row="1">
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="播放" Command="{Binding PlaySongInPlaylistCommmand}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                        <MenuItem.Icon>
+                                            <materialDesign:PackIcon Kind="Play"></materialDesign:PackIcon>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="移除" Command="{Binding RemovePlaylistInfoCommmand}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                        <MenuItem.Icon>
+                                            <materialDesign:PackIcon Kind="Delete"></materialDesign:PackIcon>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="清空全部" Command="{Binding ClearPlaylistCommand}">
+                                        <MenuItem.Icon>
+                                            <materialDesign:PackIcon Kind="Broom"></materialDesign:PackIcon>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                            <ListView.View>
+                                <GridView AllowsColumnReorder="False">
+                                    <GridViewColumn Header="状态">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <materialDesign:PackIcon Width="20" Height="20" Kind="VolumeHigh"
                                                  Visibility="{Binding IsPlaying,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="歌名" DisplayMemberBinding="{Binding Name, Mode=OneTime}"/>
-                                <GridViewColumn Header="歌手" DisplayMemberBinding="{Binding SingersText, Mode=OneTime}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </GroupBox>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="歌名" DisplayMemberBinding="{Binding Name, Mode=OneTime}"/>
+                                    <GridViewColumn Header="歌手" DisplayMemberBinding="{Binding SingersText, Mode=OneTime}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </GroupBox>
+                    <Grid Margin="3" Grid.Column="0" Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0" Margin="0,10,10,0">歌手/歌曲</TextBlock>
+                        <TextBox Grid.Column="1" Margin="0,0,10,0" x:Name="SearchBox" Style="{StaticResource MaterialDesignTextBox}"  Tag="在空闲歌单中搜寻" VerticalAlignment="Center">
+                        </TextBox>
+                        <Button Grid.Column="2" Margin="0,0,10,0" Command="{Binding SearchInPlayListCommand}" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="Magnify"/>
+                        </Button>
+                        <Button Grid.Column="3" Margin="0,0,0,0" Command="{Binding NavigatePlayingSongInPlaylistCommand}" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="target"/>
+                        </Button>
+                    </Grid>
+                </Grid>
                 <StackPanel Margin="5" Grid.Row="1" Orientation="Horizontal">
                     <Button HorizontalAlignment="Center" VerticalAlignment="Center"                            
                         Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
@@ -211,7 +260,7 @@
                         添加空闲歌单
                     </Button>
                 </StackPanel>
-                <StackPanel Orientation="Vertical" Margin="5" Grid.Row="2">
+                    <StackPanel Orientation="Vertical" Margin="5" Grid.Row="2">
                     <ComboBox ItemsSource="{Binding SearchModules.Modules}" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                           SelectedValue="{Binding SearchModules.PrimaryModule}" DisplayMemberPath="ModuleName"
                           materialDesign:HintAssist.Hint="首选歌曲搜索引擎"/>
@@ -227,7 +276,7 @@
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
-                <ComboBox Width="120" ItemsSource="{Binding Source={local:Enumeration {x:Type local:PlayerType}}}"
+                <ComboBox Width="110" ItemsSource="{Binding Source={local:Enumeration {x:Type local:PlayerType}}}"
                           SelectedValue="{Binding PlayerType}" DisplayMemberPath="Description" SelectedValuePath="Value"
                           materialDesign:HintAssist.Hint="播放引擎"/>
                 <ComboBox Width="300" materialDesign:HintAssist.Hint="WaveoutEvent 播放设备" Grid.Column="1"

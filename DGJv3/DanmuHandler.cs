@@ -24,6 +24,8 @@ namespace DGJv3
 
         private Dispatcher dispatcher;
 
+        private UIFunction UIFunction;
+
         /// <summary>
         /// 最多点歌数量
         /// </summary>
@@ -36,7 +38,7 @@ namespace DGJv3
         public uint MaxPersonSongNum { get => _maxPersonSongNum; set => SetField(ref _maxPersonSongNum, value); }
         private uint _maxPersonSongNum;
 
-        internal DanmuHandler(ObservableCollection<SongItem> songs, Player player, Downloader downloader, SearchModules searchModules, ObservableCollection<BlackListItem> blacklist)
+        internal DanmuHandler(ObservableCollection<SongItem> songs, Player player, Downloader downloader, SearchModules searchModules, ObservableCollection<BlackListItem> blacklist, UIFunction uIFunction)
         {
             dispatcher = Dispatcher.CurrentDispatcher;
             Songs = songs;
@@ -44,6 +46,7 @@ namespace DGJv3
             Downloader = downloader;
             SearchModules = searchModules;
             Blacklist = blacklist;
+            UIFunction = uIFunction;
         }
 
 
@@ -100,12 +103,112 @@ namespace DGJv3
                         return;
                     case "音量":
                         {
-                            if (commands.Length > 1
-                                && int.TryParse(commands[1], out int volume100)
-                                && volume100 >= 0
-                                && volume100 <= 100)
+                            int volume100 = Convert.ToInt32(Player.Volume * 100f);
+                            int v = 0;
+                            if (commands.Length > 1 && int.TryParse(commands[1], out v))
+                            {
+                                if (commands[1][0] == '+' || commands[1][0] == '-')
+                                {
+                                    //在原有基础上加减音量
+                                    if (int.TryParse(commands[1], out v))
+                                    {
+                                        volume100 += v;
+                                        if (volume100 > 100)
+                                        {
+                                            volume100 = 100;
+                                        }
+                                        else if (volume100 < 0)
+                                        {
+                                            volume100 = 0;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    //直接给定音量
+                                    volume100 = v;
+                                }
+                            }
+                            if (volume100 >= 0 && volume100 <= 100)
                             {
                                 Player.Volume = volume100 / 100f;
+                            }
+                        }
+                        return;
+                    case "加歌":
+                        {
+                            if(commands.Length>1)
+                            {
+                                dispatcher.Invoke(() => {
+                                    if (UIFunction.AddSongsToPlaylist(rest))
+                                    {
+                                        Log("房管添加歌曲:" + commands[1] + ",到空闲歌单成功");
+                                    }
+                                });
+                            }
+                        }
+                        return;
+                    case "加歌单":
+                        {
+                            if (commands.Length > 1)
+                            {
+                                dispatcher.Invoke(() => {
+                                    if (UIFunction.AddPlaylist(rest))
+                                    {
+                                        Log("房管添加歌单:" + commands[1] + ",成功");
+                                    }
+                                });
+                                
+                            }
+                        }
+                        return;
+                    case "拉黑歌曲":
+                        {
+                            if (commands.Length > 1 && int.TryParse(commands[1], out int num))
+                            {
+                                num--;
+                                if (num > -1 && num < Songs?.Count)
+                                {
+                                    string songName = Songs[num]?.SongName;
+                                    dispatcher.Invoke(() => {
+                                        Blacklist.Add(new BlackListItem(BlackListType.Id, Songs?[num]?.SongId));
+                                        Songs?[num]?.Remove(Songs, Downloader, Player);
+                                        Log(songName+",加入黑名单成功");
+                                    });
+                                }
+                            }
+                        }
+                        return;
+                    case "播放模式":
+                        {
+                            if (commands.Length > 1)
+                            {
+                                switch (commands[1])
+                                {
+                                    case "列表循环":
+                                    case "列表循環":
+                                        {
+                                            Player.SetPlayMode(PlayMode.LooptListPlay);
+                                            Log("切換播放模式：列表循环，成功");
+                                        }
+                                        return;
+                                    case "单曲循环":
+                                    case "單曲循環":
+                                        {
+                                            Player.SetPlayMode(PlayMode.LoopOnetPlay);
+                                            Log("切換播放模式：单曲循环，成功");
+                                        }
+                                        return;
+                                    case "随机播放":
+                                    case "隨機播放":
+                                        {
+                                            Player.SetPlayMode(PlayMode.ShufflePlay);
+                                            Log("切換播放模式：随机播放，成功");
+                                        }
+                                        return;
+                                    default:
+                                        break;
+                                }
                             }
                         }
                         return;

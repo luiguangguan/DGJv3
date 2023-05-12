@@ -41,6 +41,8 @@ namespace DGJv3
 
         public DanmuHandler DanmuHandler { get; set; }
 
+        public UIFunction UIFunction { get;set; }
+
         public UniversalCommand RemoveSongCommmand { get; set; }
 
         public UniversalCommand RemoveAndBlacklistSongCommand { get; set; }
@@ -152,9 +154,11 @@ namespace DGJv3
             Player = new Player(Songs, Playlist, SkipSong);
             Downloader = new Downloader(Songs, SkipSong);
             SearchModules = new SearchModules();
-            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist);
+            UIFunction = new UIFunction(Songs, Playlist, Blacklist, SkipSong, SearchModules);
+            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction);
             Writer = new Writer(Songs, Playlist, Player, DanmuHandler);
 
+            UIFunction.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Player.LogEvent += (sender, e) => { Log("播放:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Player.SongsListChanged += (sender, e) => {
                 var songs = sender as ObservableCollection<SongItem>;
@@ -251,27 +255,7 @@ namespace DGJv3
                 
                 if(string.IsNullOrEmpty(SearchBox.Text)==false)
                 {
-                    if (SearchBox.Text != SearchInPlayListKeyWord)
-                    {
-                        SearchInPlayListKeyWord = SearchBox.Text;
-                    }
-                    int cycle = 0;
-                    int index = 0;
-                    index = Songlist_listView.SelectedIndex > -1 ? Songlist_listView.SelectedIndex : 0;
-                    while (cycle < 2)
-                    {
-
-                        for (int i = index; i < Playlist.Count; i++)
-                        {
-                            if ((Playlist[i].Name.IndexOf(SearchInPlayListKeyWord) > -1 || Playlist[i].SingersText.IndexOf(SearchInPlayListKeyWord) > -1) && Songlist_listView.SelectedIndex != i)
-                            {
-                                NavigateSongInPlaylist(i);
-                                return;
-                            }
-                        }
-                        index = 0;
-                        cycle++;
-                    }
+                    SearchSongInPlaylist(SearchBox.Text);
                 }
             });
 
@@ -309,6 +293,31 @@ namespace DGJv3
                 {
                     Log("当前" + assembly.GetName().Name + "版本是" + assembly.GetName().Version.ToString() + ",文件位置：" + assembly.Location);
                 }
+            }
+        }
+
+        private void SearchSongInPlaylist(string keyword)
+        {
+            if (keyword != SearchInPlayListKeyWord)
+            {
+                SearchInPlayListKeyWord = keyword;
+            }
+            int cycle = 0;
+            int index = 0;
+            index = Songlist_listView.SelectedIndex > -1 ? Songlist_listView.SelectedIndex : 0;
+            while (cycle < 2)
+            {
+
+                for (int i = index; i < Playlist.Count; i++)
+                {
+                    if ((Playlist[i].Name.IndexOf(SearchInPlayListKeyWord) > -1 || Playlist[i].SingersText.IndexOf(SearchInPlayListKeyWord) > -1) && Songlist_listView.SelectedIndex != i)
+                    {
+                        NavigateSongInPlaylist(i);
+                        return;
+                    }
+                }
+                index = 0;
+                cycle++;
             }
         }
 
@@ -490,27 +499,10 @@ namespace DGJv3
             if (eventArgs.Parameter.Equals(true) && !string.IsNullOrWhiteSpace(AddSongPlaylistTextBox.Text))
             {
                 var keyword = AddSongPlaylistTextBox.Text;
-                SongInfo songInfo = null;
-
-                if (SearchModules.PrimaryModule != SearchModules.NullModule)
-                {
-                    songInfo = SearchModules.PrimaryModule.SafeSearch(keyword);
-                }
-
-                if (songInfo == null)
-                {
-                    if (SearchModules.SecondaryModule != SearchModules.NullModule)
-                    {
-                        songInfo = SearchModules.SecondaryModule.SafeSearch(keyword);
-                    }
-                }
-
-                if (songInfo == null)
+                if (UIFunction.AddSongsToPlaylist(keyword) == false)
                 {
                     return;
                 }
-
-                Playlist.Add(songInfo);
             }
             AddSongPlaylistTextBox.Text = string.Empty;
         }
@@ -528,23 +520,9 @@ namespace DGJv3
             if (eventArgs.Parameter.Equals(true) && !string.IsNullOrWhiteSpace(AddPlaylistTextBox.Text))
             {
                 var keyword = AddPlaylistTextBox.Text;
-                List<SongInfo> songInfoList = null;
-
-                if (SearchModules.PrimaryModule != SearchModules.NullModule && SearchModules.PrimaryModule.IsPlaylistSupported)
-                {
-                    songInfoList = SearchModules.PrimaryModule.SafeGetPlaylist(keyword);
-                }
-
-                // 歌单只使用主搜索模块搜索
-
-                if (songInfoList == null)
+                if (UIFunction.AddPlaylist(keyword) == false)
                 {
                     return;
-                }
-
-                foreach (var item in songInfoList)
-                {
-                    Playlist.Add(item);
                 }
             }
             AddPlaylistTextBox.Text = string.Empty;
@@ -591,6 +569,16 @@ namespace DGJv3
             catch (Exception)
             {
                 LogRedirectToggleButton.IsChecked = false;
+            }
+        }
+
+        private void SearchBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if(e.Key==System.Windows.Input.Key.Enter)
+            {
+                var tb = sender as TextBox;
+                if (tb != null && string.IsNullOrEmpty(tb.Text) == false)
+                    SearchSongInPlaylist(tb.Text);
             }
         }
     }

@@ -10,12 +10,14 @@ namespace DGJv3
 {
     public enum PlayMode
     {
-       
+
         /// <summary>
         /// 列表循环
         /// </summary>
         LooptListPlay = 0,
-        //单曲循环
+        /// <summary>
+        /// 单曲循环
+        /// </summary>
         LoopOnetPlay = 1,
         /// <summary>
         /// 随机播放

@@ -47,6 +47,8 @@ namespace DGJv3
 
         internal static readonly string SparePlaylistUser = "空闲歌单";
 
+        internal static readonly string SpareNoSongNotice = "----------";
+
         //当前信息
         internal static readonly string CurrentSong = Path.Combine(DataDirectoryPath, "正在播放曲目.txt");
 

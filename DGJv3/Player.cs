@@ -138,14 +138,18 @@ namespace DGJv3
             }
         }
 
+        private PlayMode playMode = PlayMode.LooptListPlay;
         /// <summary>
         /// 播放模式
         /// </summary>
         public PlayMode CurrentPlayMode
         {
-            get;
-            set;
-        } = PlayMode.LooptListPlay;
+            get { return playMode; }
+            set {
+                playMode = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPlayMode)));
+            }
+        }
 
         /// <summary>
         /// 当前歌曲播放状态
@@ -247,18 +251,21 @@ namespace DGJv3
         /// </summary>
         public void TogglePlayMode(bool tr_event=false)
         {
+            PlayMode pm = 0;
             if (Convert.ToInt32(CurrentPlayMode) >= 2)
             {
-                CurrentPlayMode = 0;
+                pm = 0;
             }
             else
             {
-                CurrentPlayMode = CurrentPlayMode + 1;
+                pm = CurrentPlayMode + 1;
             }
-            if (tr_event)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPlayMode)));
-            }
+            SetPlayMode(pm);
+        }
+
+        public void SetPlayMode(PlayMode playMode)
+        {
+            CurrentPlayMode = playMode;
         }
 
         private void This_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -324,6 +331,15 @@ namespace DGJv3
                 foreach (var songItem in pendingRemove)
                 {
                     Songs.Remove(songItem);
+                }
+
+                //将已经下载好等待播放的歌曲放回集合中
+                pendingRemove = pendingRemove.Where(p => p.Status == SongStatus.WaitingPlay).ToList();
+                Log("待加回集合的歌曲：" + pendingRemove.Count,null);
+                foreach (var songItem in pendingRemove)
+                {
+                Log("加回集合的歌曲：" + songItem.SongName,null);
+                    Songs.Add(songItem);
                 }
             }
 
@@ -507,8 +523,9 @@ namespace DGJv3
             {
                 File.Delete(currentSong.FilePath);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Log("卸载歌曲删除文件出错", ex);
             }
 
             dispatcher.Invoke(() => Songs.Remove(currentSong));

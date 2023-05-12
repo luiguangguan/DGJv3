@@ -109,12 +109,12 @@ namespace DGJv3
             var 总共最大点歌数量 = DanmuHandler.MaxTotalSongNum;
             var 单人最大点歌数量 = DanmuHandler.MaxPersonSongNum;
 
-            string 当前播放 = playingSong == null ? "無歌曲" : playingSong.SongName;
+            string 当前播放 = playingSong == null ? Utilities.SpareNoSongNotice : playingSong.SongName;
             string 当前歌手 = playingSong == null ? "" : playingSong.Singers == null ? "" : string.Join("/", playingSong.Singers);
             string 当前点歌用户 = playingSong == null ? "" : playingSong.UserName;
             string 当前模块 = playingSong == null ? "" : playingSong.Module?.ModuleName;
 
-            string 下一首播放 = waitPlaySong == null ? "無歌曲" : waitPlaySong.SongName;
+            string 下一首播放 = waitPlaySong == null ? Utilities.SpareNoSongNotice : waitPlaySong.SongName;
             string 下一首歌手 = waitPlaySong == null ? "" : waitPlaySong.Singers == null ? "" : string.Join("/", waitPlaySong.Singers);
             string 下一首点歌用户 = waitPlaySong == null ? "" : waitPlaySong.UserName;
             string 下一首模块 = waitPlaySong == null ? "" : waitPlaySong.Module?.ModuleName;

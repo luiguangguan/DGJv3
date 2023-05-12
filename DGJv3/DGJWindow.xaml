@@ -170,7 +170,7 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Column="0" Margin="0,10,10,0">歌手/歌曲</TextBlock>
-                        <TextBox Grid.Column="1" Margin="0,0,10,0" x:Name="SearchBox" Style="{StaticResource MaterialDesignTextBox}"  Tag="在空闲歌单中搜寻" VerticalAlignment="Center">
+                        <TextBox Grid.Column="1" Margin="0,0,10,0" x:Name="SearchBox" Style="{StaticResource MaterialDesignTextBox}"  KeyDown="SearchBox_KeyDown" VerticalAlignment="Center">
                         </TextBox>
                         <Button Grid.Column="2" Margin="0,0,10,0" Command="{Binding SearchInPlayListCommand}" VerticalAlignment="Center">
                             <materialDesign:PackIcon Kind="Magnify"/>

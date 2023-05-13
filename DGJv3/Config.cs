@@ -10,6 +10,8 @@ namespace DGJv3
 {
     class Config
     {
+        [JsonProperty("fmtcfg")]
+        public bool FormatConfig { get; set; }=false;
         [JsonProperty("ptyp")]
         public PlayerType PlayerType { get; set; } = PlayerType.DirectSound;
 
@@ -54,11 +56,16 @@ namespace DGJv3
         [JsonProperty("lsid")]
         public string LastSongId { get; set; }
 
+        [JsonProperty("ift")]
+        public Dictionary<string, OutputInfo> InfoTemplates { get; set; }
+
         [JsonProperty("plst")]
         public SongInfo[] Playlist { get; set; } = new SongInfo[0];
 
         [JsonProperty("sbtp")]
         public string ScribanTemplate { get; set; } = "正在播放：{{ 当前播放 }}-{{ 当前歌手 }}-{{ 当前点歌用户 }}-{{ 当前模块 }}\n" +
+            "{{当前歌词}}\n"+
+            "{{下句歌词}}\n" +
             "正在播放：{{ 下一首播放 }}-{{ 下一首歌手 }}-{{ 下一首点歌用户 }}-{{ 下一首模块 }}\n" +
             "播放进度 {{当前播放时间}}/{{当前总时间}}\n" +
             "当前列表中有 {{ 歌曲数量 }} 首歌\n还可以再点 {{ 总共最大点歌数量 - 歌曲数量 }} 首歌\n" +
@@ -69,6 +76,10 @@ namespace DGJv3
 
         public Config()
         {
+            InfoTemplates = new Dictionary<string, OutputInfo>
+            {
+                { "信息.txt", new  OutputInfo{ IsEnable=true,Content=ScribanTemplate} }
+            };
         }
 
 #pragma warning disable CS0168 // 声明了变量，但从未使用过
@@ -94,7 +105,12 @@ namespace DGJv3
         {
             try
             {
-                File.WriteAllText(Utilities.ConfigFilePath, JsonConvert.SerializeObject(config,Formatting.Indented), Encoding.UTF8);
+                Formatting fmt= Formatting.None;
+                if(config.FormatConfig)
+                {
+                    fmt = Formatting.Indented;
+                }
+                File.WriteAllText(Utilities.ConfigFilePath, JsonConvert.SerializeObject(config, fmt), Encoding.UTF8);
             }
             catch (Exception ex)
             {

@@ -27,7 +27,7 @@ namespace DGJv3
             PluginName = "点歌姬";
             PluginVer = BuildInfo.Version;
             PluginDesc = "使用弹幕点播歌曲";
-            PluginAuth = "Genteure";
+            PluginAuth = "Genteure & simon";
             PluginCont = "dgj3@genteure.com";
 
             try

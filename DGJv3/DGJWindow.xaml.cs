@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using System.Web.Caching;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace DGJv3
@@ -63,6 +65,7 @@ namespace DGJv3
         public bool IsLogRedirectDanmaku { get; set; }
 
         public int LogDanmakuLengthLimit { get; set; }
+        public bool FormatConfig { get; set; }
 
         private ObservableCollection<SongItem> SkipSong;
 
@@ -370,10 +373,20 @@ namespace DGJv3
             Writer.ScribanTemplate = config.ScribanTemplate;
             IsLogRedirectDanmaku = config.IsLogRedirectDanmaku;
             LogDanmakuLengthLimit = config.LogDanmakuLengthLimit;
+            FormatConfig = config.FormatConfig;
 
             Player.CurrentPlayMode= config.CurrentPlayMode;
             Player.LastSongId = config.LastSongId;
+            Writer.InfoTemplates = new ObservableCollection<KeyValuePair<string, OutputInfo>>();
 
+            if (config.InfoTemplates == null)
+                config.InfoTemplates = new Dictionary<string, OutputInfo>();
+            foreach (var key in config.InfoTemplates.Keys)
+            {
+                Writer.InfoTemplates.Add(new KeyValuePair<string, OutputInfo>(key, config.InfoTemplates[key]));
+            }
+           
+            
             LogRedirectToggleButton.IsEnabled = LoginCenterAPIWarpper.CheckLoginCenter();
             if (LogRedirectToggleButton.IsEnabled && IsLogRedirectDanmaku)
             {
@@ -426,8 +439,10 @@ namespace DGJv3
             Blacklist = Blacklist.ToArray(),
             IsLogRedirectDanmaku = IsLogRedirectDanmaku,
             LogDanmakuLengthLimit = LogDanmakuLengthLimit,
+            FormatConfig = FormatConfig,
             CurrentPlayMode=Player.CurrentPlayMode,
-            LastSongId= Player.LastSongId,
+            LastSongId = Player.LastSongId,
+            InfoTemplates = Writer.InfoTemplates.ToDictionary(p => p.Key, p => p.Value),
         };
 
         /// <summary>
@@ -485,7 +500,35 @@ namespace DGJv3
             }
             AddSongsTextBox.Text = string.Empty;
         }
+        private void AddOutputInfo_Click(object sender, RoutedEventArgs eventArgs)
+        {
+            if (!string.IsNullOrWhiteSpace(AddOutputInfoTextBox.Text))
+            {
+                if (Writer.InfoTemplates == null)
+                {
+                    Writer.InfoTemplates = new ObservableCollection<KeyValuePair<string, OutputInfo>>();
+                }
+                if (Writer.InfoTemplates.Any(p => p.Key == AddOutputInfoTextBox.Text) == false)
+                {
+                    Writer.InfoTemplates.Add(new KeyValuePair<string, OutputInfo>(AddOutputInfoTextBox.Text, new OutputInfo() { IsEnable = false, Content = string.Empty }));
+                    AddOutputInfoTextBox.Text = string.Empty;
+                }
+            }
+        }
 
+        private void DialogRemoveOutputInfo(object sender, DialogClosingEventArgs eventArgs)
+        {
+            if (eventArgs.Parameter.Equals(false) == false)
+            {
+                var key = eventArgs.Parameter as string;
+                if (Writer.InfoTemplates.Any(p => p.Key == key))
+                {
+                    Writer.CurrentOutputInfo = null;
+                    Writer.InfoTemplates.Remove(Writer.InfoTemplates.FirstOrDefault(p=>p.Key==key));
+                    //Writer.InfoTemplates[key].Remove(key, Writer.InfoTemplates);
+                }
+            }
+        }
         /// <summary>
         /// 主界面右侧
         /// 添加空闲歌曲按钮的
@@ -579,6 +622,50 @@ namespace DGJv3
                 var tb = sender as TextBox;
                 if (tb != null && string.IsNullOrEmpty(tb.Text) == false)
                     SearchSongInPlaylist(tb.Text);
+            }
+        }
+
+        private void list_OutputInfo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //CurrentOutputInfo= (sender as ListView)?.SelectedValue
+                var lv = sender as ListView;
+
+            if (lv != null)
+            {
+                try
+                {
+                    if (lv?.SelectedValue != null)
+                        Writer.CurrentOutputInfo = ((KeyValuePair<string, OutputInfo>)(sender as ListView).SelectedValue).Value;
+                    else
+                        Writer.CurrentOutputInfo = null;
+                }
+                catch (Exception ex)
+                {
+                    if (lv.SelectedIndex == -1 && lv.Items.Count == 0)
+                    {
+                        lv.SelectedIndex = 0;
+                    }
+                    Log("list_OutputInfo_SelectionChanged事件转换类型失败");
+                }
+            }
+        }
+
+        private void list_OutputInfo_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                var lv = sender as ListView;
+                if (lv != null)
+                {
+                    //var visualHit = VisualTreeHelper.HitTest(lv, e.GetPosition(lv));
+                    //if (visualHit == null)
+                    //{
+                    //    // 单击了空白区域，取消选中所有项
+                    //    lv.SelectedItems.Clear();
+                    //}
+                    lv.SelectedIndex = -1;
+                }
+
             }
         }
     }

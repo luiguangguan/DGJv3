@@ -62,5 +62,13 @@ namespace DGJv3
                     return "？？？？";
             }
         }
+
+        //internal static bool Remove(string key,Dictionary<string ,OutputInfo> idc)
+        //{
+        //    if(idc!=null&& idc.ContainsKey(key))
+        //    {
+
+        //    }
+        //}
     }
 }

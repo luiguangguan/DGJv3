@@ -116,6 +116,7 @@
     <Compile Include="LoginCenterAPIWarpper.cs" />
     <Compile Include="LyricChangedEvent.cs" />
     <Compile Include="NullSearchModule.cs" />
+    <Compile Include="OutputInfo.cs" />
     <Compile Include="PlayMode.cs" />
     <Compile Include="PlayerVolumeConverter.cs" />
     <Compile Include="NotEqualsVisibilityConverter.cs" />

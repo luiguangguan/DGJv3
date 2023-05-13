@@ -6,10 +6,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Threading;
 
 namespace DGJv3
@@ -145,7 +143,8 @@ namespace DGJv3
         public PlayMode CurrentPlayMode
         {
             get { return playMode; }
-            set {
+            set
+            {
                 playMode = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPlayMode)));
             }
@@ -225,7 +224,7 @@ namespace DGJv3
 
         private int currentLyricIndex = -1;
 
-        public Player(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist,ObservableCollection<SongItem> skipSongs)
+        public Player(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist, ObservableCollection<SongItem> skipSongs)
         {
             Songs = songs;
             Playlist = playlist;
@@ -237,11 +236,13 @@ namespace DGJv3
             PlayPauseCommand = new UniversalCommand((obj) => { IsPlaying ^= true; });
             NextCommand = new UniversalCommand((obj) => { Next(); });
 
-            ChangePlayModeCommand = new UniversalCommand((obj) => {
+            ChangePlayModeCommand = new UniversalCommand((obj) =>
+            {
                 TogglePlayMode(true);
             });
-            Songs.CollectionChanged += (sender,e)=> {
-                    SongsListChanged.Invoke(sender, new PropertyChangedEventArgs(nameof(sender)));//调用事件
+            Songs.CollectionChanged += (sender, e) =>
+            {
+                SongsListChanged.Invoke(sender, new PropertyChangedEventArgs(nameof(sender)));//调用事件
             };
         }
 
@@ -249,7 +250,7 @@ namespace DGJv3
         /// 播放模式切换
         /// <paramref name="tr_event">触发属性改变事件</paramref>
         /// </summary>
-        public void TogglePlayMode(bool tr_event=false)
+        public void TogglePlayMode(bool tr_event = false)
         {
             PlayMode pm = 0;
             if (Convert.ToInt32(CurrentPlayMode) >= 2)
@@ -335,10 +336,10 @@ namespace DGJv3
 
                 //将已经下载好等待播放的歌曲放回集合中
                 pendingRemove = pendingRemove.Where(p => p.Status == SongStatus.WaitingPlay).ToList();
-                Log("待加回集合的歌曲：" + pendingRemove.Count,null);
+                Log("待加回集合的歌曲：" + pendingRemove.Count, null);
                 foreach (var songItem in pendingRemove)
                 {
-                Log("加回集合的歌曲：" + songItem.SongName,null);
+                    Log("加回集合的歌曲：" + songItem.SongName, null);
                     Songs.Add(songItem);
                 }
             }
@@ -361,9 +362,9 @@ namespace DGJv3
                         currentSongId = Songs[0].SongId;
                     }
 
-                    if(Songs?.Count<=0&&Playlist.Any(p=>p.IsPlaying==true))
+                    if (Songs?.Count <= 0 && Playlist.Any(p => p.IsPlaying == true))
                     {
-                        index=Playlist.IndexOf(Playlist.FirstOrDefault(p => p.IsPlaying == true));
+                        index = Playlist.IndexOf(Playlist.FirstOrDefault(p => p.IsPlaying == true));
                     }
                     else
                     {

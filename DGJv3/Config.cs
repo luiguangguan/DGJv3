@@ -23,6 +23,8 @@ namespace DGJv3
 
         [JsonProperty("pvol")]
         public float Volume { get; set; } = 0.5f;
+        [JsonProperty("pvol2")]
+        public float Volume2 { get; set; } = 0.5f;
 
         [JsonProperty("pple")]
         public bool IsPlaylistEnabled { get; set; } = true;
@@ -57,7 +59,7 @@ namespace DGJv3
         public string LastSongId { get; set; }
 
         [JsonProperty("ift")]
-        public Dictionary<string, OutputInfo> InfoTemplates { get; set; }
+        public Dictionary<string, OutputInfo> InfoTemplates { get; set; } = new Dictionary<string, OutputInfo>();
 
         [JsonProperty("plst")]
         public SongInfo[] Playlist { get; set; } = new SongInfo[0];
@@ -76,10 +78,6 @@ namespace DGJv3
 
         public Config()
         {
-            InfoTemplates = new Dictionary<string, OutputInfo>
-            {
-                { "信息.txt", new  OutputInfo{ IsEnable=true,Content=ScribanTemplate} }
-            };
         }
 
 #pragma warning disable CS0168 // 声明了变量，但从未使用过

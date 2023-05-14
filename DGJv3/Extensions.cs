@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace DGJv3
 {
@@ -61,6 +63,18 @@ namespace DGJv3
                 default:
                     return "？？？？";
             }
+        }
+
+        /// <summary>
+        /// 使用正则表达式去掉Windows中不能作为文件名的字符
+        /// </summary>
+        /// <param name="target">this</param>
+        /// <returns></returns>
+        public static string RemoveIllegalCharacterNTFS(this string target)
+        {
+            if (!string.IsNullOrEmpty(target))
+                return Regex.Replace(target, "[<>:\"/\\\\|\\?\\*]", "");
+            return target;
         }
 
         //internal static bool Remove(string key,Dictionary<string ,OutputInfo> idc)

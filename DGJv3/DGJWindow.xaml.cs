@@ -9,6 +9,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Caching;
@@ -32,6 +33,7 @@ namespace DGJv3
         public ObservableCollection<SongInfo> Playlist { get; set; }
 
         public ObservableCollection<BlackListItem> Blacklist { get; set; }
+        public ObservableCollection<OutputInfoTemplate> InfoTemplates { get; set; }
 
         public Player Player { get; set; }
 
@@ -43,7 +45,7 @@ namespace DGJv3
 
         public DanmuHandler DanmuHandler { get; set; }
 
-        public UIFunction UIFunction { get;set; }
+        public UIFunction UIFunction { get; set; }
 
         public UniversalCommand RemoveSongCommmand { get; set; }
 
@@ -66,6 +68,7 @@ namespace DGJv3
 
         public int LogDanmakuLengthLimit { get; set; }
         public bool FormatConfig { get; set; }
+
 
         private ObservableCollection<SongItem> SkipSong;
 
@@ -153,17 +156,19 @@ namespace DGJv3
             Playlist = new ObservableCollection<SongInfo>();
             Blacklist = new ObservableCollection<BlackListItem>();
             SkipSong = new ObservableCollection<SongItem>();
+            InfoTemplates = new ObservableCollection<OutputInfoTemplate>();
 
             Player = new Player(Songs, Playlist, SkipSong);
             Downloader = new Downloader(Songs, SkipSong);
             SearchModules = new SearchModules();
-            UIFunction = new UIFunction(Songs, Playlist, Blacklist, SkipSong, SearchModules);
+            UIFunction = new UIFunction(Songs, Playlist, Blacklist, SkipSong, SearchModules, InfoTemplates);
             DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction);
-            Writer = new Writer(Songs, Playlist, Player, DanmuHandler);
+            Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates);
 
             UIFunction.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Player.LogEvent += (sender, e) => { Log("播放:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
-            Player.SongsListChanged += (sender, e) => {
+            Player.SongsListChanged += (sender, e) =>
+            {
                 var songs = sender as ObservableCollection<SongItem>;
                 if (songs == null)
                 {
@@ -195,7 +200,7 @@ namespace DGJv3
             SearchModules.LogEvent += (sender, e) => { Log("搜索:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             DanmuHandler.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             IsVisibleChanged += DGJWindow_IsVisibleChanged;
-            
+
             RemoveSongCommmand = new UniversalCommand((songobj) =>
             {
                 if (songobj != null && songobj is SongItem songItem)
@@ -214,7 +219,7 @@ namespace DGJv3
             });
 
 
-            PlaySongInPlaylistCommmand= new UniversalCommand((songobj) =>
+            PlaySongInPlaylistCommmand = new UniversalCommand((songobj) =>
             {
                 if (songobj != null && songobj is SongInfo songInfo)
                 {
@@ -252,11 +257,11 @@ namespace DGJv3
                 Blacklist.Clear();
             });
 
-            
+
             SearchInPlayListCommand = new UniversalCommand((x) =>
             {
-                
-                if(string.IsNullOrEmpty(SearchBox.Text)==false)
+
+                if (string.IsNullOrEmpty(SearchBox.Text) == false)
                 {
                     SearchSongInPlaylist(SearchBox.Text);
                 }
@@ -292,7 +297,7 @@ namespace DGJv3
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly assembly in assemblies)
             {
-                if(assembly.GetName().Name=="NAudio")
+                if (assembly.GetName().Name == "NAudio")
                 {
                     Log("当前" + assembly.GetName().Name + "版本是" + assembly.GetName().Version.ToString() + ",文件位置：" + assembly.Location);
                 }
@@ -364,6 +369,7 @@ namespace DGJv3
             Player.DirectSoundDevice = config.DirectSoundDevice;
             Player.WaveoutEventDevice = config.WaveoutEventDevice;
             Player.Volume = config.Volume;
+            Player.Volume2 = config.Volume2;
             Player.IsUserPrior = config.IsUserPrior;
             Player.IsPlaylistEnabled = config.IsPlaylistEnabled;
             SearchModules.PrimaryModule = SearchModules.Modules.FirstOrDefault(x => x.UniqueId == config.PrimaryModuleId) ?? SearchModules.NullModule;
@@ -375,18 +381,24 @@ namespace DGJv3
             LogDanmakuLengthLimit = config.LogDanmakuLengthLimit;
             FormatConfig = config.FormatConfig;
 
-            Player.CurrentPlayMode= config.CurrentPlayMode;
+            Player.CurrentPlayMode = config.CurrentPlayMode;
             Player.LastSongId = config.LastSongId;
-            Writer.InfoTemplates = new ObservableCollection<KeyValuePair<string, OutputInfo>>();
 
-            if (config.InfoTemplates == null)
-                config.InfoTemplates = new Dictionary<string, OutputInfo>();
-            foreach (var key in config.InfoTemplates.Keys)
+            InfoTemplates.Clear();//清空集合
+            if (config.InfoTemplates != null)
             {
-                Writer.InfoTemplates.Add(new KeyValuePair<string, OutputInfo>(key, config.InfoTemplates[key]));
+                foreach (var key in config.InfoTemplates.Keys)
+                {
+                    InfoTemplates.Add(new OutputInfoTemplate() { Key = key, Value = config.InfoTemplates[key] });
+                }
             }
-           
-            
+            if (config.InfoTemplates == null || config.InfoTemplates.Count == 0)
+            {
+                //兼容之前的逻辑
+                InfoTemplates.Add(new OutputInfoTemplate() { Key = "初始模板.txt", Value = new OutputInfo() { Content = new Config().ScribanTemplate, IsEnable = false } });
+                InfoTemplates.Add(new OutputInfoTemplate() { Key = "信息.txt", Value = new OutputInfo() { Content = config.ScribanTemplate, IsEnable = true } });
+            }
+
             LogRedirectToggleButton.IsEnabled = LoginCenterAPIWarpper.CheckLoginCenter();
             if (LogRedirectToggleButton.IsEnabled && IsLogRedirectDanmaku)
             {
@@ -429,6 +441,7 @@ namespace DGJv3
             WaveoutEventDevice = Player.WaveoutEventDevice,
             IsUserPrior = Player.IsUserPrior,
             Volume = Player.Volume,
+            Volume2 = Player.Volume2,
             IsPlaylistEnabled = Player.IsPlaylistEnabled,
             PrimaryModuleId = SearchModules.PrimaryModule.UniqueId,
             SecondaryModuleId = SearchModules.SecondaryModule.UniqueId,
@@ -440,9 +453,9 @@ namespace DGJv3
             IsLogRedirectDanmaku = IsLogRedirectDanmaku,
             LogDanmakuLengthLimit = LogDanmakuLengthLimit,
             FormatConfig = FormatConfig,
-            CurrentPlayMode=Player.CurrentPlayMode,
+            CurrentPlayMode = Player.CurrentPlayMode,
             LastSongId = Player.LastSongId,
-            InfoTemplates = Writer.InfoTemplates.ToDictionary(p => p.Key, p => p.Value),
+            InfoTemplates = InfoTemplates.ToDictionary(p => p.Key, p => p.Value),
         };
 
         /// <summary>
@@ -504,14 +517,19 @@ namespace DGJv3
         {
             if (!string.IsNullOrWhiteSpace(AddOutputInfoTextBox.Text))
             {
-                if (Writer.InfoTemplates == null)
+                if (InfoTemplates == null)
                 {
-                    Writer.InfoTemplates = new ObservableCollection<KeyValuePair<string, OutputInfo>>();
+                    InfoTemplates = new ObservableCollection<OutputInfoTemplate>();
                 }
-                if (Writer.InfoTemplates.Any(p => p.Key == AddOutputInfoTextBox.Text) == false)
+                if (InfoTemplates.Any(p => p.Key == AddOutputInfoTextBox.Text) == false)
                 {
-                    Writer.InfoTemplates.Add(new KeyValuePair<string, OutputInfo>(AddOutputInfoTextBox.Text, new OutputInfo() { IsEnable = false, Content = string.Empty }));
+                    string fileName = AddOutputInfoTextBox.Text.RemoveIllegalCharacterNTFS();
+                    InfoTemplates.Add(new OutputInfoTemplate() { Key = fileName, Value = new OutputInfo() { IsEnable = false, Content = string.Empty } });
                     AddOutputInfoTextBox.Text = string.Empty;
+                    if (list_OutputInfo?.Items.Count > 0)
+                    {
+                        list_OutputInfo.SelectedIndex = list_OutputInfo.Items.Count - 1;
+                    }
                 }
             }
         }
@@ -521,10 +539,10 @@ namespace DGJv3
             if (eventArgs.Parameter.Equals(false) == false)
             {
                 var key = eventArgs.Parameter as string;
-                if (Writer.InfoTemplates.Any(p => p.Key == key))
+                if (InfoTemplates.Any(p => p.Key == key))
                 {
                     Writer.CurrentOutputInfo = null;
-                    Writer.InfoTemplates.Remove(Writer.InfoTemplates.FirstOrDefault(p=>p.Key==key));
+                    InfoTemplates.Remove(InfoTemplates.FirstOrDefault(p => p.Key == key));
                     //Writer.InfoTemplates[key].Remove(key, Writer.InfoTemplates);
                 }
             }
@@ -617,7 +635,7 @@ namespace DGJv3
 
         private void SearchBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if(e.Key==System.Windows.Input.Key.Enter)
+            if (e.Key == System.Windows.Input.Key.Enter)
             {
                 var tb = sender as TextBox;
                 if (tb != null && string.IsNullOrEmpty(tb.Text) == false)
@@ -628,14 +646,16 @@ namespace DGJv3
         private void list_OutputInfo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             //CurrentOutputInfo= (sender as ListView)?.SelectedValue
-                var lv = sender as ListView;
-
+            ListView lv = sender as ListView;
             if (lv != null)
             {
                 try
                 {
                     if (lv?.SelectedValue != null)
-                        Writer.CurrentOutputInfo = ((KeyValuePair<string, OutputInfo>)(sender as ListView).SelectedValue).Value;
+                    {
+                        OutputInfoTemplate t = ((OutputInfoTemplate)(sender as ListView).SelectedValue);
+                        Writer.CurrentOutputInfo = t.Value;
+                    }
                     else
                         Writer.CurrentOutputInfo = null;
                 }
@@ -645,7 +665,7 @@ namespace DGJv3
                     {
                         lv.SelectedIndex = 0;
                     }
-                    Log("list_OutputInfo_SelectionChanged事件转换类型失败");
+                    Log("list_OutputInfo_SelectionChanged事件转换类型失败" + ex.Message);
                 }
             }
         }
@@ -663,9 +683,53 @@ namespace DGJv3
                     //    // 单击了空白区域，取消选中所有项
                     //    lv.SelectedItems.Clear();
                     //}
+
+                    //UIFunction.CancelAllTemplateFileNameEditong();
                     lv.SelectedIndex = -1;
                 }
 
+            }
+        }
+
+        private void ListViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            ListViewItem lvi = sender as ListViewItem;
+            if (lvi != null)
+            {
+                if (lvi.DataContext is OutputInfoTemplate)
+                {
+                    OutputInfoTemplate opt = (OutputInfoTemplate)lvi.DataContext;
+                    if (opt != null)
+                    {
+                        UIFunction.CancelAllTemplateFileNameEditong();
+                        opt.Editing = true;
+                    }
+                }
+            }
+        }
+
+        private void ListViewItem_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e?.Key == Key.Enter)
+            {
+                ListViewItem lvi = sender as ListViewItem;
+                if (lvi != null)
+                {
+                    if (lvi.DataContext is OutputInfoTemplate)
+                    {
+                        OutputInfoTemplate opt = (OutputInfoTemplate)lvi.DataContext;
+                        if (opt != null)
+                            opt.Editing = false;
+                    }
+                }
+            }
+        }
+
+        private void VolumeGroup_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                Player.IsMute = !Player.IsMute;
             }
         }
     }

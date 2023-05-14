@@ -20,18 +20,19 @@ namespace DGJv3
 
         private ObservableCollection<SongItem> SkipSong;
         private SearchModules SearchModules { get; set; }
-
+        private ObservableCollection<OutputInfoTemplate> InfoTemplates {get; set;}  
         public event LogEvent LogEvent;
         private void Log(string message, Exception exception = null) => LogEvent?.Invoke(this, new LogEventArgs() { Message = message, Exception = exception });
 
 
-        public UIFunction(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist, ObservableCollection<BlackListItem> blacklist, ObservableCollection<SongItem> skipSong, SearchModules searchModules)
+        public UIFunction(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist, ObservableCollection<BlackListItem> blacklist, ObservableCollection<SongItem> skipSong, SearchModules searchModules, ObservableCollection<OutputInfoTemplate> infoTemplates)
         {
             Songs = songs;
             Playlist = playlist;
             Blacklist = blacklist;
             SkipSong = skipSong;
             SearchModules = searchModules;
+            InfoTemplates = infoTemplates;
         }
 
         /// <summary>
@@ -111,6 +112,21 @@ namespace DGJv3
                 Log("添加空闲歌单", ex);
             }
             return false;
+        }
+
+        /// <summary>
+        /// 取消所有输出模板文件名的"编辑状态"
+        /// </summary>
+        public void CancelAllTemplateFileNameEditong()
+        {
+            if (InfoTemplates != null)
+            {
+                foreach (var it in InfoTemplates)
+                {
+                    if (it.Editing)
+                        it.Editing = false;
+                }
+            }
         }
     }
 }

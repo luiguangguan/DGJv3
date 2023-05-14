@@ -26,10 +26,15 @@
             <local:EqualsVisibilityConverter x:Key="EqualsVisibilityConverter"/>
             <local:PlayerVolumeConverter x:Key="PlayerVolumeConverter"/>
             <local:NotEqualsVisibilityConverter x:Key="NotEqualsVisibilityConverter"/>
+            <local:IsNullToBooleanConverter x:Key="IsNullToBooleanConverter" />
             <!--<local:PalyModeConverter x:Key="PalyModeConverter"/>-->
             <!--<x:Type TypeName="local:PlayMode" x:Key="PlayMode"/>-->
             <Style TargetType="TextBox">
                 <Setter Property="ContextMenuService.IsEnabled" Value="False"/>
+            </Style>
+            <Style x:Key="list_OutputInfo_itemstyle" TargetType="{x:Type ListViewItem}">
+                <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_MouseDoubleClick" />
+                <EventSetter Event="KeyDown" Handler="ListViewItem_KeyDown" />
             </Style>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
@@ -161,7 +166,6 @@
                     </GroupBox>
                     <Grid Margin="3" Grid.Column="0" Grid.Row="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -169,21 +173,21 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Column="0" Margin="0,10,10,0">歌手/歌曲</TextBlock>
-                        <TextBox Grid.Column="1" Margin="0,0,10,0" x:Name="SearchBox" Style="{StaticResource MaterialDesignTextBox}"  KeyDown="SearchBox_KeyDown" VerticalAlignment="Center">
+                        <TextBox Grid.Column="0" Margin="0,0,10,0" x:Name="SearchBox" Style="{StaticResource MaterialDesignTextBox}" KeyDown="SearchBox_KeyDown" VerticalAlignment="Center"
+                                 materialDesign:HintAssist.Hint="输入歌手/歌曲,按回车或右侧按钮搜索列表" >
                         </TextBox>
-                        <Button Grid.Column="2" Margin="0,0,10,0" Command="{Binding SearchInPlayListCommand}" VerticalAlignment="Center">
+                        <Button Grid.Column="1" Margin="0,0,10,0" Command="{Binding SearchInPlayListCommand}" VerticalAlignment="Center" Cursor="Hand">
                             <materialDesign:PackIcon Kind="Magnify"/>
                         </Button>
-                        <Button Grid.Column="3" Margin="0,0,0,0" Command="{Binding NavigatePlayingSongInPlaylistCommand}" VerticalAlignment="Center">
+                        <Button Grid.Column="2" Margin="0,0,0,0" Command="{Binding NavigatePlayingSongInPlaylistCommand}" VerticalAlignment="Center" Cursor="Hand">
                             <materialDesign:PackIcon Kind="target"/>
                         </Button>
                     </Grid>
                 </Grid>
                 <StackPanel Margin="5" Grid.Row="1" Orientation="Horizontal">
-                    <Button HorizontalAlignment="Center" VerticalAlignment="Center"                            
+                    <Button HorizontalAlignment="Center" VerticalAlignment="Center"
                         Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
-                        materialDesign:DialogHost.DialogClosingAttached="DialogAddSongs">
+                        materialDesign:DialogHost.DialogClosingAttached="DialogAddSongs" Cursor="Hand">
                         <Button.CommandParameter>
                             <StackPanel Margin="16">
                                 <TextBlock FontSize="16">歌名</TextBlock>
@@ -208,7 +212,7 @@
                     </Button>
                     <Button HorizontalAlignment="Center" VerticalAlignment="Center"
                         Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
-                        materialDesign:DialogHost.DialogClosingAttached="DialogAddSongsToPlaylist">
+                        materialDesign:DialogHost.DialogClosingAttached="DialogAddSongsToPlaylist" Cursor="Hand">
                         <Button.CommandParameter>
                             <StackPanel Margin="16">
                                 <TextBlock FontSize="16">歌名</TextBlock>
@@ -233,7 +237,7 @@
                     </Button>
                     <Button HorizontalAlignment="Center" VerticalAlignment="Center"
                         Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
-                        materialDesign:DialogHost.DialogClosingAttached="DialogAddPlaylist">
+                        materialDesign:DialogHost.DialogClosingAttached="DialogAddPlaylist"  Cursor="Hand">
                         <Button.CommandParameter>
                             <StackPanel Margin="16">
                                 <TextBlock FontSize="16">
@@ -328,7 +332,7 @@
                     <RowDefinition Height="2*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Margin="20 0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-                    <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Command="{Binding PlayPauseCommand}">
+                    <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Command="{Binding PlayPauseCommand}" Cursor="Hand">
                         <Grid>
                             <materialDesign:PackIcon Width="24" Height="24" Kind="Play"
                                                  Visibility="{Binding IsPlaying,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource False}}"/>
@@ -336,7 +340,7 @@
                                                  Visibility="{Binding IsPlaying,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource True}}"/>
                         </Grid>
                     </Button>
-                    <Button Margin="8 0" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Command="{Binding NextCommand}">
+                    <Button Margin="8 0" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Command="{Binding NextCommand}" Cursor="Hand">
                         <materialDesign:PackIcon Width="24" Height="24" Kind="SkipNext"/>
                     </Button>
                     <TextBlock FontSize="24" TextAlignment="Center" VerticalAlignment="Center">
@@ -344,9 +348,16 @@
                     /
                     <TextBlock Width="80" Text="{Binding TotalTimeString, Mode=OneWay}" TextAlignment="Left"/>
                 </TextBlock>
-                    <materialDesign:PackIcon x:Name="PackIconVolumeHigh" Width="24" Height="24" Kind="VolumeHigh" VerticalAlignment="Center" Margin="15,10,0,0"/>
+                    <Grid Name="VolumeGroup" MouseDown="VolumeGroup_MouseDown" Background="Transparent" Cursor="Hand">
+                        <materialDesign:PackIcon x:Name="PackIconVolumeHigh"
+                                             Visibility="{Binding IsMute,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource FalseValue}}"
+                                             Width="24" Height="24" Kind="VolumeHigh" VerticalAlignment="Center" Margin="15,10,0,0"/>
+                        <materialDesign:PackIcon x:Name="PackIconVolumeMute" 
+                                             Visibility="{Binding IsMute,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                             Width="24" Height="24" Kind="VolumeOff" VerticalAlignment="Center" Margin="15,10,0,0"/>
+                    </Grid>
                     <Slider Style="{StaticResource MaterialDesignDiscreteSlider}" Value="{Binding Volume,Converter={StaticResource PlayerVolumeConverter}}"
-                        Width="150" Orientation="Horizontal" Minimum="0" Maximum="100" VerticalAlignment="Center"/>
+                        Width="150" Orientation="Horizontal" Minimum="0" Maximum="100" LargeChange="5" VerticalAlignment="Center"/>
                     <!-- 设置开始 -->
                     <materialDesign:PopupBox Margin="30,0,0,0" DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}"
                                              StaysOpen="True" PlacementMode="TopAndAlignCentres">
@@ -507,38 +518,41 @@
                             <!--
                             <TextBlock Grid.ColumnSpan="2">文本输出设置</TextBlock>
                             -->
+                            <!--输出信息模板文件名称列表开始-->
                             <Grid  Grid.Column="0" Grid.Row="0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Grid.Row="0" Margin="0,0,10,0" Height="30">模板文件名称</TextBlock>
-                                <TextBox Grid.Column="1" Grid.Row="0" Margin="0,0,0,0"  Height="30" x:Name="AddOutputInfoTextBox" Style="{StaticResource MaterialDesignTextBox}"></TextBox>
-                                <Button  Click="AddOutputInfo_Click" Grid.Column="2" Grid.Row="0" Margin="10,10,10,10" Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionMiniButton}">
-                                        <materialDesign:PackIcon Kind="Plus"/>
-                                    </Button>
-                                <ListView Name="list_OutputInfo" PreviewMouseDown="list_OutputInfo_PreviewMouseDown" MinWidth="100" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" ItemsSource="{Binding Writer.InfoTemplates}" SelectionChanged="list_OutputInfo_SelectionChanged">
-                                <ListView.View>
-                                    <GridView AllowsColumnReorder="False">
-                                        <GridViewColumn Header="">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <ToggleButton  IsChecked="{Binding Value.IsEnable}" Style="{DynamicResource MaterialDesignSwitchToggleButton}" Margin="0,7,0,0"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="文件名称">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock TextAlignment="Center" Margin="0,8" Text="{Binding Key}"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
+                                <TextBox Grid.Column="0" Grid.Row="0" Margin="0,0,0,0"  materialDesign:HintAssist.Hint="在这里输入模板文件名称"  Height="30" x:Name="AddOutputInfoTextBox" Style="{StaticResource MaterialDesignTextBox}"></TextBox>
+                                <Button  Click="AddOutputInfo_Click" Grid.Column="1" Grid.Row="0" Margin="10,10,10,10" Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionMiniButton}">
+                                    <materialDesign:PackIcon Kind="Plus"/>
+                                </Button>
+                                <ListView Name="list_OutputInfo" ItemContainerStyle="{StaticResource list_OutputInfo_itemstyle}" PreviewMouseDown="list_OutputInfo_PreviewMouseDown" 
+                                          MinWidth="100" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" ItemsSource="{Binding InfoTemplates}" SelectionChanged="list_OutputInfo_SelectionChanged">
+                                    <ListView.View>
+                                        <GridView AllowsColumnReorder="False">
+                                            <GridViewColumn Header="">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ToggleButton  IsChecked="{Binding Value.IsEnable}" Style="{DynamicResource MaterialDesignSwitchToggleButton}" Margin="0,7,0,0"/>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="文件名称">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Grid>
+                                                            <TextBox TextAlignment="Center" Style="{StaticResource MaterialDesignTextBox}" Margin="0,8" Text="{Binding Key,Mode=TwoWay}" Visibility="{Binding Editing,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"/>
+                                                            <TextBlock TextAlignment="Center" Margin="0,8" Text="{Binding Key,Mode=OneWay}" Visibility="{Binding Editing,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource FalseValue}}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
                                             <GridViewColumn Header="删除">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
@@ -568,18 +582,20 @@
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                             </GridViewColumn>
-                                        <!--<GridViewColumn Header="内容">
+                                            <!--<GridViewColumn Header="内容">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock TextAlignment="Center" Margin="0,8" Text="{Binding Value}"/>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>-->
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
                             </Grid>
-                            <TextBox Text="{Binding Writer.CurrentOutputInfo.Content,Mode=TwoWay,Delay=300,UpdateSourceTrigger=PropertyChanged}"
+                            <!--输出信息模板文件名称列表结束-->
+                            <TextBox Text="{Binding Writer.CurrentOutputInfo.Content,Mode=TwoWay,Delay=150,UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding Writer.CurrentOutputInfo, Converter={StaticResource IsNullToBooleanConverter},ConverterParameter={StaticResource FalseValue}}"
                                      TextAlignment="Left" VerticalAlignment="Stretch" Grid.Row="0" Grid.Column="1" ContextMenu="{x:Null}"
                                      Style="{StaticResource MaterialDesignTextAreaTextBox}" materialDesign:HintAssist.Hint="模板   不会改请保持默认"
                                      TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" SpellCheck.IsEnabled="False"/>

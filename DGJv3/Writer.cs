@@ -36,8 +36,8 @@ namespace DGJv3
 
         public string ScribanTemplate { get => scribanTemplate; set => SetField(ref scribanTemplate, value); }
 
-        private ObservableCollection<KeyValuePair<string, OutputInfo>> infoTemplates = null;
-        public ObservableCollection<KeyValuePair<string, OutputInfo>> InfoTemplates
+        private ObservableCollection<OutputInfoTemplate> infoTemplates = null;
+        private ObservableCollection<OutputInfoTemplate> InfoTemplates
         {
             get
             {
@@ -66,11 +66,12 @@ namespace DGJv3
         private string scribanTemplate;
         private string result;
 
-        internal Writer(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist, Player player, DanmuHandler danmuHandler)
+        internal Writer(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist, Player player, DanmuHandler danmuHandler, ObservableCollection<OutputInfoTemplate> infoTemplates)
         {
             Songs = songs;
             Playlist = playlist;
             Player = player;
+            InfoTemplates = infoTemplates;
             DanmuHandler = danmuHandler;
 
             PropertyChanged += Writer_PropertyChanged;
@@ -298,16 +299,56 @@ namespace DGJv3
             {
                 if (e.NewItems?.Count > 0)
                 {
-                    foreach (KeyValuePair<string, OutputInfo> item in e.NewItems)
+                    foreach (OutputInfoTemplate item in e.NewItems)
                     {
-                        item.Value.PropertyChanged += (object org, PropertyChangedEventArgs ee) =>
+                        item.Value.PropertyChanged += (object obj_sender, PropertyChangedEventArgs ee) =>
                         {
                             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InfoTemplates)));
                         };
+                        item.PropertyChanged += (object obj_sender, PropertyChangedEventArgs ee) =>
+                        {
+                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InfoTemplates)));
+                        };
+                        item.PropertyChanging += TemplateNameEdite_PropertyChanging;
+                    }
+                }
+            }
+            else if (e?.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                foreach (OutputInfoTemplate item in e.OldItems)
+                {
+                    string tfp = Path.Combine(Utilities.DataDirectoryPath, item.Key);
+                    try
+                    {
+                        if (File.Exists(tfp))
+                            File.Delete(tfp);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log("删除输出模板文件出错:" + tfp, ex);
                     }
                 }
             }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InfoTemplates)));
+        }
+
+        private void TemplateNameEdite_PropertyChanging(object sender, PropertyChangingEventArgs e)
+        {
+            var o = sender as OutputInfoTemplate;
+            if (e.PropertyName == nameof(o.Key))
+            {
+                string tfp = Path.Combine(Utilities.DataDirectoryPath, o.Key);
+                try
+                {
+                    if (File.Exists(tfp))
+                        File.Delete(tfp);
+                }
+                catch (Exception ex)
+                {
+                    Log("删除输出模板文件出错:" + tfp, ex);
+
+                }
+            }
         }
 
         public event LogEvent LogEvent;

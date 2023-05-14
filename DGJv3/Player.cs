@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -195,6 +196,10 @@ namespace DGJv3
         }
         private float _volume = 1f;
 
+        public float Volume2 { get; set; }
+        public bool IsMute { get => _muted; set => SetField(ref _muted, value, nameof(IsMute)); }
+        private bool _muted = false;
+
         /// <summary>
         /// 当前歌词
         /// </summary>
@@ -283,6 +288,34 @@ namespace DGJv3
             else if (e.PropertyName == nameof(TotalTime))
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TotalTimeString)));
+            }
+            else if (e.PropertyName == nameof(Volume))
+            {
+                //音量变动事件
+                Player play = sender as Player;
+                float vol = play.Volume;
+
+                //记录非点击静音时的音量
+                if (play.IsMute == false)
+                    play.Volume2 = vol;
+
+                if (play.Volume > 0)
+                {
+                    play.IsMute = false;
+                }
+                else
+                {
+                    play.IsMute = true;
+                }
+            }
+            else if (e.PropertyName == nameof(IsMute))
+            {
+                //静音变动事件
+                Player play = sender as Player;
+                if (play.IsMute)
+                    play.Volume = 0;
+                else if (play.Volume == 0)
+                    play.Volume = play.Volume2;
             }
         }
 

@@ -212,6 +212,70 @@ namespace DGJv3
                             }
                         }
                         return;
+                    case "静音":
+                    case "靜音":
+                        {
+                            if (commands.Length > 1)
+                            {
+                                if (commands[1] == "開啓" || commands[1] == "开启")
+                                {
+                                    Player.IsMute = true;
+                                    Log("静音开启", null);
+                                }
+                                else if (commands[1] == "關閉" || commands[1] == "关闭")
+                                {
+                                    Player.IsMute = false;
+                                    Log("静音关闭", null);
+                                }
+                            }
+                        }
+                        return;
+                    case "最大点歌数":
+                    case "最大點歌數":
+                        {
+                            if (commands.Length > 1 && uint.TryParse(commands[1], out uint num))
+                            {
+                                MaxTotalSongNum = num;
+                                Log("最大点歌数:" + num, null);
+                            }
+                        }
+                        return;
+                    case "单人点歌数":
+                    case "單人點歌數":
+                        {
+                            if (commands.Length > 1 && uint.TryParse(commands[1], out uint num))
+                            {
+                                MaxPersonSongNum = num;
+                                Log("单人点歌数:" + num, null);
+                            }
+                        }
+                        return;
+                    case "用户点歌优先":
+                    case "用戶點歌優先":
+                        {
+                            if (commands.Length > 1)
+                            {
+                                if (commands[1] == "開啓" || commands[1] == "开启")
+                                {
+                                    Player.IsUserPrior = true;
+                                    Log("用户点歌优先开启", null);
+                                }
+                                else if (commands[1] == "關閉" || commands[1] == "关闭")
+                                {
+                                    Player.IsUserPrior = false;
+                                    Log("用户点歌优先关闭", null);
+                                }
+                            }
+                        }
+                        return;
+                    //case "弹幕长度":
+                    //case "彈幕長度":
+                    //    {
+                    //        if (commands.Length > 1 && uint.TryParse(commands[1], out uint num))
+                    //        {
+                    //        }
+                    //    }
+                    //    return;
                     default:
                         break;
                 }

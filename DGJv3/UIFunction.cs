@@ -20,7 +20,7 @@ namespace DGJv3
 
         private ObservableCollection<SongItem> SkipSong;
         private SearchModules SearchModules { get; set; }
-        private ObservableCollection<OutputInfoTemplate> InfoTemplates {get; set;}  
+        private ObservableCollection<OutputInfoTemplate> InfoTemplates { get; set; }
         public event LogEvent LogEvent;
         private void Log(string message, Exception exception = null) => LogEvent?.Invoke(this, new LogEventArgs() { Message = message, Exception = exception });
 
@@ -127,6 +127,42 @@ namespace DGJv3
                         it.Editing = false;
                 }
             }
+        }
+
+        public bool PlaylistRemove(string keyword1, string keyword2)
+        {
+            var removeList = Playlist.Where(p =>
+           (p.Name.IndexOf(keyword1) > -1 && (p.SingersText.IndexOf(keyword2) > -1 || string.IsNullOrEmpty(keyword2)))
+           ||
+           ((string.IsNullOrEmpty(keyword2) || p.Name.IndexOf(keyword2) > -1) && p.SingersText.IndexOf(keyword1) > -1)
+            ).ToList();
+            if (removeList != null)
+            {
+                for (int i = 0; i < removeList.Count; i++)
+                {
+                    PlaylistRemove(removeList[i]);
+
+                }
+            }
+            return true;
+        }
+        public bool PlaylistRemove(SongInfo song)
+        {
+            if (Playlist != null && Playlist.Count > 0)
+                return Playlist.Remove(song);
+            return false;
+        }
+        public bool PlaylistRemove(int startIndex, int len)
+        {
+            startIndex--;
+            if (startIndex > -1 && startIndex < Playlist.Count)
+            {
+                for (int i = startIndex + len-1; i >= startIndex && i > -1; i--)
+                {
+                    Playlist.RemoveAt(i);
+                }
+            }
+            return true;
         }
     }
 }

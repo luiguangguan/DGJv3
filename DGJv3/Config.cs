@@ -10,6 +10,9 @@ namespace DGJv3
 {
     class Config
     {
+
+        [JsonProperty("admcmdale")]
+        public bool AdminCmdEnable { get; set; }=true;
         [JsonProperty("fmtcfg")]
         public bool FormatConfig { get; set; }=false;
         [JsonProperty("ptyp")]

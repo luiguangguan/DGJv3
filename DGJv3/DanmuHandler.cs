@@ -26,11 +26,15 @@ namespace DGJv3
 
         private UIFunction UIFunction;
 
+
         /// <summary>
         /// 最多点歌数量
         /// </summary>
         public uint MaxTotalSongNum { get => _maxTotalSongCount; set => SetField(ref _maxTotalSongCount, value); }
         private uint _maxTotalSongCount;
+
+        public bool AdminCmdEnable { get => _adminCmdEnable; set => SetField(ref _adminCmdEnable, value,nameof(AdminCmdEnable)); }
+        private bool _adminCmdEnable;
 
         /// <summary>
         /// 每个人最多点歌数量
@@ -67,6 +71,21 @@ namespace DGJv3
 
             if (danmakuModel.isAdmin)
             {
+                if (commands[0] == "开启执行管理员命令" || commands[0] == "開啓執行管理員命令")
+                {
+                    AdminCmdEnable = true;
+                }
+                else if (commands[0] == "关闭执行管理员命令" || commands[0] == "關閉執行管理員命令")
+                {
+                    AdminCmdEnable = false;
+                }
+
+                if (AdminCmdEnable == false)
+                {
+                    //未开启执行房管命令功能
+                    return;
+                }
+
                 switch (commands[0])
                 {
                     case "切歌":
@@ -179,6 +198,32 @@ namespace DGJv3
                             }
                         }
                         return;
+                    case "歌单移除":
+                    case "歌單移除":
+                        {
+                            if (commands.Length>1)
+                            {
+                                string k1 = commands[1];
+                                string k2 = "";
+                                if (commands.Length > 2)
+                                    k2 = commands[2];
+
+                                if (int.TryParse(k1, out int index))
+                                {
+                                    int len = 1;
+                                    if (!int.TryParse(k2, out len))
+                                    {
+                                        len = 1;
+                                    }
+                                    dispatcher.Invoke(() => { UIFunction.PlaylistRemove(index, len); });
+                                }
+                                else
+                                {
+                                    dispatcher.Invoke(() => { UIFunction.PlaylistRemove(k1, k2); });
+                                }
+                            }
+                        }
+                        return;
                     case "播放模式":
                         {
                             if (commands.Length > 1)
@@ -264,6 +309,24 @@ namespace DGJv3
                                 {
                                     Player.IsUserPrior = false;
                                     Log("用户点歌优先关闭", null);
+                                }
+                            }
+                        }
+                        return;
+                    case "播放空闲歌单":
+                    case "播放空閑歌單":
+                        {
+                            if (commands.Length > 1)
+                            {
+                                if (commands[1] == "開啓" || commands[1] == "开启")
+                                {
+                                    Player.IsPlaylistEnabled = true;
+                                    Log("静音开启", null);
+                                }
+                                else if (commands[1] == "關閉" || commands[1] == "关闭")
+                                {
+                                    Player.IsPlaylistEnabled = false;
+                                    Log("静音关闭", null);
                                 }
                             }
                         }

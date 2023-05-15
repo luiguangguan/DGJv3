@@ -146,10 +146,12 @@ namespace DGJv3
             get { return playMode; }
             set
             {
-                playMode = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPlayMode)));
+                //playMode = value;
+                SetField(ref playMode, value,nameof(CurrentPlayMode));
+                //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPlayMode)));
             }
         }
+        private PlayMode currentPlayMode=PlayMode.LooptListPlay;
 
         /// <summary>
         /// 当前歌曲播放状态

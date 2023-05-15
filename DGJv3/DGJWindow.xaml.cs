@@ -67,8 +67,8 @@ namespace DGJv3
         public bool IsLogRedirectDanmaku { get; set; }
 
         public int LogDanmakuLengthLimit { get; set; }
-        public bool FormatConfig { get; set; }
 
+        public bool FormatConfig { get; set; }
 
         private ObservableCollection<SongItem> SkipSong;
 
@@ -380,6 +380,7 @@ namespace DGJv3
             IsLogRedirectDanmaku = config.IsLogRedirectDanmaku;
             LogDanmakuLengthLimit = config.LogDanmakuLengthLimit;
             FormatConfig = config.FormatConfig;
+            DanmuHandler.AdminCmdEnable = config.AdminCmdEnable;
 
             Player.CurrentPlayMode = config.CurrentPlayMode;
             Player.LastSongId = config.LastSongId;
@@ -456,6 +457,7 @@ namespace DGJv3
             CurrentPlayMode = Player.CurrentPlayMode,
             LastSongId = Player.LastSongId,
             InfoTemplates = InfoTemplates.ToDictionary(p => p.Key, p => p.Value),
+            AdminCmdEnable = DanmuHandler.AdminCmdEnable,
         };
 
         /// <summary>

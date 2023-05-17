@@ -61,6 +61,23 @@ namespace DGJv3
         [JsonProperty("lsid")]
         public string LastSongId { get; set; }
 
+        [JsonProperty("eabqmsg")]
+        public bool EnableQueueMsg { get; set; } = true;
+
+        [JsonProperty("qmsgmxstt")]
+        public int QueueMsgMaxStayTime { get; set; } = 5;
+
+        [JsonProperty("eabkpqmsg")]
+        public bool EnableKeepLastQueueMsg { get; set; } = false;
+
+        [JsonProperty("kpqmsgct")]
+        public int KeepQueueMsgCount { get; set; } = 1;
+
+        [JsonProperty("msgctnmxsz")]
+        public int MsgContainerMaxSize { get; set; } = 5;
+        [JsonProperty("msglilen")]
+        public int MsgLineLength { get; set; } = 10;
+
         [JsonProperty("ift")]
         public Dictionary<string, OutputInfo> InfoTemplates { get; set; } = new Dictionary<string, OutputInfo>();
 
@@ -68,15 +85,31 @@ namespace DGJv3
         public SongInfo[] Playlist { get; set; } = new SongInfo[0];
 
         [JsonProperty("sbtp")]
-        public string ScribanTemplate { get; set; } = "正在播放：{{ 当前播放 }}-{{ 当前歌手 }}-{{ 当前点歌用户 }}-{{ 当前模块 }}\n" +
-            "{{当前歌词}}\n"+
-            "{{下句歌词}}\n" +
-            "正在播放：{{ 下一首播放 }}-{{ 下一首歌手 }}-{{ 下一首点歌用户 }}-{{ 下一首模块 }}\n" +
-            "播放进度 {{当前播放时间}}/{{当前总时间}}\n" +
-            "当前列表中有 {{ 歌曲数量 }} 首歌\n还可以再点 {{ 总共最大点歌数量 - 歌曲数量 }} 首歌\n" +
-            "每个人可以点 {{ 单人最大点歌数量 }} 首歌\n\n歌名 - 点歌人 - 歌手 - 歌曲平台\n" +
-            "{{~ for 歌曲 in 播放列表 ~}}\n" +
-            "{{ 歌曲.歌名 }} - {{  歌曲.点歌人 }} - {{ 歌曲.歌手 }} - {{ 歌曲.搜索模块 }}\n" +
+        public string ScribanTemplate { get; set; } = "正在播放：{{ 当前播放 }}-{{ 当前歌手 }}-{{ 当前点歌用户 }}-{{ 当前模块 }}\r\n" +
+            "{{当前歌词}}\r\n" +
+            "{{下句歌词}}\r\n" +
+            "{{播放模式}}\r\n" +
+            "{{播放模式名称}}\r\n" +
+            "{{当前音量}}\r\n" +
+            "正在播放：{{ 下一首播放 }}-{{ 下一首歌手 }}-{{ 下一首点歌用户 }}-{{ 下一首模块 }}\r\n" +
+            "播放进度 {{当前播放时间}}/{{当前总时间}}\r\n" +
+            "当前列表中有 {{ 歌曲数量 }} 首歌\r\n" +
+            "还可以再点 {{ 总共最大点歌数量 - 歌曲数量 }} 首歌\r\n" +
+            "每个人可以点 {{ 单人最大点歌数量 }} 首歌\r\n" +
+            "\r\n" +
+            "歌名 - 点歌人 - 歌手 - 歌曲平台\r\n{{~ for 歌曲 in 播放列表 ~}}\r\n" +
+            "{{ 歌曲.歌名 }} - {{  歌曲.点歌人 }} - {{ 歌曲.歌手 }} - {{ 歌曲.搜索模块 }}\r\n" +
+            "{{~ end ~}}\r\n" +
+            "\r\n" +
+            "消息队列:\r\n" +
+            "{{~ for 消息 in 消息队列 ~}}\r\n" +
+            "{{消息.信息}}\r\n" +
+            "{{消息.时间}}\r\n" +
+            "{{~ end ~}}\r\n" +
+            "\r\n" +
+            "空闲歌单：\r\n" +
+            "{{~ for 歌曲 in 空闲歌单 ~}}\r\n" +
+            "{{歌曲.播放状态}}-{{歌曲.歌名}}-{{歌曲.歌手}}-{{歌曲.歌曲id}}-{{歌曲.搜索模块}}\r\n" +
             "{{~ end ~}}";
 
         public Config()

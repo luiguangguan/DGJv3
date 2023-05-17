@@ -94,7 +94,7 @@ namespace DGJv3
 
                 foreach (var songItem in Songs)
                 {
-                    if (songItem.Status == SongStatus.WaitingDownload)
+                    if (songItem.Status == SongStatus.WaitingDownload || (string.IsNullOrEmpty(songItem.FilePath) == false && System.IO.File.Exists(songItem.FilePath) == false))
                     {
                         currentSong = songItem;
                         Task.Run(() => Download());

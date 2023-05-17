@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +11,29 @@ namespace DGJv3
 {
     internal class UIFunction : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        //public bool TemplatePopOpened
+        //{
+        //    get => _templatePopOpened; set
+        //    {
+        //        _templatePopOpened = value;
+        //        if (value == false)
+        //        {
+        //          //  ListViewOutputInfoSelectIndex = -1;
+        //        }
+        //    }
+
+        //}
+        //private bool _templatePopOpened = false;
+
+        //public int ListViewOutputInfoSelectIndex
+        //{
+        //    get => _listViewOutputInfoSelectIndex; set
+        //    {
+        //        _listViewOutputInfoSelectIndex = value;
+        //            SetField(ref _listViewOutputInfoSelectIndex, value, nameof(ListViewOutputInfoSelectIndex));
+        //    }
+        //}
+        private int _listViewOutputInfoSelectIndex = -1;
 
         private ObservableCollection<SongItem> Songs { get; set; }
 
@@ -162,6 +185,15 @@ namespace DGJv3
                     Playlist.RemoveAt(i);
                 }
             }
+            return true;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             return true;
         }
     }

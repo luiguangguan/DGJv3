@@ -64,6 +64,20 @@ namespace DGJv3
                     return "？？？？";
             }
         }
+        internal static string ToZhName(this PlayMode playMode)
+        {
+            switch (playMode)
+            {
+                case PlayMode.LooptListPlay:
+                    return "列表循环";
+                case PlayMode.LoopOnetPlay:
+                    return "单曲循环";
+                case PlayMode.ShufflePlay:
+                    return "随机播放";
+                default:
+                    return string.Empty;
+            }
+        }
 
         /// <summary>
         /// 使用正则表达式去掉Windows中不能作为文件名的字符

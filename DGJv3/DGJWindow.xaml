@@ -372,50 +372,143 @@
                             <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Margin="8,0,8,8">设置</TextBlock>
 
                             <StackPanel Margin="5,0" Orientation="Vertical" Grid.Row="1">
+                                <!--播放设置开始-->
+                                <StackPanel Margin="0,5,0,0">
+                                    <StackPanel  Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="PlayCircleOutline" Width="18" Height="16"/>
+                                        <TextBlock Text="播放" FontWeight="Bold" FontSize="12" Foreground="#696969" HorizontalAlignment="Left" />
+                                    </StackPanel>
                                 <StackPanel Margin="5" Orientation="Horizontal">
                                     <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Player.IsPlaylistEnabled}"/>
                                     <TextBlock TextAlignment="Center" VerticalAlignment="Center">没有点歌时从列表[随机]播放</TextBlock>
                                 </StackPanel>
-                                <StackPanel Margin="5" Orientation="Horizontal">
-                                    <Button Style="{StaticResource MaterialDesignToolButton}" Visibility="{Binding Player.IsPlaylistEnabled,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource True}}" Command="{Binding Player.ChangePlayModeCommand}">
-                                        <Grid>
-                                            <!--MaterialDesignFloatingActionMiniButton-->
-                                            <materialDesign:PackIcon Width="24" Height="24" Kind="ShuffleVariant"
+                                <StackPanel Margin="5" Orientation="Horizontal" Visibility="{Binding Player.IsPlaylistEnabled,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource True}}">
+                                        <Button Style="{StaticResource MaterialDesignToolButton}" Command="{Binding Player.ChangePlayModeCommand}">
+                                            <Grid>
+                                                <!--MaterialDesignFloatingActionMiniButton-->
+                                                <materialDesign:PackIcon Width="24" Height="24" Kind="ShuffleVariant"
                                                  Visibility="{Binding Player.CurrentPlayMode,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayMode.ShufflePlay}}"/>
-                                            <materialDesign:PackIcon Width="24" Height="24" Kind="Repeat"
+                                                <materialDesign:PackIcon Width="24" Height="24" Kind="Repeat"
                                                  Visibility="{Binding Player.CurrentPlayMode,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayMode.LooptListPlay}}"/>
-                                            <!--<materialDesign:PackIcon Width="24" Height="24" Kind="PlaylistPlay"
+                                                <!--<materialDesign:PackIcon Width="24" Height="24" Kind="PlaylistPlay"
                                                  Visibility="{Binding Player.CurrentPlayMode,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayMode.ListPlay}}"/>-->
-                                            <materialDesign:PackIcon Width="24" Height="24" Kind="RepeatOnce"
+                                                <materialDesign:PackIcon Width="24" Height="24" Kind="RepeatOnce"
                                                  Visibility="{Binding Player.CurrentPlayMode,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayMode.LoopOnetPlay}}"/>
-                                        </Grid>
-                                    </Button>
-                                </StackPanel>
-                                <StackPanel Margin="5" Orientation="Horizontal">
+                                            </Grid>
+                                        </Button>
+                                        <TextBlock Margin="0,5,0,0" Text="播放模式"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="5" Orientation="Horizontal">
                                     <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Player.IsUserPrior}"/>
                                     <TextBlock TextAlignment="Center" VerticalAlignment="Center">用户点歌优先于空闲歌单播放</TextBlock>
                                 </StackPanel>
-                                <StackPanel Margin="5" Orientation="Horizontal">
-                                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding IsLogRedirectDanmaku}" x:Name="LogRedirectToggleButton" Checked="LogRedirectToggleButton_OnChecked"/>
-                                    <TextBlock TextAlignment="Center" VerticalAlignment="Center">点歌反馈发送到弹幕（需要登录中心）</TextBlock>
                                 </StackPanel>
-                                <StackPanel Margin="5" Orientation="Horizontal">
-                                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding DanmuHandler.AdminCmdEnable}"/>
-                                    <TextBlock TextAlignment="Center" VerticalAlignment="Center">开启执行房管的弹幕命令</TextBlock>
+                                <!--播放设置结束-->
+                                
+                                <!--消息队列设置开始-->
+                                <StackPanel Margin="0,5,0,0">
+                                    <StackPanel  Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Bell" Width="18" Height="16"/>
+                                        <TextBlock Text="消息输出" FontWeight="Bold" FontSize="12" Foreground="#696969" HorizontalAlignment="Left" />
+                                    </StackPanel>
+                                    <Grid Margin="5">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="5" Orientation="Horizontal" Grid.Row="0" Grid.Column="0">
+                                            <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Writer.EnableQueueMsg}"/>
+                                            <TextBlock TextAlignment="Center" VerticalAlignment="Center">输出通知消息</TextBlock>
+                                        </StackPanel>
+                                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="0" Grid.Column="1"
+                                    Visibility="{Binding Writer.EnableQueueMsg,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                    Text="{Binding Writer.QueueMsgMaxStayTime,UpdateSourceTrigger=PropertyChanged,Delay=200}"
+                                    materialDesign:HintAssist.Hint="每条消息的驻留时间(秒)" materialDesign:HintAssist.IsFloating="True"/>
+                                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="25,0,0,0"
+                                    Visibility="{Binding Writer.EnableQueueMsg,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                    Text="{Binding Writer.MsgLineLength,UpdateSourceTrigger=PropertyChanged,Delay=200}"
+                                    materialDesign:HintAssist.Hint="单行长度（字数）" materialDesign:HintAssist.IsFloating="True"/>
+                                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="25,0,0,0"
+                                    Visibility="{Binding Writer.EnableQueueMsg,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                    Text="{Binding Writer.MsgContainerMaxSize,UpdateSourceTrigger=PropertyChanged,Delay=200}"
+                                    materialDesign:HintAssist.Hint="消息容器的大小（最多显示多少条通知）" materialDesign:HintAssist.IsFloating="True"/>
+                                        <StackPanel Margin="5" Orientation="Horizontal"  Grid.Row="3" Grid.Column="0">
+                                            <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Writer.EnableKeepLastQueueMsg}"
+                                                          Visibility="{Binding Writer.EnableQueueMsg,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"/>
+                                            <TextBlock TextAlignment="Center" VerticalAlignment="Center">保留最后的消息</TextBlock>
+                                        </StackPanel>
+                                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="3" Grid.Column="1"
+                                    Visibility="{Binding Writer.IsVisibleForKeepQueueMsgCountCtrl,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                    
+                                    Text="{Binding Writer.KeepQueueMsgCount,UpdateSourceTrigger=PropertyChanged,Delay=200}"
+                                    materialDesign:HintAssist.Hint="保留最后的消息数量" materialDesign:HintAssist.IsFloating="True"/>
+                                        <Grid Margin="25,0,0,0" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Margin="0,15,10,0" Style="{StaticResource MaterialDesignTextBox}" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0"
+                                               MaxWidth="250"  Text="{Binding Writer.MsgQueueTestText,Mode=TwoWay,Delay=200}"
+                                 materialDesign:HintAssist.Hint="输入测试文本" >
+                                            </TextBox>
+                                            <Button Margin="0,15,0,0" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding MsgQueueTestCommand}"  Grid.Row="4" Grid.Column="1">测试</Button>
+                                            <Button Margin="0,15,0,0" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ClearMsgQueueCommand}"  Grid.Row="4" Grid.Column="2">清空消息队列</Button>
+                                        </Grid>
+                                    </Grid>
                                 </StackPanel>
-                                <StackPanel Margin="5" Orientation="Horizontal">
-                                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding FormatConfig}"/>
-                                    <TextBlock TextAlignment="Center" VerticalAlignment="Center">保存配置时格式化内容</TextBlock>
-                                </StackPanel>
-                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                <!--消息队列设置结束-->
+
+                                <!--点歌设置开始-->
+                                <StackPanel Margin="0,5,0,0">
+                                    <StackPanel  Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Fire" Width="18" Height="16"/>
+                                        <TextBlock Text="点歌" FontWeight="Bold" FontSize="12" Foreground="#696969" HorizontalAlignment="Left" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="5">
+                                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                     Text="{Binding DanmuHandler.MaxTotalSongNum,UpdateSourceTrigger=PropertyChanged,Delay=200}"
                                     materialDesign:HintAssist.Hint="总共最大点歌数量" materialDesign:HintAssist.IsFloating="True"/>
-                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                     Text="{Binding DanmuHandler.MaxPersonSongNum,UpdateSourceTrigger=PropertyChanged,Delay=200}"
                                     materialDesign:HintAssist.Hint="单人最大点歌数量" materialDesign:HintAssist.IsFloating="True"/>
-                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                     Text="{Binding LogDanmakuLengthLimit,UpdateSourceTrigger=PropertyChanged,Delay=200}"
                                     materialDesign:HintAssist.Hint="弹幕长度限制" materialDesign:HintAssist.IsFloating="True"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <!--点歌设置结束-->
+                                
+                                <!--杂项设置开始-->
+                                <StackPanel Margin="0,5,0,0">
+                                    <StackPanel  Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Collage" Width="18" Height="16"/>
+                                        <TextBlock Text="杂项" FontWeight="Bold"  FontSize="12" Foreground="#696969" HorizontalAlignment="Left" />
+                                    </StackPanel>
+                                    <StackPanel Margin="5" Orientation="Horizontal">
+                                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding IsLogRedirectDanmaku}" x:Name="LogRedirectToggleButton" Checked="LogRedirectToggleButton_OnChecked"/>
+                                        <TextBlock TextAlignment="Center" VerticalAlignment="Center">点歌反馈发送到弹幕（需要登录中心）</TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Margin="5" Orientation="Horizontal">
+                                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding DanmuHandler.AdminCmdEnable}"/>
+                                        <TextBlock TextAlignment="Center" VerticalAlignment="Center">开启执行房管的弹幕命令</TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Margin="5" Orientation="Horizontal">
+                                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding FormatConfig}"/>
+                                        <TextBlock TextAlignment="Center" VerticalAlignment="Center">保存配置时格式化内容</TextBlock>
+                                    </StackPanel>
+                                </StackPanel>    
+                                <!--杂项设置结束-->  
                             </StackPanel>
                         </Grid>
                     </materialDesign:PopupBox>

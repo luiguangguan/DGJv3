@@ -2,6 +2,7 @@
 using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -35,6 +36,8 @@ namespace DGJv3
         public ObservableCollection<BlackListItem> Blacklist { get; set; }
         public ObservableCollection<OutputInfoTemplate> InfoTemplates { get; set; }
 
+        public EventSafeQueue<object> MsgQueue { get; set; }
+
         public Player Player { get; set; }
 
         public Downloader Downloader { get; set; }
@@ -63,6 +66,8 @@ namespace DGJv3
         //public UniversalCommand RefreshConfigCommand { get; set; }
 
         public UniversalCommand NavigatePlayingSongInPlaylistCommand { get; set; }
+        public UniversalCommand MsgQueueTestCommand { get; set; }
+        public UniversalCommand ClearMsgQueueCommand { get; set; }
 
         public bool IsLogRedirectDanmaku { get; set; }
 
@@ -157,13 +162,14 @@ namespace DGJv3
             Blacklist = new ObservableCollection<BlackListItem>();
             SkipSong = new ObservableCollection<SongItem>();
             InfoTemplates = new ObservableCollection<OutputInfoTemplate>();
+            MsgQueue = new EventSafeQueue<object>();
 
             Player = new Player(Songs, Playlist, SkipSong);
             Downloader = new Downloader(Songs, SkipSong);
             SearchModules = new SearchModules();
             UIFunction = new UIFunction(Songs, Playlist, Blacklist, SkipSong, SearchModules, InfoTemplates);
-            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction);
-            Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates);
+            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue);
+            Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates,MsgQueue);
 
             UIFunction.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Player.LogEvent += (sender, e) => { Log("播放:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
@@ -272,6 +278,17 @@ namespace DGJv3
             {
                 NavigatePlayingSongInPlaylist();
             });
+
+            MsgQueueTestCommand = new UniversalCommand((x) => {
+                Writer.MsgQueue.Enqueue(Writer.MsgQueueTestText);
+            });
+
+            ClearMsgQueueCommand = new UniversalCommand((x) =>
+            {
+                Writer.MsgQueue.Clear();
+                Writer.keepingQueue.Clear();
+            });
+
             //RefreshConfigCommand = new UniversalCommand((x) =>
             //{
             //    ApplyConfig(Config.Load());
@@ -377,6 +394,12 @@ namespace DGJv3
             DanmuHandler.MaxTotalSongNum = config.MaxTotalSongNum;
             DanmuHandler.MaxPersonSongNum = config.MaxPersonSongNum;
             Writer.ScribanTemplate = config.ScribanTemplate;
+            Writer.EnableQueueMsg = config.EnableQueueMsg;
+            Writer.QueueMsgMaxStayTime = config.QueueMsgMaxStayTime;
+            Writer.EnableKeepLastQueueMsg = config.EnableKeepLastQueueMsg;
+            Writer.KeepQueueMsgCount = config.KeepQueueMsgCount;
+            Writer.MsgContainerMaxSize = config.MsgContainerMaxSize;
+            Writer.MsgLineLength = config.MsgLineLength;
             IsLogRedirectDanmaku = config.IsLogRedirectDanmaku;
             LogDanmakuLengthLimit = config.LogDanmakuLengthLimit;
             FormatConfig = config.FormatConfig;
@@ -449,6 +472,12 @@ namespace DGJv3
             MaxPersonSongNum = DanmuHandler.MaxPersonSongNum,
             MaxTotalSongNum = DanmuHandler.MaxTotalSongNum,
             ScribanTemplate = Writer.ScribanTemplate,
+            EnableQueueMsg = Writer.EnableQueueMsg,
+            QueueMsgMaxStayTime = Writer.QueueMsgMaxStayTime,
+            EnableKeepLastQueueMsg = Writer.EnableKeepLastQueueMsg,
+            KeepQueueMsgCount = Writer.KeepQueueMsgCount,
+            MsgContainerMaxSize = Writer.MsgContainerMaxSize,
+            MsgLineLength = Writer.MsgLineLength,
             Playlist = Playlist.ToArray(),
             Blacklist = Blacklist.ToArray(),
             IsLogRedirectDanmaku = IsLogRedirectDanmaku,
@@ -734,5 +763,6 @@ namespace DGJv3
                 Player.IsMute = !Player.IsMute;
             }
         }
+
     }
 }

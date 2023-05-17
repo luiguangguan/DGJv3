@@ -76,11 +76,17 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="Scriban, Version=1.2.5.0, Culture=neutral, PublicKeyToken=5675fb69b15f2433, processorArchitecture=MSIL">
-      <HintPath>..\packages\Scriban.Signed.1.2.5\lib\net40\Scriban.dll</HintPath>
+    <Reference Include="Scriban.Signed, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5675fb69b15f2433, processorArchitecture=MSIL">
+      <HintPath>..\packages\Scriban.Signed.5.7.0\lib\netstandard2.0\Scriban.Signed.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
@@ -106,6 +112,7 @@
     <Compile Include="Downloader.cs" />
     <Compile Include="DownloadStatus.cs" />
     <Compile Include="EnumerationExtension.cs" />
+    <Compile Include="EventSafeQueue.cs" />
     <Compile Include="FuckRegsvr32.cs" />
     <Compile Include="InternalModule\LwlApiBaidu.cs" />
     <Compile Include="InternalModule\LwlApiBaseModule.cs" />
@@ -116,6 +123,7 @@
     <Compile Include="IsNullToBooleanConverter.cs" />
     <Compile Include="LoginCenterAPIWarpper.cs" />
     <Compile Include="LyricChangedEvent.cs" />
+    <Compile Include="Notification.cs" />
     <Compile Include="NullSearchModule.cs" />
     <Compile Include="OutputInfo.cs" />
     <Compile Include="OutputInfoTemplate.cs" />
@@ -136,6 +144,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="SongStatus.cs" />
     <Compile Include="SongStatusStringConverter.cs" />
+    <Compile Include="TemplateRender.cs" />
     <Compile Include="UIFunction.cs" />
     <Compile Include="UniversalCommand.cs" />
     <Compile Include="Utilities.cs" />

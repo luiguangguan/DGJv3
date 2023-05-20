@@ -122,7 +122,10 @@ namespace DGJv3
                     {
                         foreach (var item in songInfoList)
                         {
-                            Playlist.Add(item);
+                            if (Playlist.Any(p => p.Id==item.Id&&item.Name==item.Name&&p.ModuleId==item.ModuleId)==false)
+                            {
+                                Playlist.Add(item);
+                            }
                         }
                         return true;
                     }

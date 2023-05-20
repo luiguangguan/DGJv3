@@ -185,7 +185,7 @@ namespace DGJv3
                 {
                     for (int i = 0; i < Playlist.Count; i++)
                     {
-                        if (songs[0].SongId == Playlist[i].Id)
+                        if (songs[0].SongId == Playlist[i].Id&& songs[0].Module.UniqueId == Playlist[i].ModuleId)
                         {
                             index = i;
                         }

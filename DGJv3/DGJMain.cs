@@ -71,6 +71,8 @@ namespace DGJv3
         {
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.Show();
+            window.InvalidateVisual();
+            window.UpdateLayout();
             window.Activate();
             
         }

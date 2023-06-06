@@ -25,6 +25,8 @@ namespace DGJv3
 
         private ObservableCollection<SongItem> SkipSong;
 
+        private ObservableCollection<int> ShuffleList=new ObservableCollection<int>();
+
         private DispatcherTimer newSongTimer = new DispatcherTimer(DispatcherPriority.Normal)
         {
             Interval = TimeSpan.FromSeconds(1),
@@ -251,6 +253,29 @@ namespace DGJv3
             {
                 SongsListChanged.Invoke(sender, new PropertyChangedEventArgs(nameof(sender)));//调用事件
             };
+            Playlist.CollectionChanged += (sender, e) =>
+            {
+                InitShuffleList();
+            };
+            ShuffleList.CollectionChanged += (sender, e) =>
+            {
+                if (ShuffleList.Count <= 0&&e.Action==System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                {
+                    InitShuffleList();
+                }
+            };
+        }
+
+        private void InitShuffleList()
+        {
+            ShuffleList.Clear();
+            int i = 0;
+            while (i < Playlist.Count)
+            {
+                ShuffleList.Add(i);
+                i++;
+            }
+            Shuffle(ShuffleList);
         }
 
         /// <summary>
@@ -318,6 +343,16 @@ namespace DGJv3
                     play.Volume = 0;
                 else if (play.Volume == 0)
                     play.Volume = play.Volume2;
+            }
+            else if(e.PropertyName==nameof(CurrentPlayMode))
+            {
+                if (CurrentPlayMode == PlayMode.ShufflePlay)
+                {
+                    if (ShuffleList.Count <= 0)
+                    {
+                        InitShuffleList();
+                    }
+                }
             }
         }
 
@@ -439,27 +474,19 @@ namespace DGJv3
                                     else if (CurrentPlayMode == PlayMode.ShufflePlay)
                                     {
                                         //随机播放
-                                        int cy = 100;//重复执行次数
-                                        do
+                                        //int cy = 100;//重复执行次数
+                                        //do
+                                        //{
+                                        //    index = random.Next(0, Playlist.Count);
+                                        //    cy--;
+                                        //} while (index == i && Playlist.Count > 1 && cy > 1);
+                                        if (ShuffleList.Count <= 0)
                                         {
-                                            index = random.Next(0, Playlist.Count);
-                                            cy--;
-                                        } while (index == i && Playlist.Count > 1 && cy > 1);
+                                           InitShuffleList();
+                                        }
+                                        index = ShuffleList[0];
+                                        ShuffleList.RemoveAt(0);
                                     }
-                                    //else if(CurrentPlayMode== PlayMode.ListPlay)
-                                    //{
-                                    //    //列表顺序播放
-                                    //    if (i < Playlist.Count - 1)
-                                    //    {
-                                    //        index = i + 1;
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        index = -1;
-
-                                    //    }
-                                    //}
-
                                     break;
                                 }
                             }
@@ -664,6 +691,21 @@ namespace DGJv3
             field = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             return true;
+        }
+
+        private static void Shuffle<T>(IList<T> list)
+        {
+            Random random = new Random();
+
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = random.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
         }
 
         public event LyricChangedEvent LyricEvent;

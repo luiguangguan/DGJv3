@@ -18,5 +18,7 @@ namespace DGJv3
         /// 模板输出的信息
         /// </summary>
         public string Text { get; set; }
+
+        public string OriginPattern { get;set; }
     }
 }

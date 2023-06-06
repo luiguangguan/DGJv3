@@ -70,9 +70,9 @@ namespace DGJv3
         public override void Admin()
         {
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            window.Show();
-            window.InvalidateVisual();
             window.UpdateLayout();
+            window.InvalidateVisual();
+            window.Show();
             window.Activate();
             
         }

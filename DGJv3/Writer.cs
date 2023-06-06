@@ -20,8 +20,6 @@ namespace DGJv3
         private static string locker = Guid.NewGuid().ToString();
         private static bool isLock2=false;
 
-        private static string lockerString=Guid.NewGuid().ToString();
-
         private static bool isLock = false;
 
         private ObservableCollection<SongItem> Songs;
@@ -32,6 +30,7 @@ namespace DGJv3
 
         private DanmuHandler DanmuHandler;
 
+        private Timer timetimer;
         private Timer timer;
         private Timer queuemsg_timer;
 
@@ -128,6 +127,27 @@ namespace DGJv3
             };
             queuemsg_timer.Elapsed += Queuemsg_timer_Elapsed; ;
             queuemsg_timer.Start();
+
+            timetimer = new Timer(1000)
+            {
+                AutoReset = true
+            };
+            timetimer.Elapsed += Timetimer_Elapsed; ;
+            timetimer.Start();
+        }
+
+        private void Timetimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            //只更歌曲播放时间
+            string repx = "\\{\\{\\s*当前播放时间\\s*\\}\\}";
+            var kv = templates.Where(
+                p => (
+                p.Value.Template.Page.Body.CanOutput
+                && (Regex.IsMatch(p.Value.OriginPattern, repx))
+                )
+                );
+            var kv2 = kv.ToDictionary(p => p.Key, p => p.Value);
+            OutputInfoToFile(kv2);
         }
 
         private void Queuemsg_timer_Elapsed(object sender, ElapsedEventArgs e)
@@ -185,21 +205,21 @@ namespace DGJv3
             {
                 CurrentLyric = e.CurrentLyric;
                 UpcomingLyric = e.UpcomingLyric;
-                File.WriteAllText(Utilities.LyricOutputFilePath, e.CurrentLyric + Environment.NewLine + e.UpcomingLyric);
-                if (isLock)
+                try
                 {
-                    return;
+                    //只更新歌词部分的模板
+                    string repx = "\\{\\{\\s*当前歌词\\s*\\}\\}";
+                    string repx2 = "\\{\\{\\s*下句歌词\\s*\\}\\}";
+                    var kv = templates.Where(
+                        p =>(
+                        p.Value.Template.Page.Body.CanOutput
+                        && (Regex.IsMatch(p.Value.OriginPattern, repx) || Regex.IsMatch(p.Value.OriginPattern, repx2))
+                        )
+                        );
+                    var kv2 = kv.ToDictionary(p => p.Key, p => p.Value);
+                    OutputInfoToFile(kv2);
                 }
-                lock (lockerString)
-                {
-                    isLock = true;
-                    try
-                    {
-                        OutputInfoToFile();
-                    }
-                    catch (Exception ex){}
-                    isLock = false;
-                }
+                catch (Exception ex) { }
             }
             catch (Exception) { }
         }
@@ -235,7 +255,7 @@ namespace DGJv3
                             continue;
                         }
                         var localtemplate = Template.Parse(item.Value.Content);
-                        templates.Add(item.Key, new TemplateRender { Template= localtemplate});
+                        templates.Add(item.Key, new TemplateRender { Template= localtemplate, OriginPattern = item.Value?.Content });
                     }
                 }
             }
@@ -256,19 +276,19 @@ namespace DGJv3
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if(isLock)
-            {
-                return;
-            }
-            lock (lockerString)
-            {
-                isLock = true;
-                OutputInfoToFile();
-                isLock = false;
-            }
+            //只更歌曲播放时间
+            string repx = "\\{\\{\\s*当前播放时间\\s*\\}\\}";
+            var kv = templates.Where(
+                p => (
+                p.Value.Template.Page.Body.CanOutput
+                && (!Regex.IsMatch(p.Value.OriginPattern, repx))
+                )
+                );
+            var kv2 = kv.ToDictionary(p => p.Key, p => p.Value);
+            OutputInfoToFile(kv2);
         }
 
-        private void OutputInfoToFile()
+        private void OutputInfoToFile(Dictionary<string,TemplateRender> ts)
         {
             var localsongs = Songs.Select(x => new
             {
@@ -350,9 +370,10 @@ namespace DGJv3
 
             var localresult = template?.Render(realContent) ?? string.Empty;
 
-            if (templates?.Count > 0)
+            if (ts?.Count > 0)
             {
-                foreach (var item in templates)
+                var n=DateTime.Now;
+                foreach (var item in ts)
                 {
                     var info = "";
                     if (item.Value.Template.HasErrors)

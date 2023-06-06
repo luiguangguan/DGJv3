@@ -412,6 +412,31 @@ namespace DGJv3
                         });
                     }
                     return;
+                case "切歌":
+                    {
+                        // Player.Next();
+
+                        dispatcher.Invoke(() =>
+                        {
+                            if (Songs.Count > 0)
+                            {
+                                if (Songs[0].UserName == danmakuModel.UserName)
+                                {
+                                    Songs[0].Remove(Songs, Downloader, Player);
+                                    Log($"【{danmakuModel.UserName}】切歌成功！");
+                                    MsgQueue.Enqueue($"【{danmakuModel.UserName}】切歌成功！");
+                                }
+                            }
+                        });
+
+                        /*
+                        if (commands.Length >= 2)
+                        {
+                            // TODO: 切指定序号的歌曲
+                        }
+                        */
+                    }
+                    return;
                 case "投票切歌":
                     {
                         // TODO: 投票切歌

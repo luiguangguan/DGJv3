@@ -9,3 +9,5 @@ WIP
 目前只支持網易云音樂，請配合喵塊插件使用
 
 喵塊倉庫地址：https://github.com/luiguangguan/ExtendNetease_DGJModule
+
+后面会使用github的Action自动发布

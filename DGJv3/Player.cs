@@ -221,6 +221,18 @@ namespace DGJv3
         public bool IsPlaylistEnabled { get => _isPlaylistEnabled; set => SetField(ref _isPlaylistEnabled, value); }
         private bool _isPlaylistEnabled;
 
+        /// <summary>
+        /// 投票切歌
+        /// </summary>
+        public int SkipSongVote { get => _skipSongVote; set => SetField(ref _skipSongVote, value); }
+        private int _skipSongVote;
+
+        /// <summary>
+        /// 切歌投票用户
+        /// </summary>
+        public ObservableCollection<string> SkipSongVoteUsers { get => _skipSongVoteUsers; set => SetField(ref _skipSongVoteUsers, value); }
+        private ObservableCollection<string> _skipSongVoteUsers=new ObservableCollection<string>();
+
         private string upcomingLyric;
 
         private IWavePlayer wavePlayer = null;
@@ -301,7 +313,7 @@ namespace DGJv3
             CurrentPlayMode = playMode;
         }
 
-        private void This_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void This_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Status))
             {
@@ -351,6 +363,15 @@ namespace DGJv3
                     if (ShuffleList.Count <= 0)
                     {
                         InitShuffleList();
+                    }
+                }
+
+                var remove = Songs.Where(p => p.UserName == Utilities.SparePlaylistUser&&p.Status!=SongStatus.Playing).ToArray();
+                if (remove != null)
+                {
+                    foreach (var item in remove)
+                    {
+                        Songs.Remove(item);
                     }
                 }
             }
@@ -550,15 +571,17 @@ namespace DGJv3
             wavePlayer.Init(sampleChannel);
             wavePlayer.Play();
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TotalTime)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentTime)));
-
             if (songItem.UserName == Utilities.SparePlaylistUser)
             {
 
                 LastSongId = songItem.SongId;
             }
+
+            SkipSongVoteUsers.Clear();//清除投票切歌用户
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TotalTime)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentTime)));
         }
 
         /// <summary>

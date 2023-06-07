@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Navigation;
 
 namespace DGJv3
 {
@@ -10,8 +11,16 @@ namespace DGJv3
     /// </summary>
     public class Lrc
     {
+        /// <summary>
+        /// 原始歌词文本
+        /// </summary>
+        private string lrcText;
+        private Lrc(string lrcText)
+        {
+            this.lrcText = lrcText;
+        }
 
-        public static readonly Lrc NoLyric = new Lrc()
+        public static readonly Lrc NoLyric = new Lrc("")
         {
             Album = string.Empty,
             Artist = string.Empty,
@@ -105,7 +114,7 @@ namespace DGJv3
         /// <returns>返回歌词信息(Lrc实例)</returns>
         public static Lrc InitLrc(string LrcText)
         {
-            Lrc lrc = new Lrc();
+            Lrc lrc = new Lrc(LrcText);
             Dictionary<double, string> dicword = new Dictionary<double, string>();
 
             string[] lines = LrcText.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
@@ -167,6 +176,11 @@ namespace DGJv3
         static string SplitInfo(string line)
         {
             return line.Substring(line.IndexOf(":") + 1).TrimEnd(']');
+        }
+
+        public override string ToString()
+        {
+            return lrcText;
         }
     }
 }

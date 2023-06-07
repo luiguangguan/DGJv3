@@ -63,7 +63,7 @@ namespace DGJv3
         /// </summary>
         /// <param name="keyword"></param>
         /// <returns></returns>
-        public bool AddSongsToPlaylist(string keyword)
+        public bool AddSongsToPlaylist(string keyword,string user)
         {
             try
             {
@@ -86,6 +86,7 @@ namespace DGJv3
 
                     if (songInfo != null)
                     {
+                        songInfo.User = user;
                         Playlist.Add(songInfo);
                         return true;
                     }
@@ -103,7 +104,7 @@ namespace DGJv3
         /// <param name="keyword"></param>
         /// <returns></returns>
 
-        public bool AddPlaylist(string keyword)
+        public bool AddPlaylist(string keyword,string user)
         {
             try
             {
@@ -124,6 +125,7 @@ namespace DGJv3
                         {
                             if (Playlist.Any(p => p.Id==item.Id&&item.Name==item.Name&&p.ModuleId==item.ModuleId)==false)
                             {
+                                item.User = user;
                                 Playlist.Add(item);
                             }
                         }

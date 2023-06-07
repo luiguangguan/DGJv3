@@ -28,6 +28,8 @@ namespace DGJv3
 
         private new EventSafeQueue<object> MsgQueue;
 
+        private ObservableCollection<SongInfo> Playlist;
+
 
         /// <summary>
         /// 最多点歌数量
@@ -44,7 +46,7 @@ namespace DGJv3
         public uint MaxPersonSongNum { get => _maxPersonSongNum; set => SetField(ref _maxPersonSongNum, value); }
         private uint _maxPersonSongNum;
 
-        internal DanmuHandler(ObservableCollection<SongItem> songs, Player player, Downloader downloader, SearchModules searchModules, ObservableCollection<BlackListItem> blacklist, UIFunction uIFunction, EventSafeQueue<object> msgQueue)
+        internal DanmuHandler(ObservableCollection<SongItem> songs, Player player, Downloader downloader, SearchModules searchModules, ObservableCollection<BlackListItem> blacklist, UIFunction uIFunction, EventSafeQueue<object> msgQueue, ObservableCollection<SongInfo> playlist)
         {
             dispatcher = Dispatcher.CurrentDispatcher;
             Songs = songs;
@@ -54,6 +56,7 @@ namespace DGJv3
             Blacklist = blacklist;
             UIFunction = uIFunction;
             MsgQueue = msgQueue;
+            Playlist = playlist;
         }
 
 
@@ -87,7 +90,7 @@ namespace DGJv3
 
                 if (AdminCmdEnable == true)
                 {
-                    switch (commands[0])
+                    switch (commands[0]?.Replace(".",""))//防止敏感词
                     {
                         case "切歌":
                             {
@@ -171,7 +174,7 @@ namespace DGJv3
                                 {
                                     dispatcher.Invoke(() =>
                                     {
-                                        if (UIFunction.AddSongsToPlaylist(rest))
+                                        if (UIFunction.AddSongsToPlaylist(rest,danmakuModel.UserName))
                                         {
                                             Log("房管添加歌曲:" + commands[1] + ",到空闲歌单成功");
                                             MsgQueue.Enqueue("房管添加歌曲:" + commands[1] + ",到空闲歌单成功");
@@ -186,7 +189,7 @@ namespace DGJv3
                                 {
                                     dispatcher.Invoke(() =>
                                     {
-                                        if (UIFunction.AddPlaylist(rest))
+                                        if (UIFunction.AddPlaylist(rest, danmakuModel.UserName))
                                         {
                                             Log("房管添加歌单:" + commands[1] + ",成功");
                                             MsgQueue.Enqueue("房管添加歌单:" + commands[1] + ",成功");
@@ -247,6 +250,27 @@ namespace DGJv3
                                         });
                                     }
                                 }
+                            }
+                            return;
+                        case "清空歌单":
+                        case "清空歌單":
+                            {
+                                Playlist.Clear();
+                                MsgQueue.Enqueue($"【{danmakuModel.UserName}】清空歌单");
+                            }
+                            return;
+                        case "清空我的歌单":
+                        case "清空我的歌單":
+                            {
+                                var removes=Playlist.Where(x => x.User==danmakuModel.UserName).ToList();
+                                if(removes!=null)
+                                {
+                                    foreach (var item in removes)
+                                    {
+                                        Playlist.Remove(item);
+                                    }
+                                }
+                                MsgQueue.Enqueue($"【{danmakuModel.UserName}】清空自己的歌单");
                             }
                             return;
                         case "播放模式":
@@ -367,6 +391,20 @@ namespace DGJv3
                                 }
                             }
                             return;
+                        case "切歌票数":
+                        case "切歌票數":
+                            {
+                                if (commands.Length > 1)
+                                {
+                                    if (int.TryParse(commands[1], out int  votes))
+                                    {
+                                        Player.SkipSongVote = votes;
+                                        Log($"切歌票数{votes}");
+                                        MsgQueue.Enqueue($"切歌票数{votes}");
+                                    }
+                                }
+                            }
+                            return;
                         //case "弹幕长度":
                         //case "彈幕長度":
                         //    {
@@ -381,7 +419,7 @@ namespace DGJv3
                 }
             }
 
-            switch (commands[0])
+            switch (commands[0]?.Replace(".", ""))//防止敏感词
             {
                 case "点歌":
                 case "點歌":
@@ -407,7 +445,7 @@ namespace DGJv3
                             if (songItem != null)
                             {
                                 songItem.Remove(Songs, Downloader, Player);
-                                    MsgQueue.Enqueue("取消点歌");
+                                MsgQueue.Enqueue("取消点歌");
                             }
                         });
                     }
@@ -440,7 +478,16 @@ namespace DGJv3
                 case "投票切歌":
                     {
                         // TODO: 投票切歌
-                        MsgQueue.Enqueue("投票切歌");
+                        if (!Player.SkipSongVoteUsers.Contains(danmakuModel.UserName))
+                        {
+                            Player.SkipSongVoteUsers.Add(danmakuModel.UserName);
+                        }
+                        if (Player.SkipSongVoteUsers.Count >= Player.SkipSongVote)
+                        {
+                            Songs[0].Remove(Songs, Downloader, Player);
+                            Log($"投票切歌成功！");
+                            MsgQueue.Enqueue($"投票切歌成功！");
+                        }
                     }
                     return;
                 default:

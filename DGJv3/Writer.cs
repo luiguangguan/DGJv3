@@ -293,7 +293,7 @@ namespace DGJv3
             var localsongs = Songs.Select(x => new
             {
                 歌名 = x.SongName,
-                歌手 = x.SingersText,
+                歌手 = x.Singers == null ? "" : string.Join("/", x.Singers),
                 歌曲id = x.SongId,
                 点歌人 = x.UserName,
                 状态 = x.Status.ToStatusString(),
@@ -303,11 +303,12 @@ namespace DGJv3
             {
                 播放状态=x.IsPlaying?"▶":"",
                 歌名 = x.Name,
-                歌手 = x.SingersText,
+                歌手 = x.Singers == null ? "" : string.Join("/", x.Singers),
                 歌曲id = x.Id,
                 搜索模块 = x.Module.ModuleName,
             });
 
+            var 投票用户列表 = Player.SkipSongVoteUsers.Select(x => x);
 
             var 消息队列 = keepingQueue.Select(x => new
             {
@@ -344,6 +345,7 @@ namespace DGJv3
             {
                 播放列表,
                 空闲歌单,
+                投票用户列表,
                 歌曲数量,
                 当前播放时间,
                 当前总时间,
@@ -364,7 +366,9 @@ namespace DGJv3
                 下一首模块,
                 当前歌词 = CurrentLyric,
                 下句歌词 = UpcomingLyric,
-                消息队列
+                消息队列,
+                切歌票数 = Player.SkipSongVote,
+                当前票数 = Player.SkipSongVoteUsers.Count
 
             };
 

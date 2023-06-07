@@ -15,7 +15,7 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         Closing="Window_Closing"
-        Title="点歌姬" Height="550" Width="830">
+        Title="点歌姬" Height="650" Width="930">
     <Window.Resources>
         <ResourceDictionary>
             <s:Boolean x:Key="True">True</s:Boolean>
@@ -78,20 +78,78 @@
                                     <materialDesign:PackIcon Kind="BlockHelper"></materialDesign:PackIcon>
                                 </MenuItem.Icon>
                             </MenuItem>
+                            <MenuItem Header="复制">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="ContentCopy"></materialDesign:PackIcon>
+                                </MenuItem.Icon>
+                                <MenuItem Header="歌名" Command="{Binding SongsCopyMusicCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.SelectedItem}">
+                                    <MenuItem.Icon>
+                                        <materialDesign:PackIcon Kind="Music"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="歌手" Command="{Binding SongsCopyArtistCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.SelectedItem}">
+                                    <MenuItem.Icon>
+                                        <materialDesign:PackIcon Kind="Artist"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="歌词" Command="{Binding SongsCopyLyricsCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.SelectedItem}">
+                                    <MenuItem.Icon>
+                                        <materialDesign:PackIcon Kind="ForumOutline"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="点歌人" Command="{Binding SongsCopyUserNameCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.SelectedItem}">
+                                    <MenuItem.Icon>
+                                        <materialDesign:PackIcon Kind="Account"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </MenuItem>
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.View>
                         <GridView AllowsColumnReorder="False">
                             <GridViewColumn Header="状态" DisplayMemberBinding="{Binding Status,Converter={StaticResource SongStatusStringConverter}}"/>
-                            <GridViewColumn Header="歌名" DisplayMemberBinding="{Binding SongName, Mode=OneTime}"/>
-                            <GridViewColumn Header="点歌人" DisplayMemberBinding="{Binding UserName, Mode=OneTime}"/>
-                            <GridViewColumn Header="歌手" DisplayMemberBinding="{Binding SingersText, Mode=OneTime}"/>
+                            <GridViewColumn Header="歌名">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding SongName,Mode=OneTime}">
+                                            <TextBlock.ToolTip>
+                                                <ToolTip Content="{Binding SongName,Mode=OneTime}"/>
+                                            </TextBlock.ToolTip>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="点歌人">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding UserName,Mode=OneTime}">
+                                            <TextBlock.ToolTip>
+                                                <ToolTip Content="{Binding UserName,Mode=OneTime}"/>
+                                            </TextBlock.ToolTip>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="歌手">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding SingersText,Mode=OneTime}">
+                                            <TextBlock.ToolTip>
+                                                <ToolTip Content="{Binding SingersText,Mode=OneTime}"/>
+                                            </TextBlock.ToolTip>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
 
                 <materialDesign:Card Grid.Row="1" Margin="8,0" VerticalAlignment="Stretch">
                     <Grid>
+                        <Grid.ToolTip>
+                            <ToolTip Content="歌词"/>
+                        </Grid.ToolTip>
                         <Grid.Resources>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Margin" Value="7,0"/>
@@ -105,8 +163,30 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Text="{Binding Player.CurrentLyric}"/>
-                        <TextBlock Text="{Binding Player.UpcomingLyric}" Grid.Row="1"/>
+                        <TextBlock Text="{Binding Player.CurrentLyric}" ContextMenuService.IsEnabled="True">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="复制" Command="{Binding CopyTextBlockCommand}"
+                                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.Text}">
+                                        <MenuItem.Icon>
+                                            <materialDesign:PackIcon Kind="ContentCopy"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
+                        <TextBlock Text="{Binding Player.UpcomingLyric}" Grid.Row="1" ContextMenuService.IsEnabled="True">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="复制" Command="{Binding CopyTextBlockCommand}"
+                                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.Text}">
+                                        <MenuItem.Icon>
+                                            <materialDesign:PackIcon Kind="ContentCopy"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
                     </Grid>
                 </materialDesign:Card>
 
@@ -146,6 +226,31 @@
                                             <materialDesign:PackIcon Kind="Broom"></materialDesign:PackIcon>
                                         </MenuItem.Icon>
                                     </MenuItem>
+                                    <MenuItem Header="复制">
+                                        <MenuItem.Icon>
+                                            <materialDesign:PackIcon Kind="ContentCopy"></materialDesign:PackIcon>
+                                        </MenuItem.Icon>
+                                        <MenuItem Header="歌名" Command="{Binding PlayListCopyMusicCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.SelectedItem}">
+                                            <MenuItem.Icon>
+                                                <materialDesign:PackIcon Kind="Music"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="歌手" Command="{Binding PlayListCopyArtistCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.SelectedItem}">
+                                            <MenuItem.Icon>
+                                                <materialDesign:PackIcon Kind="Artist"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="歌词" Command="{Binding PlayListCopyLyricsCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.SelectedItem}">
+                                            <MenuItem.Icon>
+                                                <materialDesign:PackIcon Kind="ForumOutline"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="添加人" Command="{Binding PlayListCopyUserNameCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu},Path=PlacementTarget.SelectedItem}">
+                                            <MenuItem.Icon>
+                                                <materialDesign:PackIcon Kind="Account"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </MenuItem>
                                 </ContextMenu>
                             </ListView.ContextMenu>
                             <ListView.View>
@@ -158,8 +263,39 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="歌名" DisplayMemberBinding="{Binding Name, Mode=OneTime}"/>
-                                    <GridViewColumn Header="歌手" DisplayMemberBinding="{Binding SingersText, Mode=OneTime}"/>
+                                    <GridViewColumn Header="歌名">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name,Mode=OneTime}">
+                                                    <TextBlock.ToolTip>
+                                                        <ToolTip Content="{Binding Name,Mode=OneTime}"/>
+                                                    </TextBlock.ToolTip>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="歌手">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding SingersText,Mode=OneTime}">
+                                                    <TextBlock.ToolTip>
+                                                        <ToolTip Content="{Binding SingersText,Mode=OneTime}"/>
+                                                    </TextBlock.ToolTip>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="添加人">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding User,Mode=OneTime}">
+                                                    <TextBlock.ToolTip>
+                                                        <ToolTip Content="{Binding User,Mode=OneTime}"/>
+                                                    </TextBlock.ToolTip>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
                                 </GridView>
                             </ListView.View>
                         </ListView>
@@ -208,7 +344,10 @@
                                 </StackPanel>
                             </StackPanel>
                         </Button.CommandParameter>
-                        点歌
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Microphone"/>
+                            <TextBlock>点歌</TextBlock>
+                        </StackPanel>
                     </Button>
                     <Button HorizontalAlignment="Center" VerticalAlignment="Center"
                         Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
@@ -333,6 +472,9 @@
                 </Grid.RowDefinitions>
                 <StackPanel Margin="20 0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                     <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Command="{Binding PlayPauseCommand}" Cursor="Hand">
+                        <Button.ToolTip>
+                            <ToolTip Content="暂停/播放"/>
+                        </Button.ToolTip>
                         <Grid>
                             <materialDesign:PackIcon Width="24" Height="24" Kind="Play"
                                                  Visibility="{Binding IsPlaying,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource False}}"/>
@@ -341,6 +483,9 @@
                         </Grid>
                     </Button>
                     <Button Margin="8 0" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Command="{Binding NextCommand}" Cursor="Hand">
+                        <Button.ToolTip>
+                            <ToolTip Content="下一曲"/>
+                        </Button.ToolTip>
                         <materialDesign:PackIcon Width="24" Height="24" Kind="SkipNext"/>
                     </Button>
                     <TextBlock FontSize="24" TextAlignment="Center" VerticalAlignment="Center">
@@ -349,6 +494,9 @@
                     <TextBlock Width="80" Text="{Binding TotalTimeString, Mode=OneWay}" TextAlignment="Left"/>
                 </TextBlock>
                     <Grid Name="VolumeGroup" MouseDown="VolumeGroup_MouseDown" Background="Transparent" Cursor="Hand">
+                        <Grid.ToolTip>
+                            <ToolTip Content="静音"/>
+                        </Grid.ToolTip>
                         <materialDesign:PackIcon x:Name="PackIconVolumeHigh"
                                              Visibility="{Binding IsMute,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource FalseValue}}"
                                              Width="24" Height="24" Kind="VolumeHigh" VerticalAlignment="Center" Margin="15,10,0,0"/>
@@ -357,10 +505,17 @@
                                              Width="24" Height="24" Kind="VolumeOff" VerticalAlignment="Center" Margin="15,10,0,0"/>
                     </Grid>
                     <Slider Style="{StaticResource MaterialDesignDiscreteSlider}" Value="{Binding Volume,Converter={StaticResource PlayerVolumeConverter}}"
-                        Width="150" Orientation="Horizontal" Minimum="0" Maximum="100" LargeChange="5" VerticalAlignment="Center"/>
+                        Width="150" Orientation="Horizontal" Minimum="0" Maximum="100" LargeChange="5" VerticalAlignment="Center">
+                        <Slider.ToolTip>
+                            <ToolTip Content="{Binding Volume,Converter={StaticResource PlayerVolumeConverter}}"/>
+                        </Slider.ToolTip>
+                    </Slider>
                     <!-- 设置开始 -->
                     <materialDesign:PopupBox Margin="30,0,0,0" DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}"
                                              StaysOpen="True" PlacementMode="TopAndAlignCentres">
+                        <materialDesign:PopupBox.ToolTip>
+                            <ToolTip Content="设置" />
+                        </materialDesign:PopupBox.ToolTip>
                         <materialDesign:PopupBox.ToggleContent>
                             <materialDesign:PackIcon Width="24" Height="24" Kind="Settings"/>
                         </materialDesign:PopupBox.ToggleContent>
@@ -378,11 +533,11 @@
                                         <materialDesign:PackIcon Kind="PlayCircleOutline" Width="18" Height="16"/>
                                         <TextBlock Text="播放" FontWeight="Bold" FontSize="12" Foreground="#696969" HorizontalAlignment="Left" />
                                     </StackPanel>
-                                <StackPanel Margin="5" Orientation="Horizontal">
-                                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Player.IsPlaylistEnabled}"/>
-                                    <TextBlock TextAlignment="Center" VerticalAlignment="Center">没有点歌时从列表[随机]播放</TextBlock>
-                                </StackPanel>
-                                <StackPanel Margin="5" Orientation="Horizontal" Visibility="{Binding Player.IsPlaylistEnabled,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource True}}">
+                                    <StackPanel Margin="5" Orientation="Horizontal">
+                                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Player.IsPlaylistEnabled}"/>
+                                        <TextBlock TextAlignment="Center" VerticalAlignment="Center">没有点歌时从列表[随机]播放</TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Margin="5" Orientation="Horizontal" Visibility="{Binding Player.IsPlaylistEnabled,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource True}}">
                                         <Button Style="{StaticResource MaterialDesignToolButton}" Command="{Binding Player.ChangePlayModeCommand}">
                                             <Grid>
                                                 <!--MaterialDesignFloatingActionMiniButton-->
@@ -399,12 +554,12 @@
                                         <TextBlock Margin="0,5,0,0" Text="播放模式"/>
                                     </StackPanel>
                                     <StackPanel Margin="5" Orientation="Horizontal">
-                                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Player.IsUserPrior}"/>
-                                    <TextBlock TextAlignment="Center" VerticalAlignment="Center">用户点歌优先于空闲歌单播放</TextBlock>
-                                </StackPanel>
+                                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Player.IsUserPrior}"/>
+                                        <TextBlock TextAlignment="Center" VerticalAlignment="Center">用户点歌优先于空闲歌单播放</TextBlock>
+                                    </StackPanel>
                                 </StackPanel>
                                 <!--播放设置结束-->
-                                
+
                                 <!--消息队列设置开始-->
                                 <StackPanel Margin="0,5,0,0">
                                     <StackPanel  Orientation="Horizontal">
@@ -430,7 +585,14 @@
                                         <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="0" Grid.Column="1"
                                     Visibility="{Binding Writer.EnableQueueMsg,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
                                     Text="{Binding Writer.QueueMsgMaxStayTime,UpdateSourceTrigger=PropertyChanged,Delay=200}"
-                                    materialDesign:HintAssist.Hint="每条消息的驻留时间(秒)" materialDesign:HintAssist.IsFloating="True"/>
+                                    materialDesign:HintAssist.IsFloating="True">
+                                            <materialDesign:HintAssist.Hint>
+                                                <StackPanel  Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="Timer"/>
+                                                    <TextBlock Text="每条消息的驻留时间(秒)"/>
+                                                </StackPanel>
+                                            </materialDesign:HintAssist.Hint>
+                                        </TextBox>
                                         <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="25,0,0,0"
                                     Visibility="{Binding Writer.EnableQueueMsg,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
                                     Text="{Binding Writer.MsgLineLength,UpdateSourceTrigger=PropertyChanged,Delay=200}"
@@ -438,7 +600,14 @@
                                         <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="25,0,0,0"
                                     Visibility="{Binding Writer.EnableQueueMsg,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
                                     Text="{Binding Writer.MsgContainerMaxSize,UpdateSourceTrigger=PropertyChanged,Delay=200}"
-                                    materialDesign:HintAssist.Hint="消息容器的大小（最多显示多少条通知）" materialDesign:HintAssist.IsFloating="True"/>
+                                    materialDesign:HintAssist.IsFloating="True">
+                                            <materialDesign:HintAssist.Hint>
+                                                <StackPanel  Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="PackageVariant"/>
+                                                    <TextBlock Text="消息容器的大小（最多显示多少条通知）"/>
+                                                </StackPanel>
+                                            </materialDesign:HintAssist.Hint>
+                                        </TextBox>
                                         <StackPanel Margin="5" Orientation="Horizontal"  Grid.Row="3" Grid.Column="0">
                                             <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding Writer.EnableKeepLastQueueMsg}"
                                                           Visibility="{Binding Writer.EnableQueueMsg,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"/>
@@ -462,8 +631,18 @@
                                                MaxWidth="250"  Text="{Binding Writer.MsgQueueTestText,Mode=TwoWay,Delay=200}"
                                  materialDesign:HintAssist.Hint="输入测试文本" >
                                             </TextBox>
-                                            <Button Margin="0,15,0,0" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding MsgQueueTestCommand}"  Grid.Row="4" Grid.Column="1">测试</Button>
-                                            <Button Margin="0,15,0,0" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ClearMsgQueueCommand}"  Grid.Row="4" Grid.Column="2">清空消息队列</Button>
+                                            <Button Margin="0,15,0,0" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding MsgQueueTestCommand}"  Grid.Row="4" Grid.Column="1">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="Bug"/>
+                                                    <TextBlock>测试</TextBlock>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Margin="0,15,0,0" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ClearMsgQueueCommand}"  Grid.Row="4" Grid.Column="2">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="Broom"/>
+                                                    <TextBlock>清空消息队列</TextBlock>
+                                                </StackPanel>
+                                            </Button>
                                         </Grid>
                                     </Grid>
                                 </StackPanel>
@@ -477,18 +656,42 @@
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="5">
                                         <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                    Text="{Binding Player.SkipSongVote,UpdateSourceTrigger=PropertyChanged,Delay=200}"
+                                    materialDesign:HintAssist.IsFloating="True">
+                                            <materialDesign:HintAssist.Hint>
+                                                <StackPanel  Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="ChartBar"/>
+                                                    <TextBlock Text="投票切歌要求的票数"/>
+                                                </StackPanel>
+                                            </materialDesign:HintAssist.Hint>
+                                        </TextBox>
+                                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                     Text="{Binding DanmuHandler.MaxTotalSongNum,UpdateSourceTrigger=PropertyChanged,Delay=200}"
-                                    materialDesign:HintAssist.Hint="总共最大点歌数量" materialDesign:HintAssist.IsFloating="True"/>
+                                    materialDesign:HintAssist.IsFloating="True">
+                                            <materialDesign:HintAssist.Hint>
+                                                <StackPanel  Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="AccountMultiple"/>
+                                                    <TextBlock Text="总共最大点歌数量"/>
+                                                </StackPanel>
+                                            </materialDesign:HintAssist.Hint>
+                                        </TextBox>
                                         <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                     Text="{Binding DanmuHandler.MaxPersonSongNum,UpdateSourceTrigger=PropertyChanged,Delay=200}"
-                                    materialDesign:HintAssist.Hint="单人最大点歌数量" materialDesign:HintAssist.IsFloating="True"/>
+                                    materialDesign:HintAssist.IsFloating="True">
+                                            <materialDesign:HintAssist.Hint>
+                                                <StackPanel  Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="Account"/>
+                                                    <TextBlock Text="单人最大点歌数量"/>
+                                                </StackPanel>
+                                            </materialDesign:HintAssist.Hint>
+                                        </TextBox>
                                         <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                     Text="{Binding LogDanmakuLengthLimit,UpdateSourceTrigger=PropertyChanged,Delay=200}"
                                     materialDesign:HintAssist.Hint="弹幕长度限制" materialDesign:HintAssist.IsFloating="True"/>
                                     </StackPanel>
                                 </StackPanel>
                                 <!--点歌设置结束-->
-                                
+
                                 <!--杂项设置开始-->
                                 <StackPanel Margin="0,5,0,0">
                                     <StackPanel  Orientation="Horizontal">
@@ -507,8 +710,8 @@
                                         <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding FormatConfig}"/>
                                         <TextBlock TextAlignment="Center" VerticalAlignment="Center">保存配置时格式化内容</TextBlock>
                                     </StackPanel>
-                                </StackPanel>    
-                                <!--杂项设置结束-->  
+                                </StackPanel>
+                                <!--杂项设置结束-->
                             </StackPanel>
                         </Grid>
                     </materialDesign:PopupBox>
@@ -516,6 +719,9 @@
                     <!-- 歌曲黑名单开始 -->
                     <materialDesign:PopupBox StaysOpen="True" PlacementMode="TopAndAlignCentres" Margin="8,0"
                                              DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}">
+                        <materialDesign:PopupBox.ToolTip>
+                            <ToolTip Content="歌曲黑名单"></ToolTip>
+                        </materialDesign:PopupBox.ToolTip>
                         <materialDesign:PopupBox.ToggleContent>
                             <materialDesign:PackIcon Width="24" Height="24" Kind="FilterRemove"/>
                         </materialDesign:PopupBox.ToggleContent>
@@ -600,6 +806,9 @@
                     <!-- 文本输出开始 -->
                     <materialDesign:PopupBox StaysOpen="True"  PlacementMode="TopAndAlignCentres"
                                              DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}">
+                        <materialDesign:PopupBox.ToolTip>
+                            <ToolTip Content="输出模板"></ToolTip>
+                        </materialDesign:PopupBox.ToolTip>
                         <materialDesign:PopupBox.ToggleContent>
                             <materialDesign:PackIcon Width="24" Height="24" Kind="FileDocument"/>
                         </materialDesign:PopupBox.ToggleContent>

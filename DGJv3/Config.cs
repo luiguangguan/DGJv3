@@ -78,11 +78,16 @@ namespace DGJv3
         [JsonProperty("msglilen")]
         public int MsgLineLength { get; set; } = 10;
 
+        [JsonProperty("skpsgvot")]
+        public int SkipSongVote { get; set; } = 3;
+
         [JsonProperty("ift")]
         public Dictionary<string, OutputInfo> InfoTemplates { get; set; } = new Dictionary<string, OutputInfo>();
 
         [JsonProperty("plst")]
         public SongInfo[] Playlist { get; set; } = new SongInfo[0];
+
+        //public SongItem[] BiliUserSongs { get; set; } = new SongItem[0];
 
         [JsonProperty("sbtp")]
         public string ScribanTemplate { get; set; } = "正在播放：{{ 当前播放 }}-{{ 当前歌手 }}-{{ 当前点歌用户 }}-{{ 当前模块 }}\r\n" +
@@ -91,7 +96,9 @@ namespace DGJv3
             "{{播放模式}}\r\n" +
             "{{播放模式名称}}\r\n" +
             "{{当前音量}}\r\n" +
-            "正在播放：{{ 下一首播放 }}-{{ 下一首歌手 }}-{{ 下一首点歌用户 }}-{{ 下一首模块 }}\r\n" +
+            "{{切歌票数}}\r\n" +
+            "{{当前票数}}\r\n" +
+            "下一首播放：{{ 下一首播放 }}-{{ 下一首歌手 }}-{{ 下一首点歌用户 }}-{{ 下一首模块 }}\r\n" +
             "播放进度 {{当前播放时间}}/{{当前总时间}}\r\n" +
             "当前列表中有 {{ 歌曲数量 }} 首歌\r\n" +
             "还可以再点 {{ 总共最大点歌数量 - 歌曲数量 }} 首歌\r\n" +
@@ -105,6 +112,11 @@ namespace DGJv3
             "{{~ for 消息 in 消息队列 ~}}\r\n" +
             "{{消息.信息}}\r\n" +
             "{{消息.时间}}\r\n" +
+            "{{~ end ~}}\r\n" +
+            "\r\n" +
+            "投票用户列表:\r\n" +
+            "{{~ for 用户 in 投票用户列表 ~}}\r\n" +
+            "{{用户}}\r\n" +
             "{{~ end ~}}\r\n" +
             "\r\n" +
             "空闲歌单：\r\n" +

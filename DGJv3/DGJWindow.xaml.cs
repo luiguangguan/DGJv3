@@ -60,6 +60,25 @@ namespace DGJv3
 
         public UniversalCommand ClearPlaylistCommand { get; set; }
 
+        public UniversalCommand PlayListCopyArtistCommand { get; set; }
+
+        public UniversalCommand PlayListCopyMusicCommand { get; set; }
+
+        public UniversalCommand PlayListCopyLyricsCommand { get; set; }
+
+        public UniversalCommand PlayListCopyUserNameCommand { get; set; }
+
+        public UniversalCommand SongsCopyArtistCommand { get; set; }
+
+        public UniversalCommand SongsCopyMusicCommand { get; set; }
+
+        public UniversalCommand SongsCopyLyricsCommand { get; set; }
+
+        public UniversalCommand SongsCopyUserNameCommand { get; set; }
+
+        public UniversalCommand CopyTextBlockCommand { get; set; }
+
+
         public UniversalCommand RemoveBlacklistInfoCommmand { get; set; }
 
         public UniversalCommand ClearBlacklistCommand { get; set; }
@@ -168,7 +187,7 @@ namespace DGJv3
             Downloader = new Downloader(Songs, SkipSong);
             SearchModules = new SearchModules();
             UIFunction = new UIFunction(Songs, Playlist, Blacklist, SkipSong, SearchModules, InfoTemplates);
-            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue);
+            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue,Playlist);
             Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates,MsgQueue);
 
             UIFunction.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
@@ -250,6 +269,69 @@ namespace DGJv3
                 Playlist.Clear();
             });
 
+            PlayListCopyArtistCommand = new UniversalCommand((songobj) => {
+                if (songobj != null && songobj is SongInfo songInfo)
+                {
+                    CopyText(songInfo.SingersText);
+                }
+            });
+
+            PlayListCopyMusicCommand = new UniversalCommand((songobj) => {
+                if (songobj != null && songobj is SongInfo songInfo)
+                {
+                    CopyText(songInfo.Name);
+                }
+            });
+
+            PlayListCopyLyricsCommand = new UniversalCommand((songobj) => {
+                if (songobj != null && songobj is SongInfo songInfo)
+                {
+                    CopyText(songInfo.Lyric);
+                }
+            });
+
+            PlayListCopyUserNameCommand = new UniversalCommand((songobj) => {
+                if (songobj != null && songobj is SongInfo songInfo)
+                {
+                    CopyText(songInfo.User);
+                }
+            });
+
+            SongsCopyArtistCommand = new UniversalCommand((songobj) => {
+                if (songobj != null && songobj is SongItem songInfo)
+                {
+                    CopyText(songInfo.SingersText);
+                }
+            });
+
+            SongsCopyMusicCommand = new UniversalCommand((songobj) => {
+                if (songobj != null && songobj is SongItem songInfo)
+                {
+                    CopyText(songInfo.SongName);
+                }
+            });
+
+            SongsCopyLyricsCommand = new UniversalCommand((songobj) => {
+                if (songobj != null && songobj is SongItem songInfo)
+                {
+                    CopyText(songInfo.Lyric.ToString());
+                }
+            });
+
+            SongsCopyUserNameCommand = new UniversalCommand((songobj) => {
+                if (songobj != null && songobj is SongItem songInfo)
+                {
+                    CopyText(songInfo.UserName);
+                }
+            });
+
+            CopyTextBlockCommand = new UniversalCommand((e) => {
+                if (e != null && e is string)
+                {
+                    CopyText(e as string);
+                }
+            });
+
             RemoveBlacklistInfoCommmand = new UniversalCommand((blackobj) =>
             {
                 if (blackobj != null && blackobj is BlackListItem blackListItem)
@@ -321,6 +403,21 @@ namespace DGJv3
             }
         }
 
+        private static void CopyText(string text)
+        {
+            try
+            {
+                if (text != null)
+                {
+                    Clipboard.SetText(text);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("复制出错", "错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
         private void SearchSongInPlaylist(string keyword)
         {
             if (keyword != SearchInPlayListKeyWord)
@@ -389,6 +486,7 @@ namespace DGJv3
             Player.Volume2 = config.Volume2;
             Player.IsUserPrior = config.IsUserPrior;
             Player.IsPlaylistEnabled = config.IsPlaylistEnabled;
+            Player.SkipSongVote = config.SkipSongVote;
             SearchModules.PrimaryModule = SearchModules.Modules.FirstOrDefault(x => x.UniqueId == config.PrimaryModuleId) ?? SearchModules.NullModule;
             SearchModules.SecondaryModule = SearchModules.Modules.FirstOrDefault(x => x.UniqueId == config.SecondaryModuleId) ?? SearchModules.NullModule;
             DanmuHandler.MaxTotalSongNum = config.MaxTotalSongNum;
@@ -416,11 +514,16 @@ namespace DGJv3
                     InfoTemplates.Add(new OutputInfoTemplate() { Key = key, Value = config.InfoTemplates[key] });
                 }
             }
-            if (config.InfoTemplates == null || config.InfoTemplates.Count == 0)
+            if (config.InfoTemplates == null || config.InfoTemplates.Count == 0 )
             {
                 //兼容之前的逻辑
                 InfoTemplates.Add(new OutputInfoTemplate() { Key = "初始模板.txt", Value = new OutputInfo() { Content = new Config().ScribanTemplate, IsEnable = false } });
                 InfoTemplates.Add(new OutputInfoTemplate() { Key = "信息.txt", Value = new OutputInfo() { Content = config.ScribanTemplate, IsEnable = true } });
+            }
+
+            if (config.InfoTemplates.Any(x => x.Key == "初始模板.txt") == false)
+            {
+                InfoTemplates.Add(new OutputInfoTemplate() { Key = "初始模板.txt", Value = new OutputInfo() { Content = new Config().ScribanTemplate, IsEnable = false } });
             }
 
             LogRedirectToggleButton.IsEnabled = LoginCenterAPIWarpper.CheckLoginCenter();
@@ -447,6 +550,12 @@ namespace DGJv3
                 }
             }
 
+            //Songs.Clear();
+            //foreach (var item in config.BiliUserSongs)
+            //{
+            //        Songs.Add(item);
+            //}
+
             Blacklist.Clear();
             foreach (var item in config.Blacklist)
             {
@@ -467,6 +576,7 @@ namespace DGJv3
             Volume = Player.Volume,
             Volume2 = Player.Volume2,
             IsPlaylistEnabled = Player.IsPlaylistEnabled,
+            SkipSongVote = Player.SkipSongVote,
             PrimaryModuleId = SearchModules.PrimaryModule.UniqueId,
             SecondaryModuleId = SearchModules.SecondaryModule.UniqueId,
             MaxPersonSongNum = DanmuHandler.MaxPersonSongNum,
@@ -487,6 +597,7 @@ namespace DGJv3
             LastSongId = Player.LastSongId,
             InfoTemplates = InfoTemplates.ToDictionary(p => p.Key, p => p.Value),
             AdminCmdEnable = DanmuHandler.AdminCmdEnable,
+            //BiliUserSongs = Songs.Where(p => p.UserName != Utilities.SparePlaylistUser).ToArray(),
         };
 
         /// <summary>
@@ -591,7 +702,7 @@ namespace DGJv3
             if (eventArgs.Parameter.Equals(true) && !string.IsNullOrWhiteSpace(AddSongPlaylistTextBox.Text))
             {
                 var keyword = AddSongPlaylistTextBox.Text;
-                if (UIFunction.AddSongsToPlaylist(keyword) == false)
+                if (UIFunction.AddSongsToPlaylist(keyword,Utilities.SparePlaylistUser) == false)
                 {
                     return;
                 }
@@ -612,7 +723,7 @@ namespace DGJv3
             if (eventArgs.Parameter.Equals(true) && !string.IsNullOrWhiteSpace(AddPlaylistTextBox.Text))
             {
                 var keyword = AddPlaylistTextBox.Text;
-                if (UIFunction.AddPlaylist(keyword) == false)
+                if (UIFunction.AddPlaylist(keyword,Utilities.SparePlaylistUser) == false)
                 {
                     return;
                 }

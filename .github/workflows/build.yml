@@ -1,4 +1,4 @@
-name: Build and Publish
+name: Build and Publish 2
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
       #  uses: warrenbuckley/Setup-MSBuild@v1
       
       - name: Clean project
-        run: dotnet clean
+        run: msbuild /t:Clean
         
       #- name: Clear NuGet cache
       #  run: dotnet nuget locals all --clear
@@ -46,25 +46,35 @@ jobs:
         run: nuget restore DGJv3.sln
 
       - name: Build project
-        run: dotnet build --configuration Release --no-restore
+        run: msbuild DGJv3.sln /p:Configuration=Release
 
-      - name: Publish
-        run: dotnet publish --configuration Release --output publish
+      #- name: Publish
+      #  run: dotnet publish --configuration Release --output publish
 
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}  
         with:
-          tag_name: v1.0.0
-          release_name: Release 1.0.0
+          #token: ${{ secrets.Releases }}
+          #tag_name: v1.0.0
+          #release_name: Release 1.0.0
+          #draft: false
+          #prerelease: false
+          tag_name: ${{github.run_number}}
+          release_name: release ${{github.run_number}}
+          body: Auto-generated prerelease build
           draft: false
           prerelease: false
 
       - name: Upload Release Asset
         id: upload_asset
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin/release/DGJv3.dll
-          asset_name: DGJv3.dll
+          asset_path: ./DGJv3/bin/Release/DGJv3.dll
+          asset_name: DGJv3-${{github.run_number}}.dll
           asset_content_type: application/octet-stream

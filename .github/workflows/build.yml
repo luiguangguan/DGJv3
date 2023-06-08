@@ -1,0 +1,70 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+  
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          
+      - name: Checkout repository
+        uses: actions/checkout@v3
+          
+      #- name: Setup .NET
+      #  uses: actions/setup-dotnet@v3
+      #  with:
+      #    dotnet-version: '7.0.x'
+      
+      - name: setup-msbuild
+        uses: microsoft/setup-msbuild@v1.3.1
+          
+      #- name: Setup MSBuild Path
+      #  uses: warrenbuckley/Setup-MSBuild@v1
+      
+      - name: Clean project
+        run: dotnet clean
+        
+      #- name: Clear NuGet cache
+      #  run: dotnet nuget locals all --clear
+
+      #- name: Restore dependencies
+      #  run: dotnet restore
+      #  working-directory: /packages
+      
+      - name: Setup NuGet
+        #run: dotnet restore
+        run: nuget restore DGJv3.sln
+
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish --configuration Release --output publish
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v1.0.0
+          release_name: Release 1.0.0
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload_asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bin/release/DGJv3.dll
+          asset_name: DGJv3.dll
+          asset_content_type: application/octet-stream

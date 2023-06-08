@@ -23,13 +23,13 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '7.0.x'
       
       - name: Clean project
         run: dotnet clean
         
-      - name: Clear NuGet cache
-        run: dotnet nuget locals all --clear
+      #- name: Clear NuGet cache
+      #  run: dotnet nuget locals all --clear
 
       #- name: Restore dependencies
       #  run: dotnet restore

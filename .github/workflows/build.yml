@@ -56,7 +56,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.Releases }}
           tag_name: v1.0.0
           release_name: Release 1.0.0
           draft: false

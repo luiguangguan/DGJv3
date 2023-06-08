@@ -46,7 +46,7 @@ jobs:
         run: nuget restore DGJv3.sln
 
       - name: Build project
-        run: dotnet build --configuration Release --no-restore
+        run: msbuild --configuration Release --no-restore
 
       - name: Publish
         run: dotnet publish --configuration Release --output publish

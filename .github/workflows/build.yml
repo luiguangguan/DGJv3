@@ -24,14 +24,13 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
-          include-visual-studio: true
       
-      - name: Clear NuGet cache
-        run: dotnet nuget locals all --clear
-
       - name: Clean project
         run: dotnet clean
         
+      - name: Clear NuGet cache
+        run: dotnet nuget locals all --clear
+
       - name: Restore dependencies
         run: dotnet restore
 

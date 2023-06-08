@@ -18,24 +18,35 @@ jobs:
           node-version: 16
           
       - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '5.0.x'
+        uses: actions/checkout@v3
+          
+      #- name: Setup .NET
+      #  uses: actions/setup-dotnet@v3
+      #  with:
+      #    dotnet-version: '7.0.x'
       
-      - name: Clear NuGet cache
-        run: dotnet nuget locals all --clear
-
-      - name: Restore dependencies
-        run: dotnet restore
-        
+      - name: setup-msbuild
+        uses: microsoft/setup-msbuild@v1.3.1
+          
+      #- name: Setup MSBuild Path
+      #  uses: warrenbuckley/Setup-MSBuild@v1
+      
       - name: Clean project
         run: dotnet clean
+        
+      #- name: Clear NuGet cache
+      #  run: dotnet nuget locals all --clear
+
+      #- name: Restore dependencies
+      #  run: dotnet restore
+      #  working-directory: /packages
+      
+      - name: Setup NuGet
+        #run: dotnet restore
+        run: nuget restore DGJv3.sln
 
       - name: Build project
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release --no-restore
 
       - name: Publish
         run: dotnet publish --configuration Release --output publish

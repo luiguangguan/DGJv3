@@ -23,7 +23,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '4.6.2'
+          dotnet-version: '5.0.x'
           
       #- name: Setup MSBuild Path
       #  uses: warrenbuckley/Setup-MSBuild@v1

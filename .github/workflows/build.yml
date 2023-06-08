@@ -29,11 +29,11 @@ jobs:
       - name: Clear NuGet cache
         run: dotnet nuget locals all --clear
 
-      - name: Restore dependencies
-        run: dotnet restore
-        
       - name: Clean project
         run: dotnet clean
+        
+      - name: Restore dependencies
+        run: dotnet restore
 
       - name: Build project
         run: dotnet build --configuration Release

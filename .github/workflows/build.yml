@@ -33,7 +33,7 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore
-        working-directory: /packages
+        #working-directory: /packages
 
       - name: Build project
         run: dotnet build --configuration Release --no-restore

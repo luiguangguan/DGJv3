@@ -282,25 +282,34 @@ namespace DGJv3
                                         case "列表循环":
                                         case "列表循環":
                                             {
-                                                Player.SetPlayMode(PlayMode.LooptListPlay);
-                                                Log("切換播放模式：列表循环，成功");
-                                                MsgQueue.Enqueue("切換播放模式：列表循环");
+                                                dispatcher.Invoke(() =>
+                                                {
+                                                    Player.SetPlayMode(PlayMode.LooptListPlay); Log("切換播放模式：列表循环，成功");
+                                                    MsgQueue.Enqueue("切換播放模式：列表循环");
+                                                });
+
                                             }
                                             return;
                                         case "单曲循环":
                                         case "單曲循環":
                                             {
-                                                Player.SetPlayMode(PlayMode.LoopOnetPlay);
-                                                Log("切換播放模式：单曲循环，成功");
-                                                MsgQueue.Enqueue("切換播放模式：单曲循环");
+                                                dispatcher.Invoke(() =>
+                                                {
+                                                    Player.SetPlayMode(PlayMode.LoopOnetPlay); Log("切換播放模式：单曲循环，成功");
+                                                    MsgQueue.Enqueue("切換播放模式：单曲循环");
+                                                });
+
                                             }
                                             return;
                                         case "随机播放":
                                         case "隨機播放":
                                             {
-                                                Player.SetPlayMode(PlayMode.ShufflePlay);
-                                                Log("切換播放模式：随机播放，成功");
-                                                MsgQueue.Enqueue("切換播放模式：随机播放");
+                                                dispatcher.Invoke(() =>
+                                                {
+                                                    Player.SetPlayMode(PlayMode.ShufflePlay); Log("切換播放模式：随机播放，成功");
+                                                    MsgQueue.Enqueue("切換播放模式：随机播放");
+                                                });
+
                                             }
                                             return;
                                         default:

@@ -40,7 +40,7 @@ jobs:
         with:
           nuget-api-key: ${{ secrets.NuGetAPIKey }}
           nuget-version: '5.x'
-      - run: nuget restore DGJv3.sln
+      - run: nuget restore MyProject.sln
 
       - name: Build project
         run: dotnet build --configuration Release --no-restore

@@ -35,12 +35,8 @@ jobs:
       #  run: dotnet restore
       #  working-directory: /packages
       
-      - name: Setup NuGet.exe
-      - uses: nuget/setup-nuget@v1
-        with:
-          nuget-api-key: ${{ secrets.NuGetAPIKey }}
-          nuget-version: '5.x'
-      - run: nuget restore DGJv3.sln
+      - name: Setup NuGet
+        run: dotnet restore
 
       - name: Build project
         run: dotnet build --configuration Release --no-restore

@@ -36,7 +36,8 @@ jobs:
       #  working-directory: /packages
       
       - name: Setup NuGet
-        run: dotnet restore
+        #run: dotnet restore
+        run: nuget restore DGJv3.sln
 
       - name: Build project
         run: dotnet build --configuration Release --no-restore

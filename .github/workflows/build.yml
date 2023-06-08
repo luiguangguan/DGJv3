@@ -31,9 +31,15 @@ jobs:
       - name: Clear NuGet cache
         run: dotnet nuget locals all --clear
 
-      - name: Restore dependencies
-        run: dotnet restore
-        #working-directory: /packages
+      #- name: Restore dependencies
+      #  run: dotnet restore
+      #  working-directory: /packages
+      
+      - name: Setup NuGet.exe
+        uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: ${{ matrix.nuget }}
+      - run: nuget restore DGJv3.sln
 
       - name: Build project
         run: dotnet build --configuration Release --no-restore

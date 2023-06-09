@@ -26,33 +26,21 @@ jobs:
             echo "::set-output name=modified::false"
           }
       
-      #
-      - name: Stop execution if not modified
-        if: ${{ needs.check_version_modified.outputs.modified == 'false' }}
-        run: |
-          echo "Version file not modified. Stopping execution."
-          return 1
-          
       #- name: Setup .NET
       #  uses: actions/setup-dotnet@v3
       #  with:
       #    dotnet-version: '7.0.x'
-      
-      #获取最后一个提交的注释
-      - name: Get last commit message
-        id: get_commit_message
-        run: |
-          git log -1 --pretty=format:"%s" > commit_message.txt
-          echo "::set-output name=commit_message::$(cat commit_message.txt)"
-      
+            
       #设置环版本境变量
       - name: Set APPVEYOR_BUILD_VERSION environ
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
         run: |
           echo "APPVEYOR_BUILD_VERSION=$(cat ./VERSION)" >> $env:GITHUB_ENV
           echo $env:APPVEYOR_BUILD_VERSION
 
       - name: Get version
         id: get_version
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
         run:  |
           # MAJOR=$(cat VERSION.txt | cut -d . -f 1)
           # MINOR=$(cat VERSION.txt | cut -d . -f 2)
@@ -62,8 +50,46 @@ jobs:
 
       - name: Use APPVEYOR_BUILD_VERSION environ
         run: echo $env:APPVEYOR_BUILD_VERSION
+
+      - name: setup-msbuild
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        uses: microsoft/setup-msbuild@v1.3.1
           
+      #- name: Setup MSBuild Path
+      #  uses: warrenbuckley/Setup-MSBuild@v1
+      
+      - name: Clean project
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        run: msbuild /t:Clean
+        
+      #- name: Clear NuGet cache
+      #  run: dotnet nuget locals all --clear
+
+      #- name: Restore dependencies
+      #  run: dotnet restore
+      #  working-directory: /packages
+            
+      - name: Restore NuGet
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        #run: dotnet restore
+        run: nuget restore DGJv3.sln
+  
+      #构建项目
+      - name: Build project
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        run: msbuild DGJv3.sln /p:Configuration=Release
+
+      #获取最后一个提交的注释
+      - name: Get last commit message
+        id: get_commit_message
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        run: |
+          git log -1 --pretty=format:"%s" > commit_message.txt
+          echo "::set-output name=commit_message::$(cat commit_message.txt)"
+      
+      #创建发布
       - name: Create Release
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -82,34 +108,13 @@ jobs:
             ${{ steps.get_commit_message.outputs.commit_message }}
           draft: false
           prerelease: false
-      
-      - name: setup-msbuild
-        uses: microsoft/setup-msbuild@v1.3.1
-          
-      #- name: Setup MSBuild Path
-      #  uses: warrenbuckley/Setup-MSBuild@v1
-      
-      - name: Clean project
-        run: msbuild /t:Clean
-        
-      #- name: Clear NuGet cache
-      #  run: dotnet nuget locals all --clear
-
-      #- name: Restore dependencies
-      #  run: dotnet restore
-      #  working-directory: /packages
-            
-      - name: Restore NuGet
-        #run: dotnet restore
-        run: nuget restore DGJv3.sln
-              
-      - name: Build project
-        run: msbuild DGJv3.sln /p:Configuration=Release
 
       #- name: Publish
       #  run: dotnet publish --configuration Release --output publish
 
+      #上传资产
       - name: Upload Release Asset
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
         id: upload_asset
         uses: actions/upload-release-asset@v1
         env:

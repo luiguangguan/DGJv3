@@ -135,9 +135,9 @@ jobs:
           echo "hey3"
           pwd
           echo "hey4"
-          ls 
+          ls ./
           echo "hey5"
-          ls ./bin/Release/
+          #ls ./bin/Release/
           echo "hey6"
           # Compress-Archive -Path ./bin/Release/DGJv3.dll -DestinationPath $zip_file
         

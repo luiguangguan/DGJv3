@@ -124,6 +124,7 @@ jobs:
       
       #压缩打包资产文件
       - name: Create ZIP archive
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: |
           $version = $env:APPVEYOR_BUILD_VERSION
           $zip_file = "DGJv3_$version.zip"

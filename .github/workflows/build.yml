@@ -130,17 +130,6 @@ jobs:
           $zip_file = "DGJv3_$version.zip"
           #Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
           Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath ./DGJv3/bin/Release/$zip_file
-          echo "hey"
-          echo $version
-          echo "hey2"
-          echo $zip_file
-          echo "hey3"
-          pwd
-          echo "hey4"
-          ls ./DGJv3/bin/Release/
-          echo "hey5"
-          #ls ./bin/Release/
-          echo "hey6"
         
       #上传资产
       - name: Upload Release Asset

@@ -132,7 +132,7 @@ jobs:
           Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath ./DGJv3/bin/Release/$zip_file
           $hash = Get-FileHash ./DGJv3/bin/Release/DGJv3.dll -Algorithm SHA256
           $hashValue = $hash.Hash
-          echo >> ./DGJv3/bin/Release/sha256.txt
+          echo $hashValue >> ./DGJv3/bin/Release/sha256.txt
           
       #上传资产
       - name: Upload Release Asset

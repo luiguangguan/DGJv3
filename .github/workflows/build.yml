@@ -132,7 +132,7 @@ jobs:
           release_name: v${{ steps.get_version.outputs.version }}
           body: |
             Auto-generated build
-            版本：v${{ steps.get_version.outputs.version }}
+            [⭐Update⭐]
             ${{ steps.get_commit_message.outputs.commit_message }}
           draft: false
           prerelease: false

@@ -14,6 +14,12 @@ jobs:
       #签出仓库
       - name: Checkout repository
         uses: actions/checkout@v3
+        
+      - name: Test
+        run: |
+          pwd
+          ls
+        
       
       #读取版本号文件
       - name: Get version
@@ -123,7 +129,7 @@ jobs:
           #Add-Type -A System.IO.Compression.FileSystem
           #[System.IO.Compression.ZipFile]::CreateFromDirectory("./DGJv3/bin/Release", $zip_file)
           #Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
-          Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath $zip_file
+          Compress-Archive -Path ./bin/Release/DGJv3.dll -DestinationPath $zip_file
           pwd
           ls ./bin/Release/
           ls 

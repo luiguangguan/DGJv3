@@ -55,7 +55,7 @@ jobs:
           #draft: false
           #prerelease: false
           tag_name: ${{github.run_number}}
-          release_name: release ${{env:APPVEYOR_BUILD_VERSION}}
+          release_name: release ${{$env:APPVEYOR_BUILD_VERSION}}
           body: Auto-generated prerelease build
           draft: false
           prerelease: false

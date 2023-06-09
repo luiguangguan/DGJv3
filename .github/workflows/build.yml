@@ -125,7 +125,7 @@ jobs:
       #压缩打包资产文件
       - name: Create ZIP archive
         run: |
-          $version = ${{ steps.get_version.outputs.version }}
+          $version = $env:APPVEYOR_BUILD_VERSION
           $zip_file = "DGJv3_$version.zip"
           #Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
           echo "hey"

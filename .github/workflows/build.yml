@@ -31,7 +31,7 @@ jobs:
           echo "APPVEYOR_BUILD_VERSION=3.2.1.6" >> "$GITHUB_ENV"
           
       - name: Get APPVEYOR_BUILD_VERSION environ
-          echo "${{ env.APPVEYOR_BUILD_VERSION }}"
+        run: echo "${{ env.APPVEYOR_BUILD_VERSION }}"
           
       - name: Create Release
         id: create_release

@@ -135,22 +135,39 @@ jobs:
           echo $hashValue >> ./DGJv3/bin/Release/sha256.txt
           
       #上传资产
-      - name: Upload Release Asset
+      - name: Upload Release Assets
         if: ${{ steps.check_release.outputs.release_exists == 'false' }}
-        id: upload_asset
+        id: upload_assets_zip
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_paths: |
-           ./DGJv3/bin/Release/DGJv3_${{ steps.get_version.outputs.version }}.zip,
-           ./DGJv3/bin/Release/DGJv3.dll,
-           ./DGJv3/bin/Release/sha256.txt
-          asset_names: |
-           DGJv3_${{ steps.get_version.outputs.version }}.zip,
-           DGJv3.dll,
-           sha256.txt
-          #asset_path: ./DGJv3/bin/Release/DGJv3.dll
-          #asset_name: DGJv3.dll
+          asset_path: ./DGJv3/bin/Release/DGJv3_${{ steps.get_version.outputs.version }}.zip
+          asset_name: DGJv3_${{ steps.get_version.outputs.version }}.zip
           asset_content_type: application/octet-stream
+
+      - name: Upload Release Assets
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
+        id: upload_assets_dll
+        uses: actions/upload-release-asset@v1
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./DGJv3/bin/Release/DGJv3.dll
+          asset_name: DGJv3.dll
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Assets
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
+        id: upload_assets_sha
+        uses: actions/upload-release-asset@v1
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./DGJv3/bin/Release/sha256.txt
+          asset_name: sha256.txt
+          asset_content_type: application/octet-stream
+

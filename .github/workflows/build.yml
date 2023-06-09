@@ -128,7 +128,7 @@ jobs:
           $version = $env:APPVEYOR_BUILD_VERSION
           $zip_file = "DGJv3_$version.zip"
           #Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
-          Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath $zip_file
+          Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath ./DGJv3/bin/Release/$zip_file
           echo "hey"
           echo $version
           echo "hey2"

@@ -19,7 +19,7 @@ jobs:
       - name: Use the value
         id: step_two
         run: |
-          echo "${{ $env.action_state }}" # This will output 'yellow'
+          echo "${{ $env:action_state }}" # This will output 'yellow'
       
       - name: Set up Node.js
         uses: actions/setup-node@v2

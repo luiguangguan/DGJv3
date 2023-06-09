@@ -135,11 +135,11 @@ jobs:
           echo "hey3"
           pwd
           echo "hey4"
-          ls ./DGJv3
+          ls ./DGJv3/bin/Release/
           echo "hey5"
           #ls ./bin/Release/
           echo "hey6"
-          # Compress-Archive -Path ./bin/Release/DGJv3.dll -DestinationPath $zip_file
+          # Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath $zip_file
         
       #上传资产
       - name: Upload Release Asset

@@ -49,6 +49,7 @@ jobs:
           echo "::set-output name=version::$VERSION"
 
       - name: Use APPVEYOR_BUILD_VERSION environ
+        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
         run: echo $env:APPVEYOR_BUILD_VERSION
 
       - name: setup-msbuild

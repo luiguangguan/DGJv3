@@ -99,7 +99,7 @@ jobs:
       
       #创建发布
       - name: Create Release
-        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -139,7 +139,7 @@ jobs:
           echo "hey5"
           ls ./bin/Release/
           echo "hey6"
-          Compress-Archive -Path ./bin/Release/DGJv3.dll -DestinationPath $zip_file
+          # Compress-Archive -Path ./bin/Release/DGJv3.dll -DestinationPath $zip_file
         
       #上传资产
       - name: Upload Release Asset

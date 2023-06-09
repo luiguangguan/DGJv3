@@ -144,12 +144,12 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_paths: |
-           ./DGJv3/bin/Release/DGJv3_${{ steps.get_version.outputs.version }}.zip
-           ./DGJv3/bin/Release/DGJv3.dll
+           ./DGJv3/bin/Release/DGJv3_${{ steps.get_version.outputs.version }}.zip,
+           ./DGJv3/bin/Release/DGJv3.dll,
            ./DGJv3/bin/Release/sha256.txt
           asset_names: |
-           DGJv3_${{ steps.get_version.outputs.version }}.zip
-           DGJv3.dll
+           DGJv3_${{ steps.get_version.outputs.version }}.zip,
+           DGJv3.dll,
            sha256.txt
           #asset_path: ./DGJv3/bin/Release/DGJv3.dll
           #asset_name: DGJv3.dll

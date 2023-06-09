@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - bate
   workflow_dispatch:
   
 jobs:
@@ -15,10 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         
-      - name: Test
-        run: |
-          pwd
-          ls
+     # - name: Test
+     #   run: |
+     #     pwd
+     #     ls ./bin/Release
         
       
       #读取版本号文件
@@ -123,16 +124,12 @@ jobs:
       
       #压缩打包资产文件
       - name: Create ZIP archive
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: |
-          $version = ${{ steps.get_version.outputs.version }}
+          $version = $env:APPVEYOR_BUILD_VERSION
           $zip_file = "DGJv3_$version.zip"
-          #Add-Type -A System.IO.Compression.FileSystem
-          #[System.IO.Compression.ZipFile]::CreateFromDirectory("./DGJv3/bin/Release", $zip_file)
           #Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
-          Compress-Archive -Path ./bin/Release/DGJv3.dll -DestinationPath $zip_file
-          pwd
-          ls ./bin/Release/
-          ls 
+          Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath ./DGJv3/bin/Release/$zip_file
         
       #上传资产
       - name: Upload Release Asset
@@ -145,4 +142,6 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./DGJv3/bin/Release/DGJv3_${{ steps.get_version.outputs.version }}.zip
           asset_name: DGJv3_${{ steps.get_version.outputs.version }}.zip
+          #asset_path: ./DGJv3/bin/Release/DGJv3.dll
+          #asset_name: DGJv3.dll
           asset_content_type: application/octet-stream

@@ -139,7 +139,7 @@ jobs:
           echo "hey5"
           #ls ./bin/Release/
           echo "hey6"
-          # Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath $zip_file
+          Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath $zip_file
         
       #上传资产
       - name: Upload Release Asset
@@ -150,8 +150,8 @@ jobs:
           GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          #asset_path: ./DGJv3/bin/Release/DGJv3_${{ steps.get_version.outputs.version }}.zip
-          #asset_name: DGJv3_${{ steps.get_version.outputs.version }}.zip
-          asset_path: ./DGJv3/bin/Release/DGJv3.dll
-          asset_name: DGJv3.dll
+          asset_path: ./DGJv3/bin/Release/DGJv3_${{ steps.get_version.outputs.version }}.zip
+          asset_name: DGJv3_${{ steps.get_version.outputs.version }}.zip
+          #asset_path: ./DGJv3/bin/Release/DGJv3.dll
+          #asset_name: DGJv3.dll
           asset_content_type: application/octet-stream

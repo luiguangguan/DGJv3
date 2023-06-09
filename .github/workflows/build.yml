@@ -35,15 +35,16 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            for(var i=0;i<releases.data.length,i++){
-              console.log(`版本${i}: ${releases[0].release_name}`);
+            for (var i = 0; i < releases.data.length; i++) {
+              console.log(`版本${i}: ${releases.data[i].name}`);
             }
             console.log(`当前版本号: ${version}`);
-            const releaseExists = releases.data.some(release => release.release_name === version);
+            const releaseExists = releases.data.some(release => release.name === version);
             console.log(`Release exists: ${releaseExists}`);
             console.log(`::set-output name=release_exists::${releaseExists}`);
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       #设置环版本境变量
       - name: Set APPVEYOR_BUILD_VERSION environ

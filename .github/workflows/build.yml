@@ -150,6 +150,8 @@ jobs:
           GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./DGJv3/bin/Release/DGJv3_${{ steps.get_version.outputs.version }}.zip
-          asset_name: DGJv3_${{ steps.get_version.outputs.version }}.zip
+          #asset_path: ./DGJv3/bin/Release/DGJv3_${{ steps.get_version.outputs.version }}.zip
+          #asset_name: DGJv3_${{ steps.get_version.outputs.version }}.zip
+          asset_path: ./DGJv3/bin/Release/DGJv3.dll
+          asset_name: DGJv3.dll
           asset_content_type: application/octet-stream

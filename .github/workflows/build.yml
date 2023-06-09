@@ -11,6 +11,25 @@ jobs:
     runs-on: windows-latest
     
     steps:
+      
+      #检查VERSION
+      - name: Check if version.txt is modified
+        id: check_version_modified
+        run: |
+          modified_files=$(git diff HEAD^ HEAD --name-only)
+          if echo "$modified_files" | grep -q "VERSION"; then
+            echo "::set-output name=modified::true"
+          else
+            echo "::set-output name=modified::false"
+          fi
+      
+      #
+      - name: Stop execution if not modified
+        if: ${{ needs.check_version_modified.outputs.modified == 'false' }}
+        run: |
+          echo "Version file not modified. Stopping execution."
+          return 1
+          
       - name: Checkout repository
         uses: actions/checkout@v3
         

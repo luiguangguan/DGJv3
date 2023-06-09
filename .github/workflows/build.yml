@@ -30,7 +30,7 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const version = '${{ steps.read_version.outputs.version }}';
+            const version = "v" + '${{ steps.read_version.outputs.version }}';
             const releases = await github.repos.listReleases({
               owner: context.repo.owner,
               repo: context.repo.repo

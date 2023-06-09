@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - bate
   workflow_dispatch:
   
 jobs:

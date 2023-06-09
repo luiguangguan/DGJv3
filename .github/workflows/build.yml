@@ -44,11 +44,12 @@ jobs:
       - name: Setup NuGet
         #run: dotnet restore
         run: nuget restore DGJv3.sln
-
+        
+      - name: Set APPVEYOR_BUILD_VERSION environment variable
+        run: echo "3.2.1.4" >> $APPVEYOR_BUILD_VERSION
+        
       - name: Build project
-        run: |
-          echo $(cat .\VERSION) >> $APPVEYOR_BUILD_VERSION
-          msbuild DGJv3.sln /p:Configuration=Release
+        run: msbuild DGJv3.sln /p:Configuration=Release
 
       #- name: Publish
       #  run: dotnet publish --configuration Release --output publish

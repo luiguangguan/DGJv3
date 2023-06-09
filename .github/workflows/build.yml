@@ -45,8 +45,8 @@ jobs:
         #run: dotnet restore
         run: nuget restore DGJv3.sln
         
-      - name: Set APPVEYOR_BUILD_VERSION environment variable
-        run: echo "3.2.1.4" >> $APPVEYOR_BUILD_VERSION
+      - name: Set APPVEYOR_BUILD_VERSION environ
+        run: echo "APPVEYOR_BUILD_VERSION=3.2.1.6" >> $GITHUB_ENV
         
       - name: Build project
         run: msbuild DGJv3.sln /p:Configuration=Release

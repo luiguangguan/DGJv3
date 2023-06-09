@@ -131,10 +131,10 @@ jobs:
           #[System.IO.Compression.ZipFile]::CreateFromDirectory("./DGJv3/bin/Release", $zip_file)
           #Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
           echo $zip_file
-          Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath ./DGJv3/bin/Release/$zip_file
           pwd
-          ls bin/Release/
           ls 
+          ls bin/Release/
+          Compress-Archive -Path ./bin/Release/DGJv3.dll -DestinationPath $zip_file
         
       #上传资产
       - name: Upload Release Asset

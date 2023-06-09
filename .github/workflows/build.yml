@@ -11,16 +11,6 @@ jobs:
     runs-on: windows-latest
     
     steps:
-      
-      - name: Set the value
-        id: step_one
-        run: |
-         echo "action_state=yellow" >> $env:GITHUB_ENV
-      - name: Use the value
-        id: step_two
-        run: |
-          echo $env:action_state # This will output 'yellow'
-
       - name: Checkout repository
         uses: actions/checkout@v3
         
@@ -28,21 +18,27 @@ jobs:
       #  uses: actions/setup-dotnet@v3
       #  with:
       #    dotnet-version: '7.0.x'
+      
+      #获取最后一个提交的注释
+      - name: Get last commit message
+        id: get_commit_message
+        run: |
+          git log -1 --pretty=format:"%s" > commit_message.txt
+          echo "::set-output name=commit_message::$(cat commit_message.txt)"
+      
+      #设置环版本境变量
       - name: Set APPVEYOR_BUILD_VERSION environ
         run: |
-          echo "APPVEYOR_BUILD_VERSION=$(cat VERSION)" >> $env:GITHUB_ENV
+          echo "APPVEYOR_BUILD_VERSION=$(cat ./VERSION)" >> $env:GITHUB_ENV
           echo $env:APPVEYOR_BUILD_VERSION
 
-      - name: Print Log Message
-        run: echo $env:APPVEYOR_BUILD_VERSION
-          
       - name: Get version
         id: get_version
         run:  |
           # MAJOR=$(cat VERSION.txt | cut -d . -f 1)
           # MINOR=$(cat VERSION.txt | cut -d . -f 2)
           # PATCH=$(cat VERSION.txt | cut -d . -f 3)
-          $VERSION=$(cat VERSION)
+          $VERSION=$(cat ./VERSION)
           echo "::set-output name=version::$VERSION"
 
       - name: Use APPVEYOR_BUILD_VERSION environ
@@ -59,9 +55,12 @@ jobs:
           #release_name: Release 1.0.0
           #draft: false
           #prerelease: false
-          tag_name: V${{ steps.get_version.outputs.version }}
-          release_name: V${{ steps.get_version.outputs.version }}
-          body: Auto-generated prerelease build
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: v${{ steps.get_version.outputs.version }}
+          body: |
+            Auto-generated build
+            版本：v${{ steps.get_version.outputs.version }}
+            ${{ steps.get_commit_message.outputs.commit_message }}
           draft: false
           prerelease: false
       

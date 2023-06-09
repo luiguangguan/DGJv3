@@ -122,7 +122,8 @@ jobs:
           $zip_file = "DGJv3_$version.zip"
           #Add-Type -A System.IO.Compression.FileSystem
           #[System.IO.Compression.ZipFile]::CreateFromDirectory("./DGJv3/bin/Release", $zip_file)
-          Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
+          #Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
+          Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath $zip_file
           pwd
           ls ./bin/Release/
           ls 

@@ -20,16 +20,9 @@ jobs:
         id: step_two
         run: |
           echo $env:action_state # This will output 'yellow'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          
+
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Print Log Message
-        run: echo "This is a log message."
         
       #- name: Setup .NET
       #  uses: actions/setup-dotnet@v3
@@ -39,6 +32,9 @@ jobs:
         run: |
           echo "APPVEYOR_BUILD_VERSION=$(cat VERSION)" >> $env:GITHUB_ENV
           echo $env:APPVEYOR_BUILD_VERSION
+
+      - name: Print Log Message
+        run: echo $env:APPVEYOR_BUILD_VERSION
           
       - name: Get version
         id: get_version

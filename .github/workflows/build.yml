@@ -15,33 +15,59 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       
-      #检查VERSION
-      - name: Check if version.txt is modified
-        id: check_version_modified
+      #读取版本号文件
+      - name: Read VERSION file
+        id: read_version
         run: |
-          $modified = git diff --name-only HEAD^..HEAD --allow-empty | Select-String -Pattern "VERSION"
-          echo $modified
-          if ($modified) {
-            echo "::set-output name=modified::true"
-          } else {
-            echo "::set-output name=modified::false"
-          }
+          $version = Get-Content -Path VERSION -Raw
+          $version = $version.Trim()
+          Write-Host "Version: $version"
+          Write-Host "::set-output name=version::$version"
+
+      #判断是否存在这个发布版本
+      - name: Check if release exists
+        id: check_release
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const version = '${{ steps.read_version.outputs.version }}';
+            const releases = await github.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            const releaseExists = releases.data.some(release => release.release_name === version);
+            console.log(`Release exists: ${releaseExists}`);
+            console.log(`::set-output name=release_exists::${releaseExists}`);
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # #检查VERSION
+      # - name: Check if version.txt is modified
+      #   id: check_version_modified
+      #   run: |
+      #     $modified = git diff --name-only HEAD^..HEAD --allow-empty | Select-String -Pattern "VERSION"
+      #     echo $modified
+      #     if ($modified) {
+      #       echo "::set-output name=modified::true"
+      #     } else {
+      #       echo "::set-output name=modified::false"
+      #     }
       
       #- name: Setup .NET
       #  uses: actions/setup-dotnet@v3
       #  with:
       #    dotnet-version: '7.0.x'
-            
+
       #设置环版本境变量
       - name: Set APPVEYOR_BUILD_VERSION environ
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         run: |
           echo "APPVEYOR_BUILD_VERSION=$(cat ./VERSION)" >> $env:GITHUB_ENV
           echo $env:APPVEYOR_BUILD_VERSION
 
       - name: Get version
         id: get_version
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         run:  |
           # MAJOR=$(cat VERSION.txt | cut -d . -f 1)
           # MINOR=$(cat VERSION.txt | cut -d . -f 2)
@@ -50,18 +76,18 @@ jobs:
           echo "::set-output name=version::$VERSION"
 
       - name: Use APPVEYOR_BUILD_VERSION environ
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         run: echo $env:APPVEYOR_BUILD_VERSION
 
       - name: setup-msbuild
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         uses: microsoft/setup-msbuild@v1.3.1
           
       #- name: Setup MSBuild Path
       #  uses: warrenbuckley/Setup-MSBuild@v1
       
       - name: Clean project
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         run: msbuild /t:Clean
         
       #- name: Clear NuGet cache
@@ -72,26 +98,26 @@ jobs:
       #  working-directory: /packages
             
       - name: Restore NuGet
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         #run: dotnet restore
         run: nuget restore DGJv3.sln
   
       #构建项目
       - name: Build project
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         run: msbuild DGJv3.sln /p:Configuration=Release
 
       #获取最后一个提交的注释
       - name: Get last commit message
         id: get_commit_message
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         run: |
           git log -1 --pretty=format:"%s" > commit_message.txt
           echo "::set-output name=commit_message::$(cat commit_message.txt)"
       
       #创建发布
       - name: Create Release
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -116,7 +142,7 @@ jobs:
 
       #上传资产
       - name: Upload Release Asset
-        if: ${{ needs.check_version_modified.outputs.modified == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
         id: upload_asset
         uses: actions/upload-release-asset@v1
         env:

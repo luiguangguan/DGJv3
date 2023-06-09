@@ -128,11 +128,17 @@ jobs:
           $version = ${{ steps.get_version.outputs.version }}
           $zip_file = "DGJv3_$version.zip"
           #Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
+          echo "hey"
           echo $version
+          echo "hey2"
           echo $zip_file
+          echo "hey3"
           pwd
+          echo "hey4"
           ls 
+          echo "hey5"
           ls ./bin/Release/
+          echo "hey6"
           Compress-Archive -Path ./bin/Release/DGJv3.dll -DestinationPath $zip_file
         
       #上传资产

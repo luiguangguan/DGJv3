@@ -37,7 +37,7 @@ jobs:
       #    dotnet-version: '7.0.x'
       - name: Set APPVEYOR_BUILD_VERSION environ
         run: |
-          echo "APPVEYOR_BUILD_VERSION=3.2.1.6" >> $env:GITHUB_ENV
+          echo "APPVEYOR_BUILD_VERSION=$(cat VERSION)" >> $env:GITHUB_ENV
           echo $env:APPVEYOR_BUILD_VERSION
           
       - name: Get version
@@ -46,7 +46,7 @@ jobs:
           # MAJOR=$(cat VERSION.txt | cut -d . -f 1)
           # MINOR=$(cat VERSION.txt | cut -d . -f 2)
           # PATCH=$(cat VERSION.txt | cut -d . -f 3)
-          VERSION="$env:APPVEYOR_BUILD_VERSION"
+          VERSION="$(cat VERSION)"
           echo "::set-output name=version::${VERSION}"
 
       - name: Use APPVEYOR_BUILD_VERSION environ

@@ -60,14 +60,14 @@ jobs:
 
       #设置环版本境变量
       - name: Set APPVEYOR_BUILD_VERSION environ
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: |
           echo "APPVEYOR_BUILD_VERSION=$(cat ./VERSION)" >> $env:GITHUB_ENV
           echo $env:APPVEYOR_BUILD_VERSION
 
       - name: Get version
         id: get_version
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run:  |
           # MAJOR=$(cat VERSION.txt | cut -d . -f 1)
           # MINOR=$(cat VERSION.txt | cut -d . -f 2)
@@ -76,18 +76,18 @@ jobs:
           echo "::set-output name=version::$VERSION"
 
       - name: Use APPVEYOR_BUILD_VERSION environ
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: echo $env:APPVEYOR_BUILD_VERSION
 
       - name: setup-msbuild
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         uses: microsoft/setup-msbuild@v1.3.1
           
       #- name: Setup MSBuild Path
       #  uses: warrenbuckley/Setup-MSBuild@v1
       
       - name: Clean project
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: msbuild /t:Clean
         
       #- name: Clear NuGet cache
@@ -98,26 +98,26 @@ jobs:
       #  working-directory: /packages
             
       - name: Restore NuGet
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         #run: dotnet restore
         run: nuget restore DGJv3.sln
   
       #构建项目
       - name: Build project
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: msbuild DGJv3.sln /p:Configuration=Release
 
       #获取最后一个提交的注释
       - name: Get last commit message
         id: get_commit_message
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: |
           git log -1 --pretty=format:"%s" > commit_message.txt
           echo "::set-output name=commit_message::$(cat commit_message.txt)"
       
       #创建发布
       - name: Create Release
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -142,7 +142,7 @@ jobs:
 
       #上传资产
       - name: Upload Release Asset
-        if: ${{ steps.check_release.outputs.release_exists == 'true' }}
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         id: upload_asset
         uses: actions/upload-release-asset@v1
         env:

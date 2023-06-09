@@ -16,11 +16,10 @@ jobs:
       - name: Check if version.txt is modified
         id: check_version_modified
         run: |
-          git diff --name-only HEAD^ HEAD | grep "VERSION"
-          if ( $? -eq 0 ){
+          $modified = git diff --name-only $env:GITHUB_SHA ${{ steps.last-commit.outputs.last_commit }} | Select-String -Pattern "VERSION"
+          if ($modified) {
             echo "::set-output name=modified::true"
-          }
-          else{
+          } else {
             echo "::set-output name=modified::false"
           }
       

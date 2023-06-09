@@ -42,7 +42,7 @@ jobs:
           # MAJOR=$(cat VERSION.txt | cut -d . -f 1)
           # MINOR=$(cat VERSION.txt | cut -d . -f 2)
           # PATCH=$(cat VERSION.txt | cut -d . -f 3)
-          VERSION="$(cat VERSION)"
+          $VERSION=$(cat VERSION)
           echo "::set-output name=version::${VERSION}"
 
       - name: Use APPVEYOR_BUILD_VERSION environ

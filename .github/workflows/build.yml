@@ -1,4 +1,4 @@
-name: Build and Publish 2
+name: Build and Publish
 
 on:
   push:
@@ -11,27 +11,58 @@ jobs:
     runs-on: windows-latest
     
     steps:
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          
+      #签出仓库
       - name: Checkout repository
         uses: actions/checkout@v3
-          
-      #- name: Setup .NET
-      #  uses: actions/setup-dotnet@v3
-      #  with:
-      #    dotnet-version: '7.0.x'
       
+      #读取版本号文件
+      - name: Get version
+        id: get_version
+        run: |
+          $version = Get-Content -Path VERSION -Raw
+          $version = $version.Trim()
+          Write-Host "Version: $version"
+          Write-Host "::set-output name=version::$version"
+
+      #判断是否存在这个发布版本
+      - name: Check if release exists
+        id: check_release
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const version = "v" + '${{ steps.get_version.outputs.version }}';
+            const releases = await github.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            console.log(`当前版本号: ${version}`);
+            const releaseExists = releases.data.some(release => release.name === version);
+            console.log(`Release exists: ${releaseExists}`);
+            console.log(`::set-output name=release_exists::${releaseExists}`);
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      #设置环版本境变量
+      - name: Set APPVEYOR_BUILD_VERSION environ
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
+        run: |
+          echo "APPVEYOR_BUILD_VERSION=$(cat ./VERSION)" >> $env:GITHUB_ENV
+          echo $env:APPVEYOR_BUILD_VERSION
+
+      - name: Use APPVEYOR_BUILD_VERSION environ
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
+        run: echo $env:APPVEYOR_BUILD_VERSION
+
       - name: setup-msbuild
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         uses: microsoft/setup-msbuild@v1.3.1
           
       #- name: Setup MSBuild Path
       #  uses: warrenbuckley/Setup-MSBuild@v1
       
       - name: Clean project
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: msbuild /t:Clean
         
       #- name: Clear NuGet cache
@@ -40,41 +71,67 @@ jobs:
       #- name: Restore dependencies
       #  run: dotnet restore
       #  working-directory: /packages
-      
-      - name: Setup NuGet
+            
+      - name: Restore NuGet
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         #run: dotnet restore
         run: nuget restore DGJv3.sln
-
+  
+      #构建项目
       - name: Build project
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: msbuild DGJv3.sln /p:Configuration=Release
 
-      #- name: Publish
-      #  run: dotnet publish --configuration Release --output publish
-
+      #获取最后一个提交的注释
+      - name: Get last commit message
+        id: get_commit_message
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
+        run: |
+          git log -1 --pretty=format:"%s" > commit_message.txt
+          echo "::set-output name=commit_message::$(cat commit_message.txt)"
+      
+      #创建发布
       - name: Create Release
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}  
+          GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
         with:
           #token: ${{ secrets.Releases }}
           #tag_name: v1.0.0
           #release_name: Release 1.0.0
           #draft: false
           #prerelease: false
-          tag_name: ${{github.run_number}}
-          release_name: release ${{github.run_number}}
-          body: Auto-generated prerelease build
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: v${{ steps.get_version.outputs.version }}
+          body: |
+            Auto-generated build
+            [⭐Update⭐]
+            ${{ steps.get_commit_message.outputs.commit_message }}
           draft: false
           prerelease: false
 
+      #- name: Publish
+      #  run: dotnet publish --configuration Release --output publish
+      
+      #压缩打包资产文件
+      - name: Create ZIP archive
+        run: |
+          $version = ${{ steps.get_version.outputs.version }}
+          $zip_file = "DGJv3_$version.zip"
+          Add-Type -A System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::CreateFromDirectory("./DGJv3/bin/Release", $zip_file)
+        
+      #上传资产
       - name: Upload Release Asset
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         id: upload_asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./DGJv3/bin/Release/DGJv3.dll
-          asset_name: DGJv3-${{github.run_number}}.dll
+          asset_path: ./DGJv3_${{ steps.get_version.outputs.version }}.zip
+          asset_name: DGJv3_${{ steps.get_version.outputs.version }}.zip
           asset_content_type: application/octet-stream

@@ -16,7 +16,7 @@ jobs:
       - name: Check if version.txt is modified
         id: check_version_modified
         run: |
-          git diff --name-only HEAD^ HEAD | grep "version.txt"
+          git diff --name-only HEAD^ HEAD | grep "VERSION"
           if ( $? -eq 0 ){
             echo "::set-output name=modified::true"
           }

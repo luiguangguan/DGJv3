@@ -32,8 +32,6 @@ jobs:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
         with:
           #token: ${{ secrets.Releases }}
           #tag_name: v1.0.0
@@ -45,6 +43,8 @@ jobs:
           body: Auto-generated prerelease build
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
       
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v1.3.1

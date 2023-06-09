@@ -135,7 +135,7 @@ jobs:
           echo "hey3"
           pwd
           echo "hey4"
-          ls ./
+          ls ./DGJv3
           echo "hey5"
           #ls ./bin/Release/
           echo "hey6"

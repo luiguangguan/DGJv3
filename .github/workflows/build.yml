@@ -19,14 +19,13 @@ jobs:
       - name: Check if version.txt is modified
         id: check_version_modified
         run: |
-          # $modified = git diff --name-only $env:GITHUB_SHA ${{ steps.last-commit.outputs.last_commit }} | Select-String -Pattern "VERSION"
           $modified =  git diff --name-only HEAD^ HEAD | Select-String -Pattern "VERSION"
           echo $modified
-          if ($modified) {
-            echo "::set-output name=modified::true"
-          } else {
-            echo "::set-output name=modified::false"
-          }
+          #if ($modified) {
+          #  echo "::set-output name=modified::true"
+          #} else {
+          #  echo "::set-output name=modified::false"
+          #}
       
       #- name: Setup .NET
       #  uses: actions/setup-dotnet@v3

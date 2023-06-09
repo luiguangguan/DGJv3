@@ -26,8 +26,6 @@ jobs:
           } else {
             echo "::set-output name=modified::false"
           }
-
-          }
       
       #- name: Setup .NET
       #  uses: actions/setup-dotnet@v3

@@ -31,6 +31,11 @@ jobs:
       #- name: Setup MSBuild Path
       #  uses: warrenbuckley/Setup-MSBuild@v1
       
+      - name: Set APPVEYOR_BUILD_VERSION environ
+        run: |
+          echo "APPVEYOR_BUILD_VERSION=3.2.1.6" >> "$GITHUB_ENV"
+           echo "${{ env.APPVEYOR_BUILD_VERSION }}"
+      
       - name: Clean project
         run: msbuild /t:Clean
         
@@ -40,12 +45,7 @@ jobs:
       #- name: Restore dependencies
       #  run: dotnet restore
       #  working-directory: /packages
-      
-      - name: Set APPVEYOR_BUILD_VERSION environ
-        run: |
-          echo "APPVEYOR_BUILD_VERSION=3.2.1.6" >> $GITHUB_ENV
-           echo "${{ env.APPVEYOR_BUILD_VERSION }}"
-      
+            
       - name: Restore NuGet
         #run: dotnet restore
         run: nuget restore DGJv3.sln

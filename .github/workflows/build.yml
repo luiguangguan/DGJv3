@@ -128,6 +128,7 @@ jobs:
           $version = $env:APPVEYOR_BUILD_VERSION
           $zip_file = "DGJv3_$version.zip"
           #Compress-Archive -Path "./bin/Release/DGJv3.dll" -DestinationPath "./bin/Release/$zip_file"
+          Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath $zip_file
           echo "hey"
           echo $version
           echo "hey2"
@@ -139,7 +140,6 @@ jobs:
           echo "hey5"
           #ls ./bin/Release/
           echo "hey6"
-          Compress-Archive -Path ./DGJv3/bin/Release/DGJv3.dll -DestinationPath $zip_file
         
       #上传资产
       - name: Upload Release Asset

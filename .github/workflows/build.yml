@@ -1,4 +1,4 @@
-name: Build and Publish 2
+name: Build and Publish
 
 on:
   push:
@@ -16,8 +16,8 @@ jobs:
         uses: actions/checkout@v3
       
       #读取版本号文件
-      - name: Read VERSION file
-        id: read_version
+      - name: Get version
+        id: get_version
         run: |
           $version = Get-Content -Path VERSION -Raw
           $version = $version.Trim()
@@ -30,33 +30,18 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const version = "v" + '${{ steps.read_version.outputs.version }}';
+            const version = "v" + '${{ steps.get_version.outputs.version }}';
             const releases = await github.repos.listReleases({
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            const releaseExists = releases.data.some(release => release.release_name === version);
+            console.log(`当前版本号: ${version}`);
+            const releaseExists = releases.data.some(release => release.name === version);
             console.log(`Release exists: ${releaseExists}`);
             console.log(`::set-output name=release_exists::${releaseExists}`);
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # #检查VERSION
-      # - name: Check if version.txt is modified
-      #   id: check_version_modified
-      #   run: |
-      #     $modified = git diff --name-only HEAD^..HEAD --allow-empty | Select-String -Pattern "VERSION"
-      #     echo $modified
-      #     if ($modified) {
-      #       echo "::set-output name=modified::true"
-      #     } else {
-      #       echo "::set-output name=modified::false"
-      #     }
-      
-      #- name: Setup .NET
-      #  uses: actions/setup-dotnet@v3
-      #  with:
-      #    dotnet-version: '7.0.x'
 
       #设置环版本境变量
       - name: Set APPVEYOR_BUILD_VERSION environ
@@ -64,16 +49,6 @@ jobs:
         run: |
           echo "APPVEYOR_BUILD_VERSION=$(cat ./VERSION)" >> $env:GITHUB_ENV
           echo $env:APPVEYOR_BUILD_VERSION
-
-      - name: Get version
-        id: get_version
-        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
-        run:  |
-          # MAJOR=$(cat VERSION.txt | cut -d . -f 1)
-          # MINOR=$(cat VERSION.txt | cut -d . -f 2)
-          # PATCH=$(cat VERSION.txt | cut -d . -f 3)
-          $VERSION=$(cat ./VERSION)
-          echo "::set-output name=version::$VERSION"
 
       - name: Use APPVEYOR_BUILD_VERSION environ
         if: ${{ steps.check_release.outputs.release_exists == 'false' }}

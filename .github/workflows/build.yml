@@ -35,9 +35,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            for (var i = 0; i < releases.data.length; i++) {
-              console.log(`版本${i}: ${releases.data[i].name}`);
-            }
             console.log(`当前版本号: ${version}`);
             const releaseExists = releases.data.some(release => release.name === version);
             console.log(`Release exists: ${releaseExists}`);

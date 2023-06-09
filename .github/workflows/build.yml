@@ -19,7 +19,7 @@ jobs:
       - name: Check if version.txt is modified
         id: check_version_modified
         run: |
-          $modified = git diff --name-only HEAD^..HEAD | Select-String -Pattern "VERSION"
+          $modified = git diff --name-only HEAD^..HEAD --allow-empty | Select-String -Pattern "VERSION"
           echo $modified
           if ($modified) {
             echo "::set-output name=modified::true"

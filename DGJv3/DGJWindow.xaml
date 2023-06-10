@@ -703,12 +703,19 @@
                                         <TextBlock TextAlignment="Center" VerticalAlignment="Center">点歌反馈发送到弹幕（需要登录中心）</TextBlock>
                                     </StackPanel>
                                     <StackPanel Margin="5" Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Console"/>
                                         <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding DanmuHandler.AdminCmdEnable}"/>
                                         <TextBlock TextAlignment="Center" VerticalAlignment="Center">开启执行房管的弹幕命令</TextBlock>
                                     </StackPanel>
                                     <StackPanel Margin="5" Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="FormatAlignLeft"/>
                                         <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding FormatConfig}"/>
                                         <TextBlock TextAlignment="Center" VerticalAlignment="Center">保存配置时格式化内容</TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Margin="5" Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Update"/>
+                                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding CheckUpdate}"/>
+                                        <TextBlock TextAlignment="Center" VerticalAlignment="Center">检查更新</TextBlock>
                                     </StackPanel>
                                 </StackPanel>
                                 <!--杂项设置结束-->

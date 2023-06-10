@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
+using System.IO.Pipes;
 using System.Net;
+using System.Net.Http;
 
 namespace DGJv3
 {
@@ -13,6 +16,8 @@ namespace DGJv3
         /// 默认服务器地址
         /// </summary>
         public const string DEFAULT_BASE_URL = "https://www.danmuji.org";
+        public const string GITHUB_owner = "luiguangguan";
+        public const string GITHUB_repo = "DGJv3";
 
         /// <summary>
         /// API的路径
@@ -45,6 +50,11 @@ namespace DGJv3
         public string Name { get; private set; }
 
         /// <summary>
+        /// 更新文件的名称
+        /// </summary>
+        public string UpdateFileName { get; set; }
+
+        /// <summary>
         /// API返回的插件作者
         /// </summary>
         public string Author { get; private set; }
@@ -73,6 +83,12 @@ namespace DGJv3
         /// API返回的下载地址
         /// </summary>
         public Uri DownloadUrl { get; private set; }
+
+        /// <summary>
+        /// 更新下载页面地址
+        /// </summary>
+        public Uri UpdatePage { get; private set; }
+
 
         /// <summary>
         /// 用户查看用的页面地址
@@ -143,6 +159,56 @@ namespace DGJv3
             catch (Exception ex)
             { LastException = ex; return false; }
 
+        }
+
+        public bool FetchInfoFromGithub()
+        {
+            try
+            {
+
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36");
+
+                    string url = $"https://api.github.com/repos/{GITHUB_owner}/{GITHUB_repo}/releases/latest";
+                    HttpResponseMessage response = client.GetAsync(url).GetAwaiter().GetResult();
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = response.Content.ReadAsStringAsync().Result;
+                        JObject release = JsonConvert.DeserializeObject<JObject>(responseContent);
+                        string releaseName = release.GetValue("name").Value<string>();
+                        this.Name = "点歌姬v3";
+                        this.Author = "Simon";
+                        this.Version = new Version(releaseName?.Replace("v", "")?.Replace("V", ""));
+                        this.UpdateDateTime = release.GetValue("created_at").Value<DateTime>().ToLocalTime();
+                        this.UpdateDescription = release.GetValue("body").Value<string>();
+                        this.DownloadNote = "";
+                        this.UpdatePage = new Uri(release.GetValue("html_url").Value<string>());
+
+                        var assets = release.GetValue("assets").Value<JArray>();
+                        if (assets != null)
+                        {
+                            foreach (var asset in assets)
+                            {
+                                if (asset.Value<string>("name") == $"DGJv3_{releaseName?.Replace("v", "")?.Replace("V", "")}.zip")
+                                {
+                                    this.DownloadUrl = new Uri(asset.Value<string>("browser_download_url"));
+                                    this.UpdateFileName = asset.Value<string>("name");
+                                }
+                            }
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            { LastException = ex; return false; }
         }
 
         /// <summary>

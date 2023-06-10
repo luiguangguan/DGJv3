@@ -15,6 +15,8 @@ namespace DGJv3
         public bool AdminCmdEnable { get; set; }=true;
         [JsonProperty("fmtcfg")]
         public bool FormatConfig { get; set; }=false;
+        [JsonProperty("ckeudp")]
+        public bool CheckUpdate { get; set; }=true;
         [JsonProperty("ptyp")]
         public PlayerType PlayerType { get; set; } = PlayerType.DirectSound;
 

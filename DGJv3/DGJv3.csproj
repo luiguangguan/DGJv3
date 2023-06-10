@@ -184,6 +184,7 @@
   </Target>
   <PropertyGroup>
     <PreBuildEvent>cd $(SolutionDir)
+#set /p APPVEYOR_BUILD_VERSION=&lt;VERSION
 PowerShell -ExecutionPolicy Bypass -File .\CI\patch_buildinfo.ps1</PreBuildEvent>
   </PropertyGroup>
 </Project>

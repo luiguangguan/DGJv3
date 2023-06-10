@@ -1,8 +1,11 @@
 ﻿using BilibiliDM_PluginFramework;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Security.Policy;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -13,6 +16,8 @@ namespace DGJv3
         private readonly DGJWindow window;
 
         private VersionChecker versionChecker;
+
+        public string DownloadUpdateUrl = "";
 
         public DGJMain()
         {
@@ -39,30 +44,36 @@ namespace DGJv3
             versionChecker = new VersionChecker("DGJv3");
             Task.Run(() =>
             {
-                if (versionChecker.FetchInfo())
+                if (Config.Load().CheckUpdate)
                 {
-                    Version current = null;
-
-                    try
+                    if (versionChecker.FetchInfoFromGithub())
                     {
-                        current = new Version(BuildInfo.Version);
-                    }
-                    catch (Exception)
-                    {
+                        Version current = null;
 
-                    }
+                        try
+                        {
+                            current = new Version(BuildInfo.Version);
+                        }
+                        catch (Exception)
+                        {
 
-                    if (versionChecker.HasNewVersion(current))
-                    {
-                        Log("插件有新版本" + Environment.NewLine +
-                            $"当前版本：{BuildInfo.Version}" + Environment.NewLine +
-                            $"最新版本：{versionChecker.Version.ToString()} 更新时间：{versionChecker.UpdateDateTime.ToShortDateString()}" + Environment.NewLine +
-                            versionChecker.UpdateDescription);
+                        }
+
+                        if (versionChecker.HasNewVersion(current))
+                        {
+                            Log("插件有新版本" + Environment.NewLine +
+                                $"当前版本：{BuildInfo.Version}" + Environment.NewLine +
+                                $"最新版本：{versionChecker.Version.ToString()} 更新时间：{versionChecker.UpdateDateTime.ToShortDateString()}" + Environment.NewLine +
+                                $"更新包下载地址： ↘↘↘↘↘");
+                            Log(versionChecker.DownloadUrl.AbsoluteUri);
+                            Log(versionChecker.UpdateDescription);
+                            DownloadUpdateUrl = versionChecker.DownloadUrl.AbsoluteUri;
+                        }
                     }
-                }
-                else
-                {
-                    Log("版本检查出错：" + versionChecker?.LastException?.Message);
+                    else
+                    {
+                        Log("版本检查出错：" + versionChecker?.LastException?.Message);
+                    }
                 }
             });
         }
@@ -74,7 +85,16 @@ namespace DGJv3
             window.InvalidateVisual();
             window.Show();
             window.Activate();
-            
+            if (string.IsNullOrEmpty(DownloadUpdateUrl) == false)
+            {
+                if (MessageBox.Show("点歌姬发现新版本，是否前往下载", "版本更新", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes) == MessageBoxResult.Yes)
+                {
+                    Process.Start(versionChecker.UpdatePage.AbsoluteUri);
+                }
+                DownloadUpdateUrl = "";
+            }
+
+
         }
 
         public override void DeInit() => window.DeInit();

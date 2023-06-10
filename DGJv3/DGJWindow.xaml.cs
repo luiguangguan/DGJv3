@@ -94,6 +94,8 @@ namespace DGJv3
 
         public bool FormatConfig { get; set; }
 
+        public bool CheckUpdate { get; set; }
+
         private ObservableCollection<SongItem> SkipSong;
 
         //在空闲歌单中搜索
@@ -501,6 +503,7 @@ namespace DGJv3
             IsLogRedirectDanmaku = config.IsLogRedirectDanmaku;
             LogDanmakuLengthLimit = config.LogDanmakuLengthLimit;
             FormatConfig = config.FormatConfig;
+            CheckUpdate = config.CheckUpdate;
             DanmuHandler.AdminCmdEnable = config.AdminCmdEnable;
 
             Player.CurrentPlayMode = config.CurrentPlayMode;
@@ -593,6 +596,7 @@ namespace DGJv3
             IsLogRedirectDanmaku = IsLogRedirectDanmaku,
             LogDanmakuLengthLimit = LogDanmakuLengthLimit,
             FormatConfig = FormatConfig,
+            CheckUpdate = CheckUpdate,
             CurrentPlayMode = Player.CurrentPlayMode,
             LastSongId = Player.LastSongId,
             InfoTemplates = InfoTemplates.ToDictionary(p => p.Key, p => p.Value),

@@ -524,7 +524,7 @@ namespace DGJv3
                 InfoTemplates.Add(new OutputInfoTemplate() { Key = "信息.txt", Value = new OutputInfo() { Content = config.ScribanTemplate, IsEnable = true } });
             }
 
-            if (config.InfoTemplates.Any(x => x.Key == "初始模板.txt") == false)
+            if (InfoTemplates.Any(x => x.Key == "初始模板.txt") == false)
             {
                 InfoTemplates.Add(new OutputInfoTemplate() { Key = "初始模板.txt", Value = new OutputInfo() { Content = new Config().ScribanTemplate, IsEnable = false } });
             }

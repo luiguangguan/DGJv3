@@ -100,7 +100,7 @@ jobs:
         id: get_commit_message
         if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         run: |
-          git log -1 --pretty=format:"%s" > commit_message.txt
+          git log -1 --pretty=format:"%b" > commit_message.txt
           echo "::set-output name=commit_message::$(cat commit_message.txt)"
       
       #创建发布

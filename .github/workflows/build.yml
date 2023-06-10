@@ -4,7 +4,14 @@ on:
   push:
     branches:
       - dev
+      - bate
+      - main
+      - master
   workflow_dispatch:
+
+env:
+  solution_file: DGJv3.sln
+  main_project: DGJv3
   
 jobs:
   build:
@@ -14,6 +21,12 @@ jobs:
       #签出仓库
       - name: Checkout repository
         uses: actions/checkout@v3
+        
+     # - name: Test
+     #   run: |
+     #     pwd
+     #     ls ./bin/Release
+        
       
       #读取版本号文件
       - name: Get version
@@ -35,7 +48,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            console.log(`当前版本号: ${version}`);
+            //console.log(`当前版本号: ${version}`);
             const releaseExists = releases.data.some(release => release.name === version);
             console.log(`Release exists: ${releaseExists}`);
             console.log(`::set-output name=release_exists::${releaseExists}`);
@@ -75,12 +88,12 @@ jobs:
       - name: Restore NuGet
         if: ${{ steps.check_release.outputs.release_exists == 'false' }}
         #run: dotnet restore
-        run: nuget restore DGJv3.sln
+        run: nuget restore ${{ env.solution_file }}
   
       #构建项目
       - name: Build project
         if: ${{ steps.check_release.outputs.release_exists == 'false' }}
-        run: msbuild DGJv3.sln /p:Configuration=Release
+        run: msbuild ${{ env.solution_file }} /p:Configuration=Release
 
       #获取最后一个提交的注释
       - name: Get last commit message
@@ -117,21 +130,50 @@ jobs:
       
       #压缩打包资产文件
       - name: Create ZIP archive
-        run: |
-          $version = ${{ steps.get_version.outputs.version }}
-          $zip_file = "DGJv3_$version.zip"
-          Add-Type -A System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::CreateFromDirectory("./DGJv3/bin/Release", $zip_file)
-        
-      #上传资产
-      - name: Upload Release Asset
         if: ${{ steps.check_release.outputs.release_exists == 'false' }}
-        id: upload_asset
+        run: |
+          $version = $env:APPVEYOR_BUILD_VERSION
+          $zip_file = "${{ env.main_project}}_$version.zip"
+          #Compress-Archive -Path "./bin/Release/${{ env.main_project}}.dll" -DestinationPath "./bin/Release/$zip_file"
+          Compress-Archive -Path ./${{ env.main_project}}/bin/Release/${{ env.main_project}}.dll -DestinationPath ./${{ env.main_project}}/bin/Release/$zip_file
+          $hash = Get-FileHash ./${{ env.main_project}}/bin/Release/${{ env.main_project}}.dll -Algorithm SHA256
+          $hashValue = $hash.Hash
+          echo $hashValue >> ./${{ env.main_project}}/bin/Release/sha256.txt
+          
+      #上传资产
+      - name: Upload Release Assets
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
+        id: upload_assets_zip
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./DGJv3_${{ steps.get_version.outputs.version }}.zip
-          asset_name: DGJv3_${{ steps.get_version.outputs.version }}.zip
+          asset_path: ./${{ env.main_project}}/bin/Release/${{ env.main_project}}_${{ steps.get_version.outputs.version }}.zip
+          asset_name: ${{ env.main_project}}_${{ steps.get_version.outputs.version }}.zip
           asset_content_type: application/octet-stream
+
+      - name: Upload Release Assets
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
+        id: upload_assets_dll
+        uses: actions/upload-release-asset@v1
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ env.main_project}}/bin/Release/${{ env.main_project}}.dll
+          asset_name: ${{ env.main_project}}.dll
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Assets
+        if: ${{ steps.check_release.outputs.release_exists == 'false' }}
+        id: upload_assets_sha
+        uses: actions/upload-release-asset@v1
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ env.main_project}}/bin/Release/sha256.txt
+          asset_name: sha256.txt
+          asset_content_type: application/octet-stream
+

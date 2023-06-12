@@ -187,4 +187,8 @@
 #set /p APPVEYOR_BUILD_VERSION=&lt;VERSION
 PowerShell -ExecutionPolicy Bypass -File .\CI\patch_buildinfo.ps1</PreBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>Powershell -Command "Write-Output (Get-Item -Path $(TargetPath)).VersionInfo.FileVersion | Out-File -FilePath $(SolutionDir)/VERSION"
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

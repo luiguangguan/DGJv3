@@ -1,4 +1,5 @@
-﻿using DGJv3.InternalModule;
+﻿using DGJv3.API;
+using DGJv3.InternalModule;
 using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json.Linq;
 using System;
@@ -49,6 +50,12 @@ namespace DGJv3
         public DanmuHandler DanmuHandler { get; set; }
 
         public UIFunction UIFunction { get; set; }
+
+        public WindowsTTS WindowsTTS { get; set; }
+
+        public TTSPlugin TTSPlugin { get; set; }
+
+        public ObservableCollection<TTS> TTSlist { get; set; }
 
         public UniversalCommand RemoveSongCommmand { get; set; }
 
@@ -184,16 +191,22 @@ namespace DGJv3
             SkipSong = new ObservableCollection<SongItem>();
             InfoTemplates = new ObservableCollection<OutputInfoTemplate>();
             MsgQueue = new EventSafeQueue<object>();
+            TTSlist = new ObservableCollection<TTS>();
 
             Player = new Player(Songs, Playlist, SkipSong);
             Downloader = new Downloader(Songs, SkipSong);
             SearchModules = new SearchModules();
             UIFunction = new UIFunction(Songs, Playlist, Blacklist, SkipSong, SearchModules, InfoTemplates);
-            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue,Playlist);
+            WindowsTTS = new WindowsTTS();
+            TTSPlugin = new TTSPlugin(WindowsTTS, TTSlist);
+            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue,Playlist, TTSPlugin);
             Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates,MsgQueue);
+            
 
             UIFunction.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Player.LogEvent += (sender, e) => { Log("播放:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
+            WindowsTTS.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
+            TTSPlugin.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Player.SongsListChanged += (sender, e) =>
             {
                 var songs = sender as ObservableCollection<SongItem>;
@@ -505,6 +518,9 @@ namespace DGJv3
             FormatConfig = config.FormatConfig;
             CheckUpdate = config.CheckUpdate;
             DanmuHandler.AdminCmdEnable = config.AdminCmdEnable;
+            TTSPlugin.CurrentTTS = TTSlist?.FirstOrDefault(x => x.UniqueId == config.TtsPluginId);
+            TTSPlugin.TtsType = config.TtsType;
+            TTSPlugin.TTSPluginEnbale = config.TTSPluginEnbale;
 
             Player.CurrentPlayMode = config.CurrentPlayMode;
             Player.LastSongId = config.LastSongId;
@@ -601,6 +617,9 @@ namespace DGJv3
             LastSongId = Player.LastSongId,
             InfoTemplates = InfoTemplates.ToDictionary(p => p.Key, p => p.Value),
             AdminCmdEnable = DanmuHandler.AdminCmdEnable,
+            TtsPluginId = TTSPlugin.CurrentTTS?.UniqueId,
+            TtsType= TTSPlugin.TtsType,
+            TTSPluginEnbale = TTSPlugin.TTSPluginEnbale,
             //BiliUserSongs = Songs.Where(p => p.UserName != Utilities.SparePlaylistUser).ToArray(),
         };
 
@@ -760,8 +779,17 @@ namespace DGJv3
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            
             e.Cancel = true;
             Hide();
+            try
+            {
+                Config.Write(GatherConfig());
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         private async void LogRedirectToggleButton_OnChecked(object sender, RoutedEventArgs e)

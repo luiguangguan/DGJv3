@@ -11,6 +11,15 @@ namespace DGJv3
     class Config
     {
 
+        [JsonProperty("ttstp")]
+        public TTSPluginType TtsType { get; set; } = TTSPluginType.InternalTTS;
+
+        [JsonProperty("ttsid")]
+        public string TtsPluginId { get; set; }
+
+        [JsonProperty("ttsEnable")]
+        public bool TTSPluginEnbale { get; set; }=false;
+
         [JsonProperty("admcmdale")]
         public bool AdminCmdEnable { get; set; }=true;
         [JsonProperty("fmtcfg")]

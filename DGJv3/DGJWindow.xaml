@@ -403,7 +403,7 @@
                         添加空闲歌单
                     </Button>
                 </StackPanel>
-                    <StackPanel Orientation="Vertical" Margin="5" Grid.Row="2">
+                <StackPanel Orientation="Vertical" Margin="5" Grid.Row="2">
                     <ComboBox ItemsSource="{Binding SearchModules.Modules}" Margin="5" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                           SelectedValue="{Binding SearchModules.PrimaryModule}" DisplayMemberPath="ModuleName"
                           materialDesign:HintAssist.Hint="首选歌曲搜索引擎"/>
@@ -919,6 +919,54 @@
                         </Grid>
                     </materialDesign:PopupBox>
                     <!-- 文本输出结束 -->
+
+                    <materialDesign:PopupBox StaysOpen="True"  PlacementMode="TopAndAlignCentres"
+                                             DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}">
+                        <materialDesign:PopupBox.ToolTip>
+                            <ToolTip Content="语音设置"></ToolTip>
+                        </materialDesign:PopupBox.ToolTip>
+                        <materialDesign:PopupBox.ToggleContent>
+                            <Grid>
+                                <materialDesign:PackIcon Width="24" Height="24" Kind="Speaker"
+                                Visibility="{Binding TTSPlugin.TTSPluginEnbale,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                                         />
+                                <materialDesign:PackIcon Width="24" Height="24" Kind="SpeakerOff"
+                                Visibility="{Binding TTSPlugin.TTSPluginEnbale,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource FalseValue}}"
+                                                         />
+                            </Grid>
+                        </materialDesign:PopupBox.ToggleContent>
+                        <Grid Margin="8" MinWidth="420">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!--TTS开关-->
+                            <StackPanel Margin="5" Grid.Row="0" Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Bullhorn"/>
+                                <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding TTSPlugin.TTSPluginEnbale}"/>
+                                <TextBlock TextAlignment="Center" VerticalAlignment="Center">开启TTS语音</TextBlock>
+                            </StackPanel>
+                            
+                            <StackPanel 
+                                Visibility="{Binding TTSPlugin.TTSPluginEnbale,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                Margin="5" Orientation="Horizontal" Grid.Row="1">
+                                <ComboBox Margin="5,0" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                        SelectedValuePath="Tag"
+                                        SelectedValue="{Binding Path=TTSPlugin.TtsType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        materialDesign:HintAssist.Hint="TT模块">
+                                    <ComboBoxItem Tag="InternalTTS" Content="Windows内置TTS"/>
+                                    <ComboBoxItem Tag="PluginTTS" Content="第三方TTS插件"/>
+                                </ComboBox>
+                                <StackPanel Orientation="Horizontal"
+                                            Visibility="{Binding TTSPlugin.TtsType,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:TTSPluginType.PluginTTS}}">
+                                    <materialDesign:PackIcon Kind="Puzzle"></materialDesign:PackIcon>
+                                    <ComboBox ItemsSource="{Binding TTSlist}" Margin="5,0" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                          SelectedValue="{Binding TTSPlugin.CurrentTTS}" DisplayMemberPath="ModuleName"
+                                          materialDesign:HintAssist.Hint="TTS发音插件"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </materialDesign:PopupBox>
 
                     <!--<Button Style="{StaticResource MaterialDesignRaisedLightButton}" Command="{Binding RefreshConfigCommand}">
                         <Grid>

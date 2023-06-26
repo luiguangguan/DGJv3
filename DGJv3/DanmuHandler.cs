@@ -1,4 +1,6 @@
 ﻿using BilibiliDM_PluginFramework;
+using DGJv3.API;
+using DGJv3.InternalModule;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -30,23 +32,24 @@ namespace DGJv3
 
         private ObservableCollection<SongInfo> Playlist;
 
+        private TTSPlugin TTSPlugin;
 
         /// <summary>
         /// 最多点歌数量
         /// </summary>
-        public uint MaxTotalSongNum { get => _maxTotalSongCount; set => SetField(ref _maxTotalSongCount, value); }
+        public uint MaxTotalSongNum { get => _maxTotalSongCount; set => SetField(ref _maxTotalSongCount, value, nameof(MaxTotalSongNum)); }
         private uint _maxTotalSongCount;
 
-        public bool AdminCmdEnable { get => _adminCmdEnable; set => SetField(ref _adminCmdEnable, value,nameof(AdminCmdEnable)); }
+        public bool AdminCmdEnable { get => _adminCmdEnable; set => SetField(ref _adminCmdEnable, value, nameof(AdminCmdEnable)); }
         private bool _adminCmdEnable;
 
         /// <summary>
         /// 每个人最多点歌数量
         /// </summary>
-        public uint MaxPersonSongNum { get => _maxPersonSongNum; set => SetField(ref _maxPersonSongNum, value); }
+        public uint MaxPersonSongNum { get => _maxPersonSongNum; set => SetField(ref _maxPersonSongNum, value, nameof(MaxPersonSongNum)); }
         private uint _maxPersonSongNum;
 
-        internal DanmuHandler(ObservableCollection<SongItem> songs, Player player, Downloader downloader, SearchModules searchModules, ObservableCollection<BlackListItem> blacklist, UIFunction uIFunction, EventSafeQueue<object> msgQueue, ObservableCollection<SongInfo> playlist)
+        internal DanmuHandler(ObservableCollection<SongItem> songs, Player player, Downloader downloader, SearchModules searchModules, ObservableCollection<BlackListItem> blacklist, UIFunction uIFunction, EventSafeQueue<object> msgQueue, ObservableCollection<SongInfo> playlist, TTSPlugin ttsPlugin)
         {
             dispatcher = Dispatcher.CurrentDispatcher;
             Songs = songs;
@@ -57,8 +60,15 @@ namespace DGJv3
             UIFunction = uIFunction;
             MsgQueue = msgQueue;
             Playlist = playlist;
+            TTSPlugin = ttsPlugin;
         }
 
+
+
+        private void Speaking(string text)
+        {
+            TTSPlugin.Speaking(text);
+        }
 
         /// <summary>
         /// 处理弹幕消息
@@ -71,7 +81,6 @@ namespace DGJv3
         {
             if (danmakuModel.MsgType != MsgTypeEnum.Comment || string.IsNullOrWhiteSpace(danmakuModel.CommentText))
                 return;
-
             string[] commands = danmakuModel.CommentText.Split(SPLIT_CHAR, StringSplitOptions.RemoveEmptyEntries);
             string rest = string.Join(" ", commands.Skip(1));
 
@@ -81,16 +90,18 @@ namespace DGJv3
                 {
                     AdminCmdEnable = true;
                     MsgQueue.Enqueue("执行管理员命令：开启");
+                    Speaking("执行管理员命令：开启");
                 }
                 else if (commands[0] == "关闭执行管理员命令" || commands[0] == "關閉執行管理員命令")
                 {
                     AdminCmdEnable = false;
                     MsgQueue.Enqueue("执行管理员命令：关闭");
+                    Speaking("执行管理员命令：关闭");
                 }
 
                 if (AdminCmdEnable == true)
                 {
-                    switch (commands[0]?.Replace(".",""))//防止敏感词
+                    switch (commands[0]?.Replace(".", ""))//防止敏感词
                     {
                         case "切歌":
                             {
@@ -103,6 +114,7 @@ namespace DGJv3
                                         Songs[0].Remove(Songs, Downloader, Player);
                                         Log("切歌成功！");
                                         MsgQueue.Enqueue("切歌成功！");
+                                        Speaking("切歌成功！");
                                     }
                                 });
 
@@ -119,18 +131,21 @@ namespace DGJv3
                             {
                                 Player.Pause();
                                 MsgQueue.Enqueue("已暂停播放");
+                                Speaking("已暂停播放");
                             }
                             return;
                         case "播放":
                             {
                                 Player.Play();
                                 MsgQueue.Enqueue("开始播放");
+                                Speaking("开始播放");
                             }
                             return;
                         case "当前音量":
                         case "當前音量":
                             {
                                 MsgQueue.Enqueue("当前音量" + Convert.ToInt32(Player.Volume * 100));
+                                Speaking("当前音量" + Convert.ToInt32(Player.Volume * 100));
                             }
                             return;
                         case "音量":
@@ -165,6 +180,7 @@ namespace DGJv3
                                 {
                                     Player.Volume = volume100 / 100f;
                                     MsgQueue.Enqueue("当前音量" + Convert.ToInt32(Player.Volume * 100));
+                                    Speaking("当前音量" + Convert.ToInt32(Player.Volume * 100));
                                 }
                             }
                             return;
@@ -174,10 +190,11 @@ namespace DGJv3
                                 {
                                     dispatcher.Invoke(() =>
                                     {
-                                        if (UIFunction.AddSongsToPlaylist(rest,danmakuModel.UserName))
+                                        if (UIFunction.AddSongsToPlaylist(rest, danmakuModel.UserName))
                                         {
                                             Log("房管添加歌曲:" + commands[1] + ",到空闲歌单成功");
                                             MsgQueue.Enqueue("房管添加歌曲:" + commands[1] + ",到空闲歌单成功");
+                                            Speaking("房管添加歌曲:" + commands[1] + ",到空闲歌单成功");
                                         }
                                     });
                                 }
@@ -193,6 +210,7 @@ namespace DGJv3
                                         {
                                             Log("房管添加歌单:" + commands[1] + ",成功");
                                             MsgQueue.Enqueue("房管添加歌单:" + commands[1] + ",成功");
+                                            Speaking("房管添加歌单:" + commands[1] + ",成功");
                                         }
                                     });
 
@@ -213,6 +231,7 @@ namespace DGJv3
                                             Songs?[num]?.Remove(Songs, Downloader, Player);
                                             Log(songName + ",加入黑名单成功");
                                             MsgQueue.Enqueue(songName + ",加入黑名单成功");
+                                            Speaking(songName + ",加入黑名单成功");
                                         });
                                     }
                                 }
@@ -239,6 +258,7 @@ namespace DGJv3
                                         {
                                             UIFunction.PlaylistRemove(index, len);
                                             MsgQueue.Enqueue("移除歌单曲目" + index + "-" + (len - 1));
+                                            Speaking("移除歌单曲目" + index + "-" + (len - 1));
                                         });
                                     }
                                     else
@@ -247,6 +267,7 @@ namespace DGJv3
                                         {
                                             UIFunction.PlaylistRemove(k1, k2);
                                             MsgQueue.Enqueue("移除歌单曲目" + k1 + " " + k2);
+                                            Speaking("移除歌单曲目" + k1 + " " + k2);
                                         });
                                     }
                                 }
@@ -257,13 +278,14 @@ namespace DGJv3
                             {
                                 Playlist.Clear();
                                 MsgQueue.Enqueue($"【{danmakuModel.UserName}】清空歌单");
+                                Speaking($"【{danmakuModel.UserName}】清空歌单");
                             }
                             return;
                         case "清空我的歌单":
                         case "清空我的歌單":
                             {
-                                var removes=Playlist.Where(x => x.User==danmakuModel.UserName).ToList();
-                                if(removes!=null)
+                                var removes = Playlist.Where(x => x.User == danmakuModel.UserName).ToList();
+                                if (removes != null)
                                 {
                                     foreach (var item in removes)
                                     {
@@ -271,6 +293,7 @@ namespace DGJv3
                                     }
                                 }
                                 MsgQueue.Enqueue($"【{danmakuModel.UserName}】清空自己的歌单");
+                                Speaking($"【{danmakuModel.UserName}】清空自己的歌单");
                             }
                             return;
                         case "播放模式":
@@ -286,6 +309,7 @@ namespace DGJv3
                                                 {
                                                     Player.SetPlayMode(PlayMode.LooptListPlay); Log("切換播放模式：列表循环，成功");
                                                     MsgQueue.Enqueue("切換播放模式：列表循环");
+                                                    Speaking("切換播放模式：列表循环");
                                                 });
 
                                             }
@@ -297,6 +321,7 @@ namespace DGJv3
                                                 {
                                                     Player.SetPlayMode(PlayMode.LoopOnetPlay); Log("切換播放模式：单曲循环，成功");
                                                     MsgQueue.Enqueue("切換播放模式：单曲循环");
+                                                    Speaking("切換播放模式：单曲循环");
                                                 });
 
                                             }
@@ -308,6 +333,7 @@ namespace DGJv3
                                                 {
                                                     Player.SetPlayMode(PlayMode.ShufflePlay); Log("切換播放模式：随机播放，成功");
                                                     MsgQueue.Enqueue("切換播放模式：随机播放");
+                                                    Speaking("切換播放模式：随机播放");
                                                 });
 
                                             }
@@ -328,12 +354,14 @@ namespace DGJv3
                                         Player.IsMute = true;
                                         Log("静音开启", null);
                                         MsgQueue.Enqueue("静音开启");
+                                        Speaking("静音开启");
                                     }
                                     else if (commands[1] == "關閉" || commands[1] == "关闭")
                                     {
                                         Player.IsMute = false;
                                         Log("静音关闭", null);
                                         MsgQueue.Enqueue("静音关闭");
+                                        Speaking("静音关闭");
                                     }
                                 }
                             }
@@ -346,6 +374,7 @@ namespace DGJv3
                                     MaxTotalSongNum = num;
                                     Log("最大点歌数:" + num, null);
                                     MsgQueue.Enqueue("设置最大点歌数:" + num);
+                                    Speaking("设置最大点歌数:" + num);
                                 }
                             }
                             return;
@@ -357,6 +386,7 @@ namespace DGJv3
                                     MaxPersonSongNum = num;
                                     Log("单人点歌数:" + num, null);
                                     MsgQueue.Enqueue("设置单人点歌数:" + num);
+                                    Speaking("设置单人点歌数:" + num);
                                 }
                             }
                             return;
@@ -370,12 +400,14 @@ namespace DGJv3
                                         Player.IsUserPrior = true;
                                         Log("用户点歌优先开启", null);
                                         MsgQueue.Enqueue("用户点歌优先开启");
+                                        Speaking("用户点歌优先开启");
                                     }
                                     else if (commands[1] == "關閉" || commands[1] == "关闭")
                                     {
                                         Player.IsUserPrior = false;
                                         Log("用户点歌优先关闭", null);
                                         MsgQueue.Enqueue("用户点歌优先关闭");
+                                        Speaking("用户点歌优先关闭");
                                     }
                                 }
                             }
@@ -390,12 +422,14 @@ namespace DGJv3
                                         Player.IsPlaylistEnabled = true;
                                         Log("静音开启", null);
                                         MsgQueue.Enqueue("静音开启");
+                                        Speaking("静音开启");
                                     }
                                     else if (commands[1] == "關閉" || commands[1] == "关闭")
                                     {
                                         Player.IsPlaylistEnabled = false;
                                         Log("静音关闭", null);
                                         MsgQueue.Enqueue("静音关闭");
+                                        Speaking("静音关闭");
                                     }
                                 }
                             }
@@ -405,11 +439,12 @@ namespace DGJv3
                             {
                                 if (commands.Length > 1)
                                 {
-                                    if (int.TryParse(commands[1], out int  votes))
+                                    if (int.TryParse(commands[1], out int votes))
                                     {
                                         Player.SkipSongVote = votes;
                                         Log($"切歌票数{votes}");
                                         MsgQueue.Enqueue($"切歌票数{votes}");
+                                        Speaking($"切歌票数{votes}");
                                     }
                                 }
                             }
@@ -455,6 +490,7 @@ namespace DGJv3
                             {
                                 songItem.Remove(Songs, Downloader, Player);
                                 MsgQueue.Enqueue("取消点歌");
+                                Speaking("取消点歌");
                             }
                         });
                     }
@@ -472,6 +508,7 @@ namespace DGJv3
                                     Songs[0].Remove(Songs, Downloader, Player);
                                     Log($"【{danmakuModel.UserName}】切歌成功！");
                                     MsgQueue.Enqueue($"【{danmakuModel.UserName}】切歌成功！");
+                                    Speaking($"【{danmakuModel.UserName}】切歌成功！");
                                 }
                             }
                         });
@@ -496,6 +533,7 @@ namespace DGJv3
                             Songs[0].Remove(Songs, Downloader, Player);
                             Log($"投票切歌成功！");
                             MsgQueue.Enqueue($"投票切歌成功！");
+                            Speaking($"投票切歌成功！");
                         }
                     }
                     return;
@@ -524,10 +562,12 @@ namespace DGJv3
                 {
                     Log($"歌曲{songInfo.Name}在黑名单中");
                     MsgQueue.Enqueue($"歌曲{songInfo.Name}在黑名单中");
+                    Speaking($"歌曲{songInfo.Name}在黑名单中");
                     return;
                 }
                 Log($"点歌成功:{songInfo.Name}");
                 MsgQueue.Enqueue($"【{danmakuModel.UserName}】点歌成功:{songInfo.Name}");
+                Speaking($"【{danmakuModel.UserName}】点歌成功:{songInfo.Name}");
                 dispatcher.Invoke(callback: () =>
                 {
                     if (CanAddSong(danmakuModel.UserName) &&

@@ -946,16 +946,21 @@
                             <!--TTS开关-->
                             <StackPanel Margin="5" Grid.Row="0" Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="Bullhorn"/>
-                                <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding TTSPlugin.TTSPluginEnbale}"/>
+                                <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding TTSPlugin.TTSPluginEnbale,Mode=TwoWay}"/>
                                 <TextBlock TextAlignment="Center" VerticalAlignment="Center">开启TTS语音</TextBlock>
-                                <TextBox Text="{Binding TTSPlugin.TestText,Mode=TwoWay}" Style="{StaticResource MaterialDesignTextBox}" 
+                                <StackPanel Margin="10,0,0,0" Orientation="Horizontal"
+                                Visibility="{Binding TTSPlugin.TTSPluginEnbale,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                            >
+                                    <TextBox Text="{Binding TTSPlugin.TestText,Mode=TwoWay}" Style="{StaticResource MaterialDesignTextBox}"
+                                          Margin="0,0,0,15" 
                                           materialDesign:HintAssist.Hint="请输入语音测试文本"/>
-                                <Button Margin="10" Command="{Binding TtsTestCommand}" VerticalAlignment="Center" Cursor="Hand"
+                                    <Button Margin="10" Command="{Binding TtsTestCommand}" VerticalAlignment="Center" Cursor="Hand"
                                         Style="{StaticResource MaterialDesignRaisedButton}">
-                                    <Grid>
-                                        <TextBlock Text="试一试"/>
-                                    </Grid>
-                                </Button>
+                                        <Grid>
+                                            <TextBlock Text="试一试"/>
+                                        </Grid>
+                                    </Button>
+                                </StackPanel>
                             </StackPanel>
                             
                             <StackPanel 
@@ -972,7 +977,7 @@
                                             Visibility="{Binding TTSPlugin.TtsType,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:TTSPluginType.PluginTTS}}">
                                     <materialDesign:PackIcon Kind="Puzzle"></materialDesign:PackIcon>
                                     <ComboBox ItemsSource="{Binding TTSlist}" Margin="5,0" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
-                                          SelectedValue="{Binding TTSPlugin.CurrentTTS}" DisplayMemberPath="ModuleName"
+                                          SelectedValue="{Binding TTSPlugin.CurrentTTS,Mode=TwoWay}" DisplayMemberPath="ModuleName"
                                           materialDesign:HintAssist.Hint="TTS发音插件"/>
                                 </StackPanel>
                             </StackPanel>

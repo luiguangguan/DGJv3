@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace DGJv3
 {
-    internal class TTSPlugin
+    internal class TTSPlugin : INotifyPropertyChanged
     {
         private PlayerConfig PlayerConfig;
         private SampleChannel sampleChannel;
@@ -24,8 +24,8 @@ namespace DGJv3
 
         public WindowsTTS WindowsTTS;
 
-        private ITTS _currentTTS;
-        public ITTS CurrentTTS { get => _currentTTS; set => SetField(ref _currentTTS, value, nameof(CurrentTTS)); }
+        private TTS _currentTTS;
+        public TTS CurrentTTS { get => _currentTTS; set => SetField(ref _currentTTS, value, nameof(CurrentTTS)); }
 
         private TTSPluginType _ttsType;
         public TTSPluginType TtsType { get => _ttsType; set => SetField(ref _ttsType, value, nameof(TtsType)); }

@@ -55,6 +55,8 @@ namespace DGJv3
 
         public TTSPlugin TTSPlugin { get; set; }
 
+        public PlayerConfig PublicPlayerConfig { get ; set; }
+
         public ObservableCollection<TTS> TTSlist { get; set; }
 
         public UniversalCommand RemoveSongCommmand { get; set; }
@@ -94,6 +96,8 @@ namespace DGJv3
         public UniversalCommand NavigatePlayingSongInPlaylistCommand { get; set; }
         public UniversalCommand MsgQueueTestCommand { get; set; }
         public UniversalCommand ClearMsgQueueCommand { get; set; }
+
+        public UniversalCommand TtsTestCommand { get; set; }
 
         public bool IsLogRedirectDanmaku { get; set; }
 
@@ -193,12 +197,13 @@ namespace DGJv3
             MsgQueue = new EventSafeQueue<object>();
             TTSlist = new ObservableCollection<TTS>();
 
-            Player = new Player(Songs, Playlist, SkipSong);
+            PublicPlayerConfig=new PlayerConfig();
+            Player = new Player(Songs, Playlist, SkipSong, PublicPlayerConfig);
             Downloader = new Downloader(Songs, SkipSong);
             SearchModules = new SearchModules();
             UIFunction = new UIFunction(Songs, Playlist, Blacklist, SkipSong, SearchModules, InfoTemplates);
-            WindowsTTS = new WindowsTTS();
-            TTSPlugin = new TTSPlugin(WindowsTTS, TTSlist);
+            WindowsTTS = new WindowsTTS(PublicPlayerConfig);
+            TTSPlugin = new TTSPlugin(WindowsTTS, TTSlist, PublicPlayerConfig);
             DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue,Playlist, TTSPlugin);
             Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates,MsgQueue);
             
@@ -386,6 +391,11 @@ namespace DGJv3
                 Writer.keepingQueue.Clear();
             });
 
+            TtsTestCommand = new UniversalCommand((x) =>
+            {
+                TTSPlugin.Speaking(TTSPlugin.TestText);
+            });
+
             //RefreshConfigCommand = new UniversalCommand((x) =>
             //{
             //    ApplyConfig(Config.Load());
@@ -494,11 +504,15 @@ namespace DGJv3
         /// <param name="config"></param>
         private void ApplyConfig(Config config)
         {
-            Player.PlayerType = config.PlayerType;
-            Player.DirectSoundDevice = config.DirectSoundDevice;
-            Player.WaveoutEventDevice = config.WaveoutEventDevice;
-            Player.Volume = config.Volume;
-            Player.Volume2 = config.Volume2;
+            //Player.PlayerType = config.PlayerType;
+            //Player.DirectSoundDevice = config.DirectSoundDevice;
+            //Player.WaveoutEventDevice = config.WaveoutEventDevice;
+            //Player.Volume = config.Volume;
+            PublicPlayerConfig.PlayerType = config.PlayerType;
+            PublicPlayerConfig.DirectSoundDevice = config.DirectSoundDevice;
+            PublicPlayerConfig.WaveoutEventDevice = config.WaveoutEventDevice;
+            PublicPlayerConfig.Volume = config.Volume;
+            Player.PlayerConfig.Volume2 = config.Volume2;
             Player.IsUserPrior = config.IsUserPrior;
             Player.IsPlaylistEnabled = config.IsPlaylistEnabled;
             Player.SkipSongVote = config.SkipSongVote;
@@ -588,12 +602,12 @@ namespace DGJv3
         /// <returns></returns>
         private Config GatherConfig() => new Config()
         {
-            PlayerType = Player.PlayerType,
-            DirectSoundDevice = Player.DirectSoundDevice,
-            WaveoutEventDevice = Player.WaveoutEventDevice,
+            PlayerType = PublicPlayerConfig.PlayerType,
+            DirectSoundDevice = PublicPlayerConfig.DirectSoundDevice,
+            WaveoutEventDevice = PublicPlayerConfig.WaveoutEventDevice,
             IsUserPrior = Player.IsUserPrior,
-            Volume = Player.Volume,
-            Volume2 = Player.Volume2,
+            Volume = PublicPlayerConfig.Volume,
+            Volume2 = Player.PlayerConfig.Volume2,
             IsPlaylistEnabled = Player.IsPlaylistEnabled,
             SkipSongVote = Player.SkipSongVote,
             PrimaryModuleId = SearchModules.PrimaryModule.UniqueId,
@@ -903,7 +917,7 @@ namespace DGJv3
         {
             if (e.ButtonState == MouseButtonState.Pressed)
             {
-                Player.IsMute = !Player.IsMute;
+                Player.PlayerConfig.IsMute = !Player.PlayerConfig.IsMute;
             }
         }
 

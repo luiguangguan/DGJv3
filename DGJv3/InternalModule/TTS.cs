@@ -43,35 +43,13 @@ namespace DGJv3.InternalModule
 
         private string uniqueId = null;
 
-        public abstract void Speaking(string text);
+        public abstract Task Speaking(string text);
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event LogEvent LogEvent;
+        public abstract event PropertyChangedEventHandler PropertyChanged;
+        public virtual event LogEvent LogEvent;
+        public abstract event SpeechCompleted SpeechCompletedToPlay;
 
         protected void Log(string message, Exception exception = null) => LogEvent?.Invoke(this, new LogEventArgs() { Message = message, Exception = exception });
-
-
-        //        private void WriteError(Exception exception, string description)
-        //        {
-        //            try
-        //            {
-        //                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        //                using (StreamWriter outfile = new StreamWriter(path + @"\TTS引擎" + ModuleName + "错误报告.txt"))
-        //                {
-        //                    //outfile.WriteLine("请将错误报告发给 " + ModuleAuthor + " 谢谢，联系方式：" + ModuleContact);
-        //                    outfile.WriteLine(description);
-        //                    outfile.WriteLine(ModuleName + " 本地时间：" + DateTime.Now.ToString());
-        //                    outfile.Write(exception.ToString());
-        //                    new Thread(() =>
-        //                    {
-        //                        System.Windows.MessageBox.Show("TTS引擎“" + ModuleName + @"”遇到了未处理的错误
-        //日志已经保存在桌面,请发给引擎作者 " + ModuleAuthor + ", 联系方式：" + ModuleContact);
-        //                    }).Start();
-        //                }
-        //            }
-        //            catch (Exception)
-        //            { }
-        //        }
 
     }
 }

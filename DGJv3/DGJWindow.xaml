@@ -414,7 +414,7 @@
             </Grid>
 
             <!-- 播放设备开始 -->
-            <Grid Grid.Row="1" Grid.Column="0" DataContext="{Binding Player}">
+            <Grid Grid.Row="1" Grid.Column="0" DataContext="{Binding PublicPlayerConfig}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="2*"/>
@@ -493,23 +493,26 @@
                     /
                     <TextBlock Width="80" Text="{Binding TotalTimeString, Mode=OneWay}" TextAlignment="Left"/>
                 </TextBlock>
-                    <Grid Name="VolumeGroup" MouseDown="VolumeGroup_MouseDown" Background="Transparent" Cursor="Hand">
-                        <Grid.ToolTip>
-                            <ToolTip Content="静音"/>
-                        </Grid.ToolTip>
-                        <materialDesign:PackIcon x:Name="PackIconVolumeHigh"
-                                             Visibility="{Binding IsMute,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource FalseValue}}"
+                    <StackPanel Orientation="Horizontal" DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}">
+                        <Grid Name="VolumeGroup" MouseDown="VolumeGroup_MouseDown" Background="Transparent" Cursor="Hand" 
+                          DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}">
+                            <Grid.ToolTip>
+                                <ToolTip Content="静音"/>
+                            </Grid.ToolTip>
+                            <materialDesign:PackIcon x:Name="PackIconVolumeHigh"
+                                             Visibility="{Binding PublicPlayerConfig.IsMute,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource FalseValue}}"
                                              Width="24" Height="24" Kind="VolumeHigh" VerticalAlignment="Center" Margin="15,10,0,0"/>
-                        <materialDesign:PackIcon x:Name="PackIconVolumeMute" 
-                                             Visibility="{Binding IsMute,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                            <materialDesign:PackIcon x:Name="PackIconVolumeMute" 
+                                             Visibility="{Binding PublicPlayerConfig.IsMute,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
                                              Width="24" Height="24" Kind="VolumeOff" VerticalAlignment="Center" Margin="15,10,0,0"/>
-                    </Grid>
-                    <Slider Style="{StaticResource MaterialDesignDiscreteSlider}" Value="{Binding Volume,Converter={StaticResource PlayerVolumeConverter}}"
+                        </Grid>
+                        <Slider Style="{StaticResource MaterialDesignDiscreteSlider}" Value="{Binding PublicPlayerConfig.Volume,Converter={StaticResource PlayerVolumeConverter}}"
                         Width="150" Orientation="Horizontal" Minimum="0" Maximum="100" LargeChange="5" VerticalAlignment="Center">
-                        <Slider.ToolTip>
-                            <ToolTip Content="{Binding Volume,Converter={StaticResource PlayerVolumeConverter}}"/>
-                        </Slider.ToolTip>
-                    </Slider>
+                            <Slider.ToolTip>
+                                <ToolTip Content="{Binding PublicPlayerConfig.Volume,Converter={StaticResource PlayerVolumeConverter}}"/>
+                            </Slider.ToolTip>
+                        </Slider>
+                    </StackPanel>
                     <!-- 设置开始 -->
                     <materialDesign:PopupBox Margin="30,0,0,0" DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}"
                                              StaysOpen="True" PlacementMode="TopAndAlignCentres">
@@ -945,6 +948,14 @@
                                 <materialDesign:PackIcon Kind="Bullhorn"/>
                                 <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding TTSPlugin.TTSPluginEnbale}"/>
                                 <TextBlock TextAlignment="Center" VerticalAlignment="Center">开启TTS语音</TextBlock>
+                                <TextBox Text="{Binding TTSPlugin.TestText,Mode=TwoWay}" Style="{StaticResource MaterialDesignTextBox}" 
+                                          materialDesign:HintAssist.Hint="请输入语音测试文本"/>
+                                <Button Margin="10" Command="{Binding TtsTestCommand}" VerticalAlignment="Center" Cursor="Hand"
+                                        Style="{StaticResource MaterialDesignRaisedButton}">
+                                    <Grid>
+                                        <TextBlock Text="试一试"/>
+                                    </Grid>
+                                </Button>
                             </StackPanel>
                             
                             <StackPanel 

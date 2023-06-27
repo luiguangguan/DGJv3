@@ -121,6 +121,7 @@
     <Compile Include="InternalModule\LwlApiNetease.cs" />
     <Compile Include="InternalModule\LwlApiTencent.cs" />
     <Compile Include="InternalModule\LwlApiXiami.cs" />
+    <Compile Include="InternalModule\SpeechCompletedEvent.cs" />
     <Compile Include="InternalModule\TTS.cs" />
     <Compile Include="IsNullToBooleanConverter.cs" />
     <Compile Include="LoginCenterAPIWarpper.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="NullSearchModule.cs" />
     <Compile Include="OutputInfo.cs" />
     <Compile Include="OutputInfoTemplate.cs" />
+    <Compile Include="PlayerConfig.cs" />
     <Compile Include="PlayMode.cs" />
     <Compile Include="PlayerVolumeConverter.cs" />
     <Compile Include="NotEqualsVisibilityConverter.cs" />

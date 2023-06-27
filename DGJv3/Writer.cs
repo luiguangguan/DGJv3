@@ -326,7 +326,7 @@ namespace DGJv3
             string 当前总时间 = Player.TotalTimeString;
             string 播放模式 = Player.CurrentPlayMode.ToString();
             string 播放模式名称 = Player.CurrentPlayMode.ToZhName();
-            string 当前音量 = Convert.ToInt32(Player.Volume * 100).ToString();
+            string 当前音量 = Convert.ToInt32(Player.PlayerConfig.Volume * 100).ToString();
             var 总共最大点歌数量 = DanmuHandler.MaxTotalSongNum;
             var 单人最大点歌数量 = DanmuHandler.MaxPersonSongNum;
 

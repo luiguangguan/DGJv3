@@ -1,4 +1,5 @@
 ﻿using BilibiliDM_PluginFramework;
+using DGJv3.InternalModule;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,11 @@ namespace DGJv3.API
 {
     public interface ITTS
 	{
-		void Speaking(string text);
+		Task Speaking(string text);
 
         string UniqueId { get; }
+
+        event SpeechCompleted SpeechCompletedToPlay;
 
     }
 }

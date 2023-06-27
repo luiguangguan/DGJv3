@@ -144,13 +144,13 @@ namespace DGJv3
                         case "当前音量":
                         case "當前音量":
                             {
-                                MsgQueue.Enqueue("当前音量" + Convert.ToInt32(Player.Volume * 100));
-                                Speaking("当前音量" + Convert.ToInt32(Player.Volume * 100));
+                                MsgQueue.Enqueue("当前音量" + Convert.ToInt32(Player.PlayerConfig.Volume * 100));
+                                Speaking("当前音量" + Convert.ToInt32(Player.PlayerConfig.Volume * 100));
                             }
                             return;
                         case "音量":
                             {
-                                int volume100 = Convert.ToInt32(Player.Volume * 100f);
+                                int volume100 = Convert.ToInt32(Player.PlayerConfig.Volume * 100f);
                                 int v = 0;
                                 if (commands.Length > 1 && int.TryParse(commands[1], out v))
                                 {
@@ -178,9 +178,9 @@ namespace DGJv3
                                 }
                                 if (volume100 >= 0 && volume100 <= 100)
                                 {
-                                    Player.Volume = volume100 / 100f;
-                                    MsgQueue.Enqueue("当前音量" + Convert.ToInt32(Player.Volume * 100));
-                                    Speaking("当前音量" + Convert.ToInt32(Player.Volume * 100));
+                                    Player.PlayerConfig.Volume = volume100 / 100f;
+                                    MsgQueue.Enqueue("当前音量" + Convert.ToInt32(Player.PlayerConfig.Volume * 100));
+                                    Speaking("当前音量" + Convert.ToInt32(Player.PlayerConfig.Volume * 100));
                                 }
                             }
                             return;
@@ -351,14 +351,14 @@ namespace DGJv3
                                 {
                                     if (commands[1] == "開啓" || commands[1] == "开启")
                                     {
-                                        Player.IsMute = true;
+                                        Player.PlayerConfig.IsMute = true;
                                         Log("静音开启", null);
                                         MsgQueue.Enqueue("静音开启");
                                         Speaking("静音开启");
                                     }
                                     else if (commands[1] == "關閉" || commands[1] == "关闭")
                                     {
-                                        Player.IsMute = false;
+                                        Player.PlayerConfig.IsMute = false;
                                         Log("静音关闭", null);
                                         MsgQueue.Enqueue("静音关闭");
                                         Speaking("静音关闭");

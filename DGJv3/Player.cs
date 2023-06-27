@@ -25,7 +25,9 @@ namespace DGJv3
 
         private ObservableCollection<SongItem> SkipSong;
 
-        private ObservableCollection<int> ShuffleList=new ObservableCollection<int>();
+        public PlayerConfig PlayerConfig { get; }
+
+        private ObservableCollection<int> ShuffleList = new ObservableCollection<int>();
 
         private DispatcherTimer newSongTimer = new DispatcherTimer(DispatcherPriority.Normal)
         {
@@ -46,23 +48,7 @@ namespace DGJv3
 
         public string LastSongId { get; set; }
 
-        /// <summary>
-        /// 播放器类型
-        /// </summary>
-        public PlayerType PlayerType { get => _playerType; set => SetField(ref _playerType, value); }
-        private PlayerType _playerType;
 
-        /// <summary>
-        /// DirectSound 设备
-        /// </summary>
-        public Guid DirectSoundDevice { get => _directSoundDevice; set => SetField(ref _directSoundDevice, value); }
-        private Guid _directSoundDevice;
-
-        /// <summary>
-        /// WaveoutEvent 设备
-        /// </summary>
-        public int WaveoutEventDevice { get => _waveoutEventDevice; set => SetField(ref _waveoutEventDevice, value); }
-        private int _waveoutEventDevice;
 
         /// <summary>
         /// 用户点歌优先
@@ -149,11 +135,11 @@ namespace DGJv3
             set
             {
                 //playMode = value;
-                SetField(ref playMode, value,nameof(CurrentPlayMode));
+                SetField(ref playMode, value, nameof(CurrentPlayMode));
                 //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPlayMode)));
             }
         }
-        private PlayMode currentPlayMode=PlayMode.LooptListPlay;
+        private PlayMode currentPlayMode = PlayMode.LooptListPlay;
 
         /// <summary>
         /// 当前歌曲播放状态
@@ -183,26 +169,7 @@ namespace DGJv3
             }
         }
 
-        /// <summary>
-        /// 播放器音量
-        /// </summary>
-        public float Volume
-        {
-            get => _volume;
-            set
-            {
-                if (sampleChannel != null)
-                {
-                    sampleChannel.Volume = value;
-                }
-                SetField(ref _volume, value, nameof(Volume));
-            }
-        }
-        private float _volume = 1f;
 
-        public float Volume2 { get; set; }
-        public bool IsMute { get => _muted; set => SetField(ref _muted, value, nameof(IsMute)); }
-        private bool _muted = false;
 
         /// <summary>
         /// 当前歌词
@@ -231,7 +198,7 @@ namespace DGJv3
         /// 切歌投票用户
         /// </summary>
         public ObservableCollection<string> SkipSongVoteUsers { get => _skipSongVoteUsers; set => SetField(ref _skipSongVoteUsers, value); }
-        private ObservableCollection<string> _skipSongVoteUsers=new ObservableCollection<string>();
+        private ObservableCollection<string> _skipSongVoteUsers = new ObservableCollection<string>();
 
         private string upcomingLyric;
 
@@ -245,7 +212,7 @@ namespace DGJv3
 
         private int currentLyricIndex = -1;
 
-        public Player(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist, ObservableCollection<SongItem> skipSongs)
+        public Player(ObservableCollection<SongItem> songs, ObservableCollection<SongInfo> playlist, ObservableCollection<SongItem> skipSongs, PlayerConfig playerConfig)
         {
             Songs = songs;
             Playlist = playlist;
@@ -256,6 +223,7 @@ namespace DGJv3
             PropertyChanged += This_PropertyChanged;
             PlayPauseCommand = new UniversalCommand((obj) => { IsPlaying ^= true; });
             NextCommand = new UniversalCommand((obj) => { Next(); });
+            PlayerConfig = playerConfig;
 
             ChangePlayModeCommand = new UniversalCommand((obj) =>
             {
@@ -271,9 +239,18 @@ namespace DGJv3
             };
             ShuffleList.CollectionChanged += (sender, e) =>
             {
-                if (ShuffleList.Count <= 0&&e.Action==System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                if (ShuffleList.Count <= 0 && e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
                 {
                     InitShuffleList();
+                }
+            };
+
+            playerConfig.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>{
+                if (e.PropertyName == nameof(PlayerConfig.Volume))
+                {
+                    //音量改变
+                    if (sampleChannel != null)
+                        sampleChannel.Volume = PlayerConfig.Volume;
                 }
             };
         }
@@ -328,35 +305,7 @@ namespace DGJv3
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TotalTimeString)));
             }
-            else if (e.PropertyName == nameof(Volume))
-            {
-                //音量变动事件
-                Player play = sender as Player;
-                float vol = play.Volume;
-
-                //记录非点击静音时的音量
-                if (play.IsMute == false)
-                    play.Volume2 = vol;
-
-                if (play.Volume > 0)
-                {
-                    play.IsMute = false;
-                }
-                else
-                {
-                    play.IsMute = true;
-                }
-            }
-            else if (e.PropertyName == nameof(IsMute))
-            {
-                //静音变动事件
-                Player play = sender as Player;
-                if (play.IsMute)
-                    play.Volume = 0;
-                else if (play.Volume == 0)
-                    play.Volume = play.Volume2;
-            }
-            else if(e.PropertyName==nameof(CurrentPlayMode))
+            else if (e.PropertyName == nameof(CurrentPlayMode))
             {
                 if (CurrentPlayMode == PlayMode.ShufflePlay)
                 {
@@ -366,7 +315,7 @@ namespace DGJv3
                     }
                 }
 
-                var remove = Songs.Where(p => p.UserName == Utilities.SparePlaylistUser&&p.Status!=SongStatus.Playing).ToArray();
+                var remove = Songs.Where(p => p.UserName == Utilities.SparePlaylistUser && p.Status != SongStatus.Playing).ToArray();
                 if (remove != null)
                 {
                     foreach (var item in remove)
@@ -503,7 +452,7 @@ namespace DGJv3
                                         //} while (index == i && Playlist.Count > 1 && cy > 1);
                                         if (ShuffleList.Count <= 0)
                                         {
-                                           InitShuffleList();
+                                            InitShuffleList();
                                         }
                                         index = ShuffleList[0];
                                         ShuffleList.RemoveAt(0);
@@ -559,11 +508,11 @@ namespace DGJv3
 
             currentSong.Status = SongStatus.Playing;
 
-            wavePlayer = CreateIWavePlayer();
+            wavePlayer = PlayerConfig.CreateIWavePlayer();
             mp3FileReader = new Mp3FileReader(currentSong.FilePath);
             sampleChannel = new SampleChannel(mp3FileReader)
             {
-                Volume = Volume
+                Volume = PlayerConfig.Volume
             };
 
             wavePlayer.PlaybackStopped += (sender, e) => UnloadSong();
@@ -636,23 +585,6 @@ namespace DGJv3
                 CurrentLyric = current,
                 UpcomingLyric = upcoming
             }));
-        }
-
-        /// <summary>
-        /// 根据当前设置初始化 IWavePlayer
-        /// </summary>
-        /// <returns></returns>
-        private IWavePlayer CreateIWavePlayer()
-        {
-            switch (PlayerType)
-            {
-                case PlayerType.WaveOutEvent:
-                    return new WaveOutEvent() { DeviceNumber = WaveoutEventDevice };
-                case PlayerType.DirectSound:
-                    return new DirectSoundOut(DirectSoundDevice);
-                default:
-                    return null;
-            }
         }
 
         /// <summary>

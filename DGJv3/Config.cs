@@ -37,8 +37,21 @@ namespace DGJv3
 
         [JsonProperty("pvol")]
         public float Volume { get; set; } = 0.5f;
+
         [JsonProperty("pvol2")]
         public float Volume2 { get; set; } = 0.5f;
+
+        [JsonProperty("ttsptyp")]
+        public PlayerType TtsPlayerType { get; set; } = PlayerType.DirectSound;
+        [JsonProperty("ttspdsd")]
+        public Guid TtsDirectSoundDevice { get; set; } = Guid.Empty;
+
+        [JsonProperty("ttspwed")]
+        public int TtsWaveoutEventDevice { get; set; } = -1;
+        [JsonProperty("ttspvol")]
+        public float TtsVolume { get; set; } = 0.5f;
+        [JsonProperty("ttspvol2")]
+        public float TtsVolume2 { get; set; } = 0.5f;
 
         [JsonProperty("pple")]
         public bool IsPlaylistEnabled { get; set; } = true;

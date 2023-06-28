@@ -145,6 +145,41 @@ namespace DGJv3
                                 ProcessCmdResult("当前音量" + Convert.ToInt32(Player.PlayerConfig.Volume * 100));
                             }
                             return;
+                        case "TTS音量":
+                            {
+                                int volume100 = Convert.ToInt32(TTSPlugin.PlayerConfig.Volume * 100f);
+                                int v = 0;
+                                if (commands.Length > 1 && int.TryParse(commands[1], out v))
+                                {
+                                    if (commands[1][0] == '+' || commands[1][0] == '-')
+                                    {
+                                        //在原有基础上加减音量
+                                        if (int.TryParse(commands[1], out v))
+                                        {
+                                            volume100 += v;
+                                            if (volume100 > 100)
+                                            {
+                                                volume100 = 100;
+                                            }
+                                            else if (volume100 < 0)
+                                            {
+                                                volume100 = 0;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //直接给定音量
+                                        volume100 = v;
+                                    }
+                                }
+                                if (volume100 >= 0 && volume100 <= 100)
+                                {
+                                    TTSPlugin.PlayerConfig.Volume = volume100 / 100f;
+                                }
+                                ProcessCmdResult("当前TTS音量" + Convert.ToInt32(TTSPlugin.PlayerConfig.Volume * 100));
+                            }
+                            return;
                         case "音量":
                             {
                                 int volume100 = Convert.ToInt32(Player.PlayerConfig.Volume * 100f);
@@ -336,6 +371,24 @@ namespace DGJv3
                                     {
                                         Player.PlayerConfig.IsMute = false;
                                         ProcessCmdResult("静音关闭");
+                                    }
+                                }
+                            }
+                            return;
+                        case "TTS静音":
+                        case "TTS靜音":
+                            {
+                                if (commands.Length > 1)
+                                {
+                                    if (commands[1] == "開啓" || commands[1] == "開啟" || commands[1] == "开启")
+                                    {
+                                        ProcessCmdResult("TTS静音开启");
+                                        TTSPlugin.PlayerConfig.IsMute = true;
+                                    }
+                                    else if (commands[1] == "關閉" || commands[1] == "关闭")
+                                    {
+                                        TTSPlugin.PlayerConfig.IsMute = false;
+                                        ProcessCmdResult("TTS静音关闭");
                                     }
                                 }
                             }

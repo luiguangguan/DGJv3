@@ -57,6 +57,8 @@ namespace DGJv3
 
         public PlayerConfig PublicPlayerConfig { get ; set; }
 
+        public PlayerConfig TtsPlayerConfig { get; set; }
+
         public ObservableCollection<TTS> TTSlist { get; set; }
 
         public UniversalCommand RemoveSongCommmand { get; set; }
@@ -197,13 +199,14 @@ namespace DGJv3
             MsgQueue = new EventSafeQueue<object>();
             TTSlist = new ObservableCollection<TTS>();
 
-            PublicPlayerConfig=new PlayerConfig();
+            PublicPlayerConfig = new PlayerConfig();
+            TtsPlayerConfig = new PlayerConfig();
             Player = new Player(Songs, Playlist, SkipSong, PublicPlayerConfig);
             Downloader = new Downloader(Songs, SkipSong);
             SearchModules = new SearchModules();
             UIFunction = new UIFunction(Songs, Playlist, Blacklist, SkipSong, SearchModules, InfoTemplates);
-            WindowsTTS = new WindowsTTS(PublicPlayerConfig);
-            TTSPlugin = new TTSPlugin(WindowsTTS, TTSlist, PublicPlayerConfig);
+            WindowsTTS = new WindowsTTS();
+            TTSPlugin = new TTSPlugin(WindowsTTS, TTSlist, TtsPlayerConfig);
             DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue,Playlist, TTSPlugin);
             Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates,MsgQueue);
             
@@ -504,15 +507,18 @@ namespace DGJv3
         /// <param name="config"></param>
         private void ApplyConfig(Config config)
         {
-            //Player.PlayerType = config.PlayerType;
-            //Player.DirectSoundDevice = config.DirectSoundDevice;
-            //Player.WaveoutEventDevice = config.WaveoutEventDevice;
-            //Player.Volume = config.Volume;
             PublicPlayerConfig.PlayerType = config.PlayerType;
             PublicPlayerConfig.DirectSoundDevice = config.DirectSoundDevice;
             PublicPlayerConfig.WaveoutEventDevice = config.WaveoutEventDevice;
             PublicPlayerConfig.Volume = config.Volume;
             Player.PlayerConfig.Volume2 = config.Volume2;
+
+            TtsPlayerConfig.PlayerType = config.TtsPlayerType;
+            TtsPlayerConfig.DirectSoundDevice = config.TtsDirectSoundDevice;
+            TtsPlayerConfig.WaveoutEventDevice = config.TtsWaveoutEventDevice;
+            TtsPlayerConfig.Volume = config.TtsVolume;
+            TtsPlayerConfig.Volume2 = config.TtsVolume2;
+
             Player.IsUserPrior = config.IsUserPrior;
             Player.IsPlaylistEnabled = config.IsPlaylistEnabled;
             Player.SkipSongVote = config.SkipSongVote;
@@ -605,9 +611,16 @@ namespace DGJv3
             PlayerType = PublicPlayerConfig.PlayerType,
             DirectSoundDevice = PublicPlayerConfig.DirectSoundDevice,
             WaveoutEventDevice = PublicPlayerConfig.WaveoutEventDevice,
-            IsUserPrior = Player.IsUserPrior,
             Volume = PublicPlayerConfig.Volume,
-            Volume2 = Player.PlayerConfig.Volume2,
+            Volume2 = PublicPlayerConfig.Volume2,
+
+            TtsPlayerType = TtsPlayerConfig.PlayerType,
+            TtsDirectSoundDevice = TtsPlayerConfig.DirectSoundDevice,
+            TtsWaveoutEventDevice = TtsPlayerConfig.WaveoutEventDevice,
+            TtsVolume = TtsPlayerConfig.Volume,
+            TtsVolume2 = TtsPlayerConfig.Volume2,
+
+            IsUserPrior = Player.IsUserPrior,
             IsPlaylistEnabled = Player.IsPlaylistEnabled,
             SkipSongVote = Player.SkipSongVote,
             PrimaryModuleId = SearchModules.PrimaryModule.UniqueId,
@@ -913,13 +926,13 @@ namespace DGJv3
             }
         }
 
-        private void VolumeGroup_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ButtonState == MouseButtonState.Pressed)
-            {
-                Player.PlayerConfig.IsMute = !Player.PlayerConfig.IsMute;
-            }
-        }
+        //private void VolumeGroup_MouseDown(object sender, MouseButtonEventArgs e)
+        //{
+        //    if (e.ButtonState == MouseButtonState.Pressed)
+        //    {
+        //        Player.PlayerConfig.IsMute = !Player.PlayerConfig.IsMute;
+        //    }
+        //}
 
     }
 }

@@ -17,7 +17,7 @@ namespace DGJv3
 {
     internal class TTSPlugin : INotifyPropertyChanged
     {
-        private PlayerConfig PlayerConfig;
+        public PlayerConfig PlayerConfig { get; }
         private SampleChannel sampleChannel;
 
         public ObservableCollection<TTS> TTSlist;

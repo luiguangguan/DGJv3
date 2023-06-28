@@ -36,6 +36,36 @@
                 <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_MouseDoubleClick" />
                 <EventSetter Event="KeyDown" Handler="ListViewItem_KeyDown" />
             </Style>
+            <Style x:Key="MaterialDesignSwitchCheckBox" TargetType="CheckBox">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="CheckBox">
+                            <!-- 自定义控件的视觉外观和交互逻辑 -->
+                            <Grid Background="Transparent" Cursor="Hand">
+                                <Grid.ToolTip>
+                                    <ToolTip Content="静音"/>
+                                </Grid.ToolTip>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <materialDesign:PackIcon x:Name="PackIconVolumeHigh"
+                                                         Grid.Column="0" Grid.Row="0"
+                                             Visibility="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent},Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource FalseValue}}"
+                                             Width="{Binding Width, RelativeSource={RelativeSource TemplatedParent}}" Height="{Binding Height, RelativeSource={RelativeSource TemplatedParent}}" Kind="VolumeHigh" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon x:Name="PackIconVolumeMute" 
+                                                         Grid.Column="0" Grid.Row="0"
+                                             Visibility="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent},Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                             Width="{Binding Width, RelativeSource={RelativeSource TemplatedParent}}" Height="{Binding Height, RelativeSource={RelativeSource TemplatedParent}}" Kind="VolumeOff" VerticalAlignment="Center"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
@@ -494,18 +524,10 @@
                     <TextBlock Width="80" Text="{Binding TotalTimeString, Mode=OneWay}" TextAlignment="Left"/>
                 </TextBlock>
                     <StackPanel Orientation="Horizontal" DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}">
-                        <Grid Name="VolumeGroup" MouseDown="VolumeGroup_MouseDown" Background="Transparent" Cursor="Hand" 
-                          DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}">
-                            <Grid.ToolTip>
-                                <ToolTip Content="静音"/>
-                            </Grid.ToolTip>
-                            <materialDesign:PackIcon x:Name="PackIconVolumeHigh"
-                                             Visibility="{Binding PublicPlayerConfig.IsMute,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource FalseValue}}"
-                                             Width="24" Height="24" Kind="VolumeHigh" VerticalAlignment="Center" Margin="15,10,0,0"/>
-                            <materialDesign:PackIcon x:Name="PackIconVolumeMute" 
-                                             Visibility="{Binding PublicPlayerConfig.IsMute,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
-                                             Width="24" Height="24" Kind="VolumeOff" VerticalAlignment="Center" Margin="15,10,0,0"/>
-                        </Grid>
+                        <CheckBox 
+                            Width="24" Height="24"
+                            IsChecked="{Binding PublicPlayerConfig.IsMute}"
+                            Style="{StaticResource MaterialDesignSwitchCheckBox}" />
                         <Slider Style="{StaticResource MaterialDesignDiscreteSlider}" Value="{Binding PublicPlayerConfig.Volume,Converter={StaticResource PlayerVolumeConverter}}"
                         Width="150" Orientation="Horizontal" Minimum="0" Maximum="100" LargeChange="5" VerticalAlignment="Center">
                             <Slider.ToolTip>
@@ -932,18 +954,19 @@
                             <Grid>
                                 <materialDesign:PackIcon Width="24" Height="24" Kind="Speaker"
                                 Visibility="{Binding TTSPlugin.TTSPluginEnbale,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
-                                                         />
+                                />
                                 <materialDesign:PackIcon Width="24" Height="24" Kind="SpeakerOff"
                                 Visibility="{Binding TTSPlugin.TTSPluginEnbale,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource FalseValue}}"
-                                                         />
+                                />
                             </Grid>
                         </materialDesign:PopupBox.ToggleContent>
                         <Grid Margin="8" MinWidth="420">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <!--TTS开关-->
+                            <!--TTS开关开始-->
                             <StackPanel Margin="5" Grid.Row="0" Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="Bullhorn"/>
                                 <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding TTSPlugin.TTSPluginEnbale,Mode=TwoWay}"/>
@@ -962,25 +985,67 @@
                                     </Button>
                                 </StackPanel>
                             </StackPanel>
-                            
-                            <StackPanel 
+                            <!--TTS开关结束-->
+
+                            <!--TTS声音设置开始-->
+                            <Grid DataContext="{Binding TtsPlayerConfig}"
                                 Visibility="{Binding TTSPlugin.TTSPluginEnbale,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
-                                Margin="5" Orientation="Horizontal" Grid.Row="1">
-                                <ComboBox Margin="5,0" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                Margin="5" Grid.Row="1">
+                                <GroupBox 
+                                          Header="TTS声音设置">
+                                    <StackPanel Orientation="Vertical">
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox 
+                                        Width="24" Height="24"
+                                        IsChecked="{Binding IsMute}"
+                                        Style="{StaticResource MaterialDesignSwitchCheckBox}" />
+                                            <Slider Style="{StaticResource MaterialDesignDiscreteSlider}" Value="{Binding Volume,Converter={StaticResource PlayerVolumeConverter}}"
+                                            Width="150" Orientation="Horizontal" Minimum="0" Maximum="100" LargeChange="5" VerticalAlignment="Center">
+                                                <Slider.ToolTip>
+                                                    <ToolTip Content="{Binding Volume,Converter={StaticResource PlayerVolumeConverter}}"/>
+                                                </Slider.ToolTip>
+                                            </Slider>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <ComboBox Width="110" ItemsSource="{Binding Source={local:Enumeration {x:Type local:PlayerType}}}"
+                          SelectedValue="{Binding PlayerType}" DisplayMemberPath="Description" SelectedValuePath="Value"
+                          materialDesign:HintAssist.Hint="播放引擎"/>
+                                            <ComboBox Width="300" materialDesign:HintAssist.Hint="WaveoutEvent 播放设备"
+                                      Visibility="{Binding PlayerType,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayerType.WaveOutEvent}}"
+                                      ItemsSource="{Binding Source={x:Static local:Utilities.WaveoutEventDevices}}"
+                                      SelectedValue="{Binding WaveoutEventDevice}" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                                            <ComboBox Grid.Row="1" Grid.Column="1" Width="300" materialDesign:HintAssist.Hint="DirectSound 播放设备"
+                                      Visibility="{Binding PlayerType,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:PlayerType.DirectSound}}"
+                                      ItemsSource="{Binding Source={x:Static naudiowave:DirectSoundOut.Devices}}"
+                                      SelectedValue="{Binding DirectSoundDevice}" DisplayMemberPath="Description" SelectedValuePath="Guid"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </Grid>
+                            <!--TTS声音设置结束-->
+                            <!--TTS模块设置开始-->
+                            <GroupBox
+                                Visibility="{Binding TTSPlugin.TTSPluginEnbale,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={StaticResource TrueValue}}"
+                                     Header="TTS模块设置" Grid.Row="2">
+                                <StackPanel 
+                                Margin="5" Orientation="Horizontal">
+                                    <ComboBox Margin="5,0" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                                         SelectedValuePath="Tag"
                                         SelectedValue="{Binding Path=TTSPlugin.TtsType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         materialDesign:HintAssist.Hint="TT模块">
-                                    <ComboBoxItem Tag="InternalTTS" Content="Windows内置TTS"/>
-                                    <ComboBoxItem Tag="PluginTTS" Content="第三方TTS插件"/>
-                                </ComboBox>
-                                <StackPanel Orientation="Horizontal"
+                                        <ComboBoxItem Tag="InternalTTS" Content="Windows内置TTS"/>
+                                        <ComboBoxItem Tag="PluginTTS" Content="第三方TTS插件"/>
+                                    </ComboBox>
+                                    <StackPanel Orientation="Horizontal"
                                             Visibility="{Binding TTSPlugin.TtsType,Mode=OneWay,Converter={StaticResource EqualsVisibilityConverter},ConverterParameter={x:Static local:TTSPluginType.PluginTTS}}">
-                                    <materialDesign:PackIcon Kind="Puzzle"></materialDesign:PackIcon>
-                                    <ComboBox ItemsSource="{Binding TTSlist}" Margin="5,0" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                        <materialDesign:PackIcon Kind="Puzzle"></materialDesign:PackIcon>
+                                        <ComboBox ItemsSource="{Binding TTSlist}" Margin="5,0" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                                           SelectedValue="{Binding TTSPlugin.CurrentTTS,Mode=TwoWay}" DisplayMemberPath="ModuleName"
                                           materialDesign:HintAssist.Hint="TTS发音插件"/>
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
+                            </GroupBox>
+                            <!--TTS模块设置结束-->
                         </Grid>
                     </materialDesign:PopupBox>
 

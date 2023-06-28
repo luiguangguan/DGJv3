@@ -20,13 +20,12 @@ namespace DGJv3
     {
         public string UniqueId => "";
 
-        internal PlayerConfig PlayerConfig { get; }
+        //internal PlayerConfig PlayerConfig { get; }
 
 
-        internal WindowsTTS(PlayerConfig playerConfig)
+        internal WindowsTTS()
         {
-            PlayerConfig = playerConfig;
-            PlayerConfig.PropertyChanged += PlayerConfig_PropertyChanged;
+            //PlayerConfig = playerConfig;
         }
 
         private void PlayerConfig_PropertyChanged(object sender, PropertyChangedEventArgs e)

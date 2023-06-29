@@ -6,6 +6,10 @@ WIP
 
 修復部分已知的bug
 
+## 微軟AI語音插件
+
+https://github.com/luiguangguan/MicrosoftTTS_DGJ_Plugin/releases
+
 ### 目前只支持網易云音樂，請配合喵塊插件使用
 
 ### 喵塊倉庫地址：https://github.com/luiguangguan/ExtendNetease_DGJModule

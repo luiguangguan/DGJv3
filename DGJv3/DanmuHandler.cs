@@ -581,7 +581,7 @@ namespace DGJv3
                         if (!Player.SkipSongVoteUsers.Contains(danmakuModel.UserName))
                         {
                             Player.SkipSongVoteUsers.Add(danmakuModel.UserName);
-                            if (Player.SkipSongVoteUsers.Count <= 0)
+                            if (Player.SkipSongVoteUsers.Count == 1)
                             {
                                 ProcessCmdResult($"【{danmakuModel.UserName}】发起切歌投票");
                             }

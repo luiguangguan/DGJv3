@@ -495,10 +495,10 @@ namespace DGJv3
             Songlist_listView.UpdateLayout();
         }
 
-        public void SetMusicModule()
-        {
-            ApplyConfig(Config.Load());
-        }
+        //public void SetMusicModule()
+        //{
+        //    ApplyConfig(Config.Load());
+        //}
 
 
         /// <summary>

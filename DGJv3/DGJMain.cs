@@ -101,7 +101,8 @@ namespace DGJv3
 
         public override void Inited()
         {
-            window.SetMusicModule();
+            base.Inited();
+            //window.SetMusicModule();
         }
 
         private static Assembly OnResolveAssembly(object sender, ResolveEventArgs args)

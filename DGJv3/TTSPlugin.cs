@@ -101,30 +101,16 @@ namespace DGJv3
 
         private void SpeechCompletedToPlay(object sender, SpeechCompletedEventArgs e)
         {
-            //IWavePlayer wavePlayer;
-            //SampleChannel sampleChannel;
-            //e.VoiceStream.Seek(0, SeekOrigin.Begin);
-
-            ////using (WaveStream waveStream = new RawSourceWaveStream(e.VoiceStream, new WaveFormat(44100,16,2)))
-            //using (WaveFileReader waveStream = new WaveFileReader(e.VoiceStream))
-            //using (wavePlayer = PlayerConfig.CreateIWavePlayer())
-            //{
-            //    //wavePlayer.PlaybackStopped += (sender, e) => { };
-            //    sampleChannel = new SampleChannel(waveStream)
-            //    {
-            //        Volume = PlayerConfig.Volume
-            //    };
-            //    wavePlayer.Init(sampleChannel);
-            //    wavePlayer.Play();
-            //    while (wavePlayer.PlaybackState == PlaybackState.Playing)
-            //    {
-            //        System.Threading.Thread.Sleep(100);
-            //    }
-            //}
             using (MemoryStream memoryStream = new MemoryStream())
             {
                 e.VoiceStream.CopyTo(memoryStream);
-                VoiceQueue.Enqueue(memoryStream.ToArray());
+                byte[] vioceData = memoryStream.ToArray();
+                if (vioceData.Length <= 0)
+                {
+                    Log("语音数据流长度为了0，请检查你的TTS应用的设置");
+                    return;
+                }
+                VoiceQueue.Enqueue(vioceData);
             }
         }
 

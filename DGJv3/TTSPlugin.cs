@@ -95,7 +95,14 @@ namespace DGJv3
             }
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
-                TTSlist[e.NewStartingIndex].SpeechCompletedToPlay += SpeechCompletedToPlay;
+                if (e.NewItems != null && e.NewItems.Count > 0)
+                {
+                    for (int i = 0; i < e.NewItems.Count; i++)
+                    {
+                        var tts = (TTS)e.NewItems[i];
+                        tts.SpeechCompletedToPlay += SpeechCompletedToPlay;
+                    }
+                }
             }
         }
 

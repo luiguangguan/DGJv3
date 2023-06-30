@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace DGJv3
@@ -21,6 +22,7 @@ namespace DGJv3
         internal SearchModules()
         {
             Modules = new ObservableCollection<SearchModule>();
+            Modules.CollectionChanged += Modules_CollectionChanged;
 
             NullModule = new NullSearchModule();
             Modules.Add(NullModule);
@@ -30,6 +32,7 @@ namespace DGJv3
             Modules.Add(new LwlApiKugou());
             Modules.Add(new LwlApiBaidu());
             Modules.Add(new LwlApiXiami());
+
 
             // TODO: 加载外置拓展
 
@@ -45,6 +48,20 @@ namespace DGJv3
 
             PrimaryModule = Modules[1];
             SecondaryModule = Modules[2];
+        }
+
+        private void Modules_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Config config = Config.Load();
+            if (config != null)
+            {
+
+                PrimaryModule = Modules.FirstOrDefault(x => x.UniqueId == config.PrimaryModuleId) ?? PrimaryModule;
+                SecondaryModule = Modules.FirstOrDefault(x => x.UniqueId == config.SecondaryModuleId) ?? SecondaryModule;
+
+                //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PrimaryModule)));
+                //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SecondaryModule)));
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

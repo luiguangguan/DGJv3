@@ -209,8 +209,11 @@ namespace DGJv3
             TTSPlugin = new TTSPlugin(WindowsTTS, TTSlist, TtsPlayerConfig);
             DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue,Playlist, TTSPlugin);
             Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates,MsgQueue);
-            
 
+            SearchModules.ModulesChanged += (obj, config)=>{
+                //当新的音乐搜索搜索模块加入时，重新读取配置中的播放列表（空闲歌单）
+                InitPlayList(config);
+            };
             UIFunction.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             Player.LogEvent += (sender, e) => { Log("播放:" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
             WindowsTTS.LogEvent += (sender, e) => { Log("" + e.Message + (e.Exception == null ? string.Empty : e.Exception.Message)); };
@@ -579,15 +582,7 @@ namespace DGJv3
                 IsLogRedirectDanmaku = false;
             }
 
-            Playlist.Clear();
-            foreach (var item in config.Playlist)
-            {
-                item.Module = SearchModules.Modules.FirstOrDefault(x => x.UniqueId == item.ModuleId);
-                if (item.Module != null)
-                {
-                    Playlist.Add(item);
-                }
-            }
+            InitPlayList(config);
 
             //Songs.Clear();
             //foreach (var item in config.BiliUserSongs)
@@ -599,6 +594,19 @@ namespace DGJv3
             foreach (var item in config.Blacklist)
             {
                 Blacklist.Add(item);
+            }
+        }
+
+        private void InitPlayList(Config config)
+        {
+            Playlist.Clear();
+            foreach (var item in config.Playlist)
+            {
+                item.Module = SearchModules.Modules.FirstOrDefault(x => x.UniqueId == item.ModuleId);
+                if (item.Module != null)
+                {
+                    Playlist.Add(item);
+                }
             }
         }
 

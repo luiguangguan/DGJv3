@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace DGJv3
 {
@@ -17,6 +18,8 @@ namespace DGJv3
 
         private SearchModule primaryModule;
         private SearchModule secondaryModule;
+
+        public event EventHandler<Config> ModulesChanged;
 
 
         internal SearchModules()
@@ -58,6 +61,8 @@ namespace DGJv3
 
                 PrimaryModule = Modules.FirstOrDefault(x => x.UniqueId == config.PrimaryModuleId) ?? PrimaryModule;
                 SecondaryModule = Modules.FirstOrDefault(x => x.UniqueId == config.SecondaryModuleId) ?? SecondaryModule;
+
+                ModulesChanged?.Invoke(this, config);
 
                 //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PrimaryModule)));
                 //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SecondaryModule)));

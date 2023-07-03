@@ -127,10 +127,11 @@ jobs:
           #prerelease: false
           tag_name: v${{ steps.get_version.outputs.version }}
           release_name: v${{ steps.get_version.outputs.version }}
-          body: |
-            Auto-generated build
-            [⭐Update⭐]
-            ${{ steps.get_update_description.outputs.update_description }}
+          # body: |
+          #   Auto-generated build
+          #   [⭐Update⭐]
+          #   ${{ steps.get_update_description.outputs.update_description }}
+          body_path: ${{ github.workspace }}/update_description.md
           draft: false
           prerelease: false
 

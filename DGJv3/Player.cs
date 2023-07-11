@@ -204,7 +204,7 @@ namespace DGJv3
 
         private IWavePlayer wavePlayer = null;
 
-        private Mp3FileReader mp3FileReader = null;
+        private AudioFileReader mp3FileReader = null;
 
         private SampleChannel sampleChannel = null;
 
@@ -509,7 +509,7 @@ namespace DGJv3
             currentSong.Status = SongStatus.Playing;
 
             wavePlayer = PlayerConfig.CreateIWavePlayer();
-            mp3FileReader = new Mp3FileReader(currentSong.FilePath);
+            mp3FileReader = new AudioFileReader(currentSong.FilePath);
             sampleChannel = new SampleChannel(mp3FileReader)
             {
                 Volume = PlayerConfig.Volume

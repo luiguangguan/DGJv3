@@ -41,7 +41,7 @@ namespace DGJv3
             return null;
         }
 
-        public override void SongDownloadFail(string song,Exception ex)
+        public override void SongDownloadFail(string songid,Exception ex)
         {
             
         }

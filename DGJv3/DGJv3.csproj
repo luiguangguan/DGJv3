@@ -121,6 +121,12 @@
     <Compile Include="InternalModule\LwlApiNetease.cs" />
     <Compile Include="InternalModule\LwlApiTencent.cs" />
     <Compile Include="InternalModule\LwlApiXiami.cs" />
+    <Compile Include="InternalModule\MusicModule\ApiBaseModule.cs" />
+    <Compile Include="InternalModule\MusicModule\ApiBiliBiliMusic.cs" />
+    <Compile Include="InternalModule\MusicModule\ApiKugou.cs" />
+    <Compile Include="InternalModule\MusicModule\ApiKuwo.cs" />
+    <Compile Include="InternalModule\MusicModule\ApiNetease.cs" />
+    <Compile Include="InternalModule\MusicModule\ApiTencent.cs" />
     <Compile Include="InternalModule\SpeechCompletedEvent.cs" />
     <Compile Include="InternalModule\TTS.cs" />
     <Compile Include="IsNullToBooleanConverter.cs" />
@@ -142,6 +148,7 @@
     <Compile Include="PlayerType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SearchModule.cs" />
+    <Compile Include="SearchModuleForUI.cs" />
     <Compile Include="SearchModules.cs" />
     <Compile Include="SongInfo.cs" />
     <Compile Include="SongItem.cs" />
@@ -172,6 +179,7 @@
   <ItemGroup>
     <None Include="BuildInfo.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterResolveReferences">
     <ItemGroup>

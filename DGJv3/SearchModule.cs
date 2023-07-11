@@ -166,6 +166,8 @@ namespace DGJv3
         [Obsolete("Use GetLyricById instead", true)]
         protected abstract string GetLyric(SongItem songInfo);
 
+        protected virtual string GetLyric(SongInfo songInfo) => GetLyricById(songInfo.Id);
+
         protected abstract string GetLyricById(string Id);
 
         internal string SafeGetLyricById(string Id)
@@ -259,7 +261,7 @@ namespace DGJv3
         /// 歌曲下载失败了
         /// </summary>
         /// <param name="song"></param>
-        public abstract void SongDownloadFail(string song,Exception ex);
+        public abstract void SongDownloadFail(string songid,Exception ex);
 
         /*
         /// <summary>

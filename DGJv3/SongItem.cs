@@ -19,8 +19,12 @@ namespace DGJv3
             Singers = songInfo.Singers;
             Lyric = (songInfo.Lyric == null) ? Lrc.NoLyric : Lrc.InitLrc(songInfo.Lyric);
             Note = songInfo.Note;
+            Info = songInfo;
 
         }
+
+        public SongInfo Info
+        { get; internal set; }
 
         /// <summary>
         /// 搜索模块名称
@@ -103,6 +107,17 @@ namespace DGJv3
         { get => _status; internal set => SetField(ref _status, value); }
 
         private SongStatus _status;
+
+        /// <summary>
+        /// 歌曲备注
+        /// </summary>
+        public IDictionary<string, string> ExtInfo
+        { get => Info.ExtInfo; }
+
+        public string GetInfo(string key)
+        {
+            return Info.GetInfo(key);
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")

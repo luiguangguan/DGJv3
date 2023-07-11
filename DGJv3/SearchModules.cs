@@ -19,6 +19,8 @@ namespace DGJv3
         private SearchModule primaryModule;
         private SearchModule secondaryModule;
 
+        private static readonly string lokcer = Guid.NewGuid().ToString();
+
         public event EventHandler<Config> ModulesChanged;
 
 
@@ -30,14 +32,11 @@ namespace DGJv3
             NullModule = new NullSearchModule();
             Modules.Add(NullModule);
 
-            Modules.Add(new LwlApiNetease());
-            Modules.Add(new LwlApiTencent());
-            Modules.Add(new LwlApiKugou());
-            Modules.Add(new LwlApiBaidu());
-            Modules.Add(new LwlApiXiami());
-
-
-            // TODO: 加载外置拓展
+            AddModule(new ApiNetease());
+            AddModule(new ApiTencent());
+            AddModule(new ApiKugou());
+            AddModule(new ApiKuwo());
+            AddModule(new ApiBiliBiliMusic());
 
             void logaction(string log)
             {
@@ -51,6 +50,14 @@ namespace DGJv3
 
             PrimaryModule = Modules[1];
             SecondaryModule = Modules[2];
+        }
+
+        public void AddModule(SearchModule module)
+        {
+            lock (lokcer)
+            {
+                Modules.Add(module);
+            }
         }
 
         private void Modules_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

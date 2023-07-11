@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace DGJv3
 {
@@ -42,13 +44,16 @@ namespace DGJv3
         [JsonProperty("note")]
         public string Note { get; set; }
 
+        [JsonProperty("extinfo")]
+        public IDictionary<string, string> ExtInfo { get; set; }
+
         [JsonConstructor]
         private SongInfo() { }
 
         public SongInfo(SearchModule module) : this(module, string.Empty, string.Empty, null) { }
         public SongInfo(SearchModule module, string id, string name, string[] singers) : this(module, id, name, singers, string.Empty) { }
-        public SongInfo(SearchModule module, string id, string name, string[] singers, string lyric) : this(module, id, name, singers, lyric, string.Empty) { }
-        public SongInfo(SearchModule module, string id, string name, string[] singers, string lyric, string note)
+        public SongInfo(SearchModule module, string id, string name, string[] singers, string lyric) : this(module, id, name, singers, lyric, string.Empty,new Dictionary<string,string>()) { }
+        public SongInfo(SearchModule module, string id, string name, string[] singers, string lyric, string note, IDictionary<string, string> info)
         {
             Module = module;
 
@@ -59,6 +64,24 @@ namespace DGJv3
             Singers = singers;
             Lyric = lyric;
             Note = note;
+            ExtInfo = info;
+        }
+        public string GetInfo(string key)
+        {
+            if (TryGetInfo(key, out string value))
+            {
+                return value;
+            }
+            return null;
+        }
+        public void SetInfo(string key, string value)
+        {
+            ExtInfo[key] = value;
+        }
+
+        public bool TryGetInfo(string key, out string value)
+        {
+            return ExtInfo.TryGetValue(key, out value);
         }
     }
 }

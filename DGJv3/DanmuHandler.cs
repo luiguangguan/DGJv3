@@ -616,8 +616,10 @@ namespace DGJv3
                         songInfo = SearchModules.SecondaryModule.SafeSearch(keyword);
 
                 if (songInfo == null)
+                {
+                        ProcessCmdResult($"【{danmakuModel.UserName}】没有找到找到歌曲");
                     return;
-
+                }
                 if (songInfo.IsInBlacklist(Blacklist))
                 {
 
@@ -626,7 +628,6 @@ namespace DGJv3
                     return;
                 }
 
-                ProcessCmdResult($"【{danmakuModel.UserName}】点歌成功:{songInfo.Name}");
 
                 dispatcher.Invoke(callback: () =>
                 {
@@ -647,6 +648,7 @@ namespace DGJv3
                             inserIndex = Songs.Count;
                         }
                         Songs.Insert(inserIndex, new SongItem(songInfo, danmakuModel.UserName));
+                        ProcessCmdResult($"【{danmakuModel.UserName}】点歌成功:{songInfo.Name}");
                     }
                 });
             }

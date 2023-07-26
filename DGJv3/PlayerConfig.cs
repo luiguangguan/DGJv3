@@ -12,7 +12,7 @@ using NAudio.Wave;
 
 namespace DGJv3
 {
-    internal class PlayerConfig : INotifyPropertyChanged
+    public class PlayerConfig : INotifyPropertyChanged
     {
         public Guid DirectSoundDevice { get => _directSoundDevice; set => SetField(ref _directSoundDevice, value); }
         private Guid _directSoundDevice;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DGJv3
 {
-    internal enum TTSPluginType
+    public enum TTSPluginType
     {
         InternalTTS=1,
         PluginTTS=2

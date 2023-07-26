@@ -15,8 +15,9 @@ using System.Threading;
 
 namespace DGJv3
 {
-    internal class TTSPlugin : INotifyPropertyChanged
+    public class TTSPlugin : INotifyPropertyChanged
     {
+        private readonly string lokcer=Guid.NewGuid().ToString();
         public PlayerConfig PlayerConfig { get; }
         private SampleChannel sampleChannel;
 
@@ -49,6 +50,14 @@ namespace DGJv3
             VoiceQueue.Enqueued += VoiceQueue_Enqueued;
             playerConfig.PropertyChanged += TTSPlugin_PropertyChanged;
 
+        }
+
+        public void AddModule(TTS tTS)
+        {
+            lock (lokcer)
+            {
+                TTSlist.Add(tTS);
+            }
         }
 
         private void TTSPlugin_PropertyChanged(object sender, PropertyChangedEventArgs e)

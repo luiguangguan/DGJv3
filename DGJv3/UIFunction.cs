@@ -63,7 +63,7 @@ namespace DGJv3
         /// </summary>
         /// <param name="keyword"></param>
         /// <returns></returns>
-        public bool AddSongsToPlaylist(string keyword,string user)
+        public bool AddSongsToPlaylist(string keyword, string user)
         {
             try
             {
@@ -104,7 +104,7 @@ namespace DGJv3
         /// <param name="keyword"></param>
         /// <returns></returns>
 
-        public bool AddPlaylist(string keyword,string user)
+        public bool AddPlaylist(string keyword, string user)
         {
             try
             {
@@ -123,7 +123,7 @@ namespace DGJv3
                     {
                         foreach (var item in songInfoList)
                         {
-                            if (Playlist.Any(p => p.Id==item.Id&&item.Name==item.Name&&p.ModuleId==item.ModuleId)==false)
+                            if (Playlist.Any(p => p.Id == item.Id && item.Name == item.Name && p.ModuleId == item.ModuleId) == false)
                             {
                                 item.User = user;
                                 Playlist.Add(item);
@@ -174,6 +174,19 @@ namespace DGJv3
             }
             return true;
         }
+        public bool PlaylistRemoveById(string songid, string moduleid)
+        {
+            var removeList = Playlist.Where(p => p.Id == songid && p.ModuleId == moduleid).ToList();
+            if (removeList != null)
+            {
+                for (int i = 0; i < removeList.Count; i++)
+                {
+                    PlaylistRemove(removeList[i]);
+
+                }
+            }
+            return true;
+        }
         public bool PlaylistRemove(SongInfo song)
         {
             if (Playlist != null && Playlist.Count > 0)
@@ -185,7 +198,7 @@ namespace DGJv3
             startIndex--;
             if (startIndex > -1 && startIndex < Playlist.Count)
             {
-                for (int i = startIndex + len-1; i >= startIndex && i > -1; i--)
+                for (int i = startIndex + len - 1; i >= startIndex && i > -1; i--)
                 {
                     Playlist.RemoveAt(i);
                 }

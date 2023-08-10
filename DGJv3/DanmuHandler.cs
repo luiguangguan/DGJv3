@@ -7,8 +7,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Security;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace DGJv3
@@ -34,6 +38,103 @@ namespace DGJv3
         private ObservableCollection<SongInfo> Playlist;
 
         private TTSPlugin TTSPlugin;
+
+        private static Dictionary<string, SongOrder> SongOrders = new Dictionary<string, SongOrder>();
+        private static Task orderSongTask;
+        private static int SongOrderTimeout = 3;
+        private static string loker = Guid.NewGuid().ToString();
+
+        class SongOrder
+        {
+            public string SongName { get; set; }
+
+            public DateTime OrderTime { get; set; }
+
+            public bool RemoveAllow { get; set; }
+        }
+
+        private void OrderSong(string biliUser, string songName, bool newSong)
+        {
+            try
+            {
+                if (SongOrders.ContainsKey(biliUser))
+                {
+                    if (newSong)
+                    {
+                        SongOrders[biliUser].OrderTime = DateTime.Now;
+                        SongOrders[biliUser].RemoveAllow = false;
+                        SongOrders[biliUser].SongName = songName;
+                    }
+                    else
+                    {
+                        SongOrders[biliUser].SongName = SongOrders[biliUser].SongName.Trim('*') + songName;
+                    }
+                }
+                else
+                {
+                    SongOrders.Add(biliUser, new SongOrder());
+                    SongOrders[biliUser].OrderTime = DateTime.Now;
+                    SongOrders[biliUser].RemoveAllow = false;
+                    SongOrders[biliUser].SongName = songName;
+                }
+                ProcessSongOrder();
+            }
+            catch (Exception ex)
+            {
+                Log("长歌名点歌时出错", ex);
+            }
+        }
+
+        private void ProcessSongOrder()
+        {
+            lock (loker)
+            {
+                if (orderSongTask != null && orderSongTask.Status == TaskStatus.Running)
+                {
+                    return;
+                }
+            }
+            orderSongTask = Task.Run(() =>
+            {
+                while (SongOrders?.Count > 0)
+                {
+                    try
+                    {
+                        foreach (var songOrder in SongOrders)
+                        {
+                            if ((DateTime.Now - songOrder.Value.OrderTime).TotalMinutes <= SongOrderTimeout)
+                            {
+                                if (songOrder.Value.SongName?.LastIndexOf('*') != songOrder.Value.SongName?.Length - 1)
+                                {
+                                    DanmuAddSong(songOrder.Key, songOrder.Value.SongName);
+                                    songOrder.Value.RemoveAllow = true;
+                                }
+                            }
+                            else
+                            {
+                                songOrder.Value.RemoveAllow = true;
+                            }
+                        }
+                        var allowRemovelist = SongOrders.Where(p => p.Value.RemoveAllow).Select(songOrder => songOrder.Key).ToList();
+                        if (allowRemovelist?.Count > 0)
+                        {
+                            foreach (var item in allowRemovelist)
+                            {
+                                SongOrders.Remove(item);
+                            }
+                        }
+                        if (SongOrders?.Count > 0)
+                        {
+                            Thread.Sleep(500);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log("长歌名点歌线程出错", ex);
+                    }
+                }
+            });
+        }
 
         /// <summary>
         /// 最多点歌数量
@@ -294,6 +395,19 @@ namespace DGJv3
                                 }
                             }
                             return;
+                        case "移除歌曲":
+                            {
+                                if (Songs?.Count > 0)
+                                {
+                                    dispatcher.Invoke(() =>
+                                    {
+                                        string songName = Songs[0].SongName;
+                                        UIFunction.PlaylistRemoveById(Songs[0].SongId, Songs[0].Module.UniqueId);
+                                        ProcessCmdResult("移除歌单曲目：" + songName);
+                                    });
+                                }
+                            }
+                            return;
                         case "清空歌单":
                         case "清空歌單":
                             {
@@ -527,6 +641,11 @@ namespace DGJv3
                 case "点歌":
                 case "點歌":
                     {
+                        if (rest?[rest.Length - 1] == '*')
+                        {
+                            OrderSong(danmakuModel.UserName, rest, true);
+                            return;
+                        }
                         DanmuAddSong(danmakuModel, rest);
                     }
                     return;
@@ -598,13 +717,25 @@ namespace DGJv3
                     }
                     return;
                 default:
+                    {
+                        if (SongOrders.ContainsKey(danmakuModel.UserName))
+                        {
+                            OrderSong(danmakuModel.UserName, danmakuModel.CommentText, false);
+                            return;
+                        }
+                    }
                     break;
             }
         }
 
         private void DanmuAddSong(DanmakuModel danmakuModel, string keyword)
         {
-            if (dispatcher.Invoke(callback: () => CanAddSong(username: danmakuModel.UserName)))
+            DanmuAddSong(danmakuModel.UserName, keyword);
+        }
+
+        private void DanmuAddSong(string UserName, string keyword)
+        {
+            if (dispatcher.Invoke(callback: () => CanAddSong(username: UserName)))
             {
                 SongInfo songInfo = null;
 
@@ -617,7 +748,7 @@ namespace DGJv3
 
                 if (songInfo == null)
                 {
-                        ProcessCmdResult($"【{danmakuModel.UserName}】没有找到找到歌曲");
+                    ProcessCmdResult($"【{UserName}】没有找到找到歌曲");
                     return;
                 }
                 if (songInfo.IsInBlacklist(Blacklist))
@@ -631,7 +762,7 @@ namespace DGJv3
 
                 dispatcher.Invoke(callback: () =>
                 {
-                    if (CanAddSong(danmakuModel.UserName) &&
+                    if (CanAddSong(UserName) &&
                         !Songs.Any(x =>
                             x.SongId == songInfo.Id &&
                             x.Module.UniqueId == songInfo.Module.UniqueId)
@@ -647,13 +778,12 @@ namespace DGJv3
                         {
                             inserIndex = Songs.Count;
                         }
-                        Songs.Insert(inserIndex, new SongItem(songInfo, danmakuModel.UserName));
-                        ProcessCmdResult($"【{danmakuModel.UserName}】点歌成功:{songInfo.Name}");
+                        Songs.Insert(inserIndex, new SongItem(songInfo, UserName));
+                        ProcessCmdResult($"【{UserName}】点歌成功:{songInfo.Name}");
                     }
                 });
             }
         }
-
         /// <summary>
         /// 能否点歌
         /// <para>

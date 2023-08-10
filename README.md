@@ -18,6 +18,8 @@ https://github.com/luiguangguan/MicrosoftTTS_DGJ_Plugin/releases
 
 ## 点歌姬插件的使用
 
+### 首先需要安裝彈幕姬 https://github.com/luiguangguan/bililive_dm
+
 ![image](https://github.com/luiguangguan/DGJv3/assets/20753694/19ae6cf6-696b-4664-aeb3-d258cc275edd)
 
 ### 打开插件目录，将下载的点歌姬插件复制到目录中，重启弹幕姬即可加载目录中的点歌姬插件

@@ -4,25 +4,16 @@ WIP
 
 原倉庫地址 https://github.com/Bililive/DGJv3
 
-修復部分已知的bug
-
-## 微軟AI語音插件
-
-https://github.com/luiguangguan/MicrosoftTTS_DGJ_Plugin/releases
-
-### 目前只支持網易云音樂，請配合喵塊插件使用
-
-### 喵塊倉庫地址：https://github.com/luiguangguan/ExtendNetease_DGJModule
-
-后面会使用github的Action自动发布
 
 ## 点歌姬插件的使用
 
-### 首先需要安裝彈幕姬 https://github.com/luiguangguan/bililive_dm
+### 首先需要安裝 彈幕姬 https://github.com/copyliu/bililive_dm
 
 ![image](https://github.com/luiguangguan/DGJv3/assets/20753694/19ae6cf6-696b-4664-aeb3-d258cc275edd)
 
 ### 打开插件目录，将下载的点歌姬插件复制到目录中，重启弹幕姬即可加载目录中的点歌姬插件
+
+下载[点歌姬](https://github.com/luiguangguan/DGJv3/releases)插件
 
 ### 填写好直播间地址的 直播间ID
 
@@ -34,7 +25,7 @@ https://github.com/luiguangguan/MicrosoftTTS_DGJ_Plugin/releases
 
 ![image](https://github.com/luiguangguan/DGJv3/assets/20753694/b8d0f684-3e5d-4454-a197-a82a08ecdfe8)
 
-### 使用【管理】菜单打开点歌姬主界面
+### 使用右键菜单【管理】打开点歌姬主界面
 
 ![image](https://github.com/luiguangguan/DGJv3/assets/20753694/a3f2e01c-fbcc-4b84-aebc-a56890cc8bf4)
 
@@ -42,3 +33,14 @@ https://github.com/luiguangguan/MicrosoftTTS_DGJ_Plugin/releases
 
 ### 引擎插件需要按上面的提到的方法加载到弹幕姬中才可以使用
 
+### 目前只支持網易云音樂，請配合喵塊插件使用
+
+下载[本地网易云喵块](https://github.com/luiguangguan/ExtendNetease_DGJModule/releases)插件
+
+## 联合 微软AI语音插件
+
+### 我们还可以使用TTS插件，使用微软的AI播报点歌情况
+
+下载[微软AI语音](https://github.com/luiguangguan/MicrosoftTTS_DGJ_Plugin/releases)插件
+
+后面会使用github的Action自动发布

@@ -8,7 +8,7 @@ using System.Net.Http;
 
 namespace DGJv3
 {
-    class VersionChecker
+    public class VersionChecker
     {
         #region -- 常量 --
 

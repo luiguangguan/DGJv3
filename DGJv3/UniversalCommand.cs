@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace DGJv3
 {
-    internal class UniversalCommand : ICommand
+    public class UniversalCommand : ICommand
     {
         private Func<object, bool> _canExecute = null;
 

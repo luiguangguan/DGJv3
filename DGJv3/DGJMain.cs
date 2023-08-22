@@ -87,11 +87,14 @@ namespace DGJv3
             window.Activate();
             if (string.IsNullOrEmpty(DownloadUpdateUrl) == false)
             {
-                if (MessageBox.Show("点歌姬发现新版本，是否前往下载", "版本更新", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes) == MessageBoxResult.Yes)
-                {
-                    Process.Start(versionChecker.UpdatePage.AbsoluteUri);
-                }
+                //if (MessageBox.Show("点歌姬发现新版本，是否前往下载", "版本更新", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes) == MessageBoxResult.Yes)
+                //{
+                //    Process.Start(versionChecker.UpdatePage.AbsoluteUri);
+                //}
                 DownloadUpdateUrl = "";
+                Update update = new Update(versionChecker);
+                update.Title = "版本更新";
+                update.ShowDialog();
             }
 
 

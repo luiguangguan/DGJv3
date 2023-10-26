@@ -105,6 +105,15 @@ namespace DGJv3
         [JsonProperty("skpsgvot")]
         public int SkipSongVote { get; set; } = 3;
 
+        [JsonProperty("blockUsers")]
+        public string BlockUsers { get; set; }
+
+        /// <summary>
+        /// 房间管理员
+        /// </summary>
+        [JsonProperty("roomAdmines")]
+        public string RoomAdmines { get; set; }
+
         [JsonProperty("ift")]
         public Dictionary<string, OutputInfo> InfoTemplates { get; set; } = new Dictionary<string, OutputInfo>();
 

@@ -151,6 +151,18 @@ namespace DGJv3
         public uint MaxPersonSongNum { get => _maxPersonSongNum; set => SetField(ref _maxPersonSongNum, value, nameof(MaxPersonSongNum)); }
         private uint _maxPersonSongNum;
 
+        /// <summary>
+        /// 点歌黑名单
+        /// </summary>
+        public string BlockUsers { get => _BlockUsers; set => SetField(ref _BlockUsers, value, nameof(BlockUsers)); }
+        private string _BlockUsers;
+
+        /// <summary>
+        /// 房间管理员
+        /// </summary>
+        public string RoomAdmines { get => _RoomAdmines; set => SetField(ref _RoomAdmines, value, nameof(RoomAdmines)); }
+        private string _RoomAdmines;
+
         internal DanmuHandler(ObservableCollection<SongItem> songs, Player player, Downloader downloader, SearchModules searchModules, ObservableCollection<BlackListItem> blacklist, UIFunction uIFunction, EventSafeQueue<object> msgQueue, ObservableCollection<SongInfo> playlist, TTSPlugin ttsPlugin)
         {
             dispatcher = Dispatcher.CurrentDispatcher;
@@ -192,7 +204,8 @@ namespace DGJv3
                 return;
             string[] commands = danmakuModel.CommentText.Split(SPLIT_CHAR, StringSplitOptions.RemoveEmptyEntries);
             string rest = string.Join(" ", commands.Skip(1));
-            if (danmakuModel.isAdmin)
+            //if (danmakuModel.isAdmin)
+            if (RoomAdmines != null && RoomAdmines.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).ToList().Contains(danmakuModel.UserName))
             {
                 if (commands[0] == "开启执行管理员命令" || commands[0] == "開啓執行管理員命令" || commands[0] == "開啟執行管理員命令")
                 {
@@ -641,6 +654,11 @@ namespace DGJv3
                 case "点歌":
                 case "點歌":
                     {
+                        if (BlockUsers != null && BlockUsers.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).ToList().Contains(danmakuModel.UserName))
+                        {
+                            Log($"用户【{danmakuModel.UserName}】已被加入黑名单，禁止点歌");
+                            return;
+                        }
                         if (rest?[rest.Length - 1] == '*')
                         {
                             OrderSong(danmakuModel.UserName, rest, true);

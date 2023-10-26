@@ -548,6 +548,9 @@ namespace DGJv3
             Player.CurrentPlayMode = config.CurrentPlayMode;
             Player.LastSongId = config.LastSongId;
 
+            DanmuHandler.BlockUsers = config.BlockUsers;
+            DanmuHandler.RoomAdmines = config.RoomAdmines;
+
             InfoTemplates.Clear();//清空集合
             if (config.InfoTemplates != null)
             {
@@ -656,6 +659,8 @@ namespace DGJv3
             TtsType= TTSPlugin.TtsType,
             TTSPluginEnbale = TTSPlugin.TTSPluginEnbale,
             //BiliUserSongs = Songs.Where(p => p.UserName != Utilities.SparePlaylistUser).ToArray(),
+            BlockUsers= DanmuHandler?.BlockUsers,
+            RoomAdmines = DanmuHandler?.RoomAdmines,
         };
 
         /// <summary>

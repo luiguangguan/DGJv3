@@ -1048,7 +1048,55 @@
                             <!--TTS模块设置结束-->
                         </Grid>
                     </materialDesign:PopupBox>
-
+                    <!--TTS设置结束-->
+                    <!--房管名单开始-->
+                    <materialDesign:PopupBox StaysOpen="True"  PlacementMode="TopAndAlignCentres"
+                                             DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}">
+                        <materialDesign:PopupBox.ToolTip>
+                            <ToolTip Content="房管名单"></ToolTip>
+                        </materialDesign:PopupBox.ToolTip>
+                        <materialDesign:PopupBox.ToggleContent>
+                            <Grid>
+                                <materialDesign:PackIcon Width="24" Height="24" Kind="AccountKey"/>
+                            </Grid>
+                        </materialDesign:PopupBox.ToggleContent>
+                        <Grid Margin="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBox Text="{Binding DanmuHandler.RoomAdmines,Mode=TwoWay,Delay=150,UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="0"
+                                      Style="{StaticResource MaterialDesignTextAreaTextBox}" materialDesign:HintAssist.Hint="房管名单，一个用户独占一行"
+                                     TextWrapping="Wrap" AcceptsReturn="True"></TextBox>
+                        </Grid>
+                    </materialDesign:PopupBox>
+                    <!--房管名单结束-->
+                    <!--点歌黑名单开始-->
+                    <materialDesign:PopupBox StaysOpen="True"  PlacementMode="TopAndAlignCentres"
+                                             DataContext="{Binding ElementName=DGJRootWindow,Path=DataContext}">
+                        <materialDesign:PopupBox.ToolTip>
+                            <ToolTip Content="点歌用户黑名单"></ToolTip>
+                        </materialDesign:PopupBox.ToolTip>
+                        <materialDesign:PopupBox.ToggleContent>
+                            <Grid>
+                                <materialDesign:PackIcon Width="24" Height="24" Kind="AccountOff"/>
+                            </Grid>
+                        </materialDesign:PopupBox.ToggleContent>
+                        <Grid Margin="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBox Text="{Binding DanmuHandler.BlockUsers,Mode=TwoWay,Delay=150,UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="0"
+                                      Style="{StaticResource MaterialDesignTextAreaTextBox}" materialDesign:HintAssist.Hint="点歌用户黑名单，一个用户独占一行"
+                                     TextWrapping="Wrap" AcceptsReturn="True"></TextBox>
+                        </Grid>
+                    </materialDesign:PopupBox>
+                    <!--点歌黑名单结束-->
                     <!--<Button Style="{StaticResource MaterialDesignRaisedLightButton}" Command="{Binding RefreshConfigCommand}">
                         <Grid>
                             <materialDesign:PackIcon Width="24" Height="24" Kind="Refresh"/>

@@ -55,7 +55,7 @@ namespace DGJv3
 
         public TTSPlugin TTSPlugin { get; set; }
 
-        public PlayerConfig PublicPlayerConfig { get ; set; }
+        public PlayerConfig PublicPlayerConfig { get; set; }
 
         public PlayerConfig TtsPlayerConfig { get; set; }
 
@@ -64,6 +64,8 @@ namespace DGJv3
         public UniversalCommand RemoveSongCommmand { get; set; }
 
         public UniversalCommand RemoveAndBlacklistSongCommand { get; set; }
+
+        public UniversalCommand RemoveAndAddUserBlacklistCommand { get; set; }
 
         public UniversalCommand RemovePlaylistInfoCommmand { get; set; }
 
@@ -207,10 +209,11 @@ namespace DGJv3
             UIFunction = new UIFunction(Songs, Playlist, Blacklist, SkipSong, SearchModules, InfoTemplates);
             WindowsTTS = new WindowsTTS();
             TTSPlugin = new TTSPlugin(WindowsTTS, TTSlist, TtsPlayerConfig);
-            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue,Playlist, TTSPlugin);
-            Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates,MsgQueue);
+            DanmuHandler = new DanmuHandler(Songs, Player, Downloader, SearchModules, Blacklist, UIFunction, MsgQueue, Playlist, TTSPlugin);
+            Writer = new Writer(Songs, Playlist, Player, DanmuHandler, InfoTemplates, MsgQueue);
 
-            SearchModules.ModulesChanged += (obj, config)=>{
+            SearchModules.ModulesChanged += (obj, config) =>
+            {
                 //当新的音乐搜索搜索模块加入时，重新读取配置中的播放列表（空闲歌单）
                 InitPlayList(config);
             };
@@ -230,7 +233,7 @@ namespace DGJv3
                 {
                     for (int i = 0; i < Playlist.Count; i++)
                     {
-                        if (songs[0].SongId == Playlist[i].Id&& songs[0].Module.UniqueId == Playlist[i].ModuleId)
+                        if (songs[0].SongId == Playlist[i].Id && songs[0].Module.UniqueId == Playlist[i].ModuleId)
                         {
                             index = i;
                         }
@@ -269,6 +272,17 @@ namespace DGJv3
                 }
             });
 
+            RemoveAndAddUserBlacklistCommand = new UniversalCommand((songobj) =>
+            {
+                if (songobj != null && songobj is SongItem songItem)
+                {
+                    if (songItem.UserName != Utilities.SparePlaylistUser && !string.IsNullOrEmpty(songItem.UserName))
+                    {
+                        DanmuHandler.BlockUsers += "\n" + songItem.UserName;
+                    }
+                    songItem.Remove(Songs, Downloader, Player);
+                }
+            });
 
             PlaySongInPlaylistCommmand = new UniversalCommand((songobj) =>
             {
@@ -295,63 +309,72 @@ namespace DGJv3
                 Playlist.Clear();
             });
 
-            PlayListCopyArtistCommand = new UniversalCommand((songobj) => {
+            PlayListCopyArtistCommand = new UniversalCommand((songobj) =>
+            {
                 if (songobj != null && songobj is SongInfo songInfo)
                 {
                     CopyText(songInfo.SingersText);
                 }
             });
 
-            PlayListCopyMusicCommand = new UniversalCommand((songobj) => {
+            PlayListCopyMusicCommand = new UniversalCommand((songobj) =>
+            {
                 if (songobj != null && songobj is SongInfo songInfo)
                 {
                     CopyText(songInfo.Name);
                 }
             });
 
-            PlayListCopyLyricsCommand = new UniversalCommand((songobj) => {
+            PlayListCopyLyricsCommand = new UniversalCommand((songobj) =>
+            {
                 if (songobj != null && songobj is SongInfo songInfo)
                 {
                     CopyText(songInfo.Lyric);
                 }
             });
 
-            PlayListCopyUserNameCommand = new UniversalCommand((songobj) => {
+            PlayListCopyUserNameCommand = new UniversalCommand((songobj) =>
+            {
                 if (songobj != null && songobj is SongInfo songInfo)
                 {
                     CopyText(songInfo.User);
                 }
             });
 
-            SongsCopyArtistCommand = new UniversalCommand((songobj) => {
+            SongsCopyArtistCommand = new UniversalCommand((songobj) =>
+            {
                 if (songobj != null && songobj is SongItem songInfo)
                 {
                     CopyText(songInfo.SingersText);
                 }
             });
 
-            SongsCopyMusicCommand = new UniversalCommand((songobj) => {
+            SongsCopyMusicCommand = new UniversalCommand((songobj) =>
+            {
                 if (songobj != null && songobj is SongItem songInfo)
                 {
                     CopyText(songInfo.SongName);
                 }
             });
 
-            SongsCopyLyricsCommand = new UniversalCommand((songobj) => {
+            SongsCopyLyricsCommand = new UniversalCommand((songobj) =>
+            {
                 if (songobj != null && songobj is SongItem songInfo)
                 {
                     CopyText(songInfo.Lyric.ToString());
                 }
             });
 
-            SongsCopyUserNameCommand = new UniversalCommand((songobj) => {
+            SongsCopyUserNameCommand = new UniversalCommand((songobj) =>
+            {
                 if (songobj != null && songobj is SongItem songInfo)
                 {
                     CopyText(songInfo.UserName);
                 }
             });
 
-            CopyTextBlockCommand = new UniversalCommand((e) => {
+            CopyTextBlockCommand = new UniversalCommand((e) =>
+            {
                 if (e != null && e is string)
                 {
                     CopyText(e as string);
@@ -387,7 +410,8 @@ namespace DGJv3
                 NavigatePlayingSongInPlaylist();
             });
 
-            MsgQueueTestCommand = new UniversalCommand((x) => {
+            MsgQueueTestCommand = new UniversalCommand((x) =>
+            {
                 Writer.MsgQueue.Enqueue(Writer.MsgQueueTestText);
             });
 
@@ -559,7 +583,7 @@ namespace DGJv3
                     InfoTemplates.Add(new OutputInfoTemplate() { Key = key, Value = config.InfoTemplates[key] });
                 }
             }
-            if (config.InfoTemplates == null || config.InfoTemplates.Count == 0 )
+            if (config.InfoTemplates == null || config.InfoTemplates.Count == 0)
             {
                 //兼容之前的逻辑
                 InfoTemplates.Add(new OutputInfoTemplate() { Key = "初始模板.txt", Value = new OutputInfo() { Content = new Config().ScribanTemplate, IsEnable = false } });
@@ -656,10 +680,10 @@ namespace DGJv3
             InfoTemplates = InfoTemplates.ToDictionary(p => p.Key, p => p.Value),
             AdminCmdEnable = DanmuHandler.AdminCmdEnable,
             TtsPluginId = TTSPlugin.CurrentTTS?.UniqueId,
-            TtsType= TTSPlugin.TtsType,
+            TtsType = TTSPlugin.TtsType,
             TTSPluginEnbale = TTSPlugin.TTSPluginEnbale,
             //BiliUserSongs = Songs.Where(p => p.UserName != Utilities.SparePlaylistUser).ToArray(),
-            BlockUsers= DanmuHandler?.BlockUsers,
+            BlockUsers = DanmuHandler?.BlockUsers,
             RoomAdmines = DanmuHandler?.RoomAdmines,
         };
 
@@ -765,7 +789,7 @@ namespace DGJv3
             if (eventArgs.Parameter.Equals(true) && !string.IsNullOrWhiteSpace(AddSongPlaylistTextBox.Text))
             {
                 var keyword = AddSongPlaylistTextBox.Text;
-                if (UIFunction.AddSongsToPlaylist(keyword,Utilities.SparePlaylistUser) == false)
+                if (UIFunction.AddSongsToPlaylist(keyword, Utilities.SparePlaylistUser) == false)
                 {
                     return;
                 }
@@ -786,7 +810,7 @@ namespace DGJv3
             if (eventArgs.Parameter.Equals(true) && !string.IsNullOrWhiteSpace(AddPlaylistTextBox.Text))
             {
                 var keyword = AddPlaylistTextBox.Text;
-                if (UIFunction.AddPlaylist(keyword,Utilities.SparePlaylistUser) == false)
+                if (UIFunction.AddPlaylist(keyword, Utilities.SparePlaylistUser) == false)
                 {
                     return;
                 }
@@ -819,7 +843,7 @@ namespace DGJv3
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            
+
             e.Cancel = true;
             Hide();
             try

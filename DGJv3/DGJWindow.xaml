@@ -108,6 +108,12 @@
                                     <materialDesign:PackIcon Kind="BlockHelper"></materialDesign:PackIcon>
                                 </MenuItem.Icon>
                             </MenuItem>
+                            <MenuItem Header="移除并拉黑点歌人" Command="{Binding  RemoveAndAddUserBlacklistCommand}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="AccountOff"></materialDesign:PackIcon>
+                                </MenuItem.Icon>
+                            </MenuItem>
                             <MenuItem Header="复制">
                                 <MenuItem.Icon>
                                     <materialDesign:PackIcon Kind="ContentCopy"></materialDesign:PackIcon>
